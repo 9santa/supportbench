@@ -1,0 +1,41 @@
+[build-system]
+requires = ["uv-build>=0.11.30,<0.12"] # uv docs advise to include an upper bound
+build-backend = "uv_build"
+
+[project]
+name = "supportbench"
+version = "0.1.0"
+description = "IT support retrieval and agent benchmark"
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [
+    { name = "9santa"}
+]
+dependencies = [
+    "numpy",
+    "torch"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
