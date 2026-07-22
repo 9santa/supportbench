@@ -1,0 +1,3 @@
+{"doc_id":"vpn_ubuntu","title":"Настройка VPN на Ubuntu","text":"Для подключения к корпоративному VPN установите пакет OpenVPN...","category":"network"}
+{"doc_id":"vpn_windows","title":"Настройка VPN на Windows","text":"Откройте корпоративный портал и скачайте VPN-клиент...","category":"network"}
+{"doc_id":"gitlab_2fa","title":"Восстановление доступа к GitLab","text":"При потере устройства двухфакторной аутентификации необходимо...","category":"access"}
