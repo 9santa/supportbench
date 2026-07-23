@@ -55,6 +55,9 @@ class InvertedIndex:
         for document in documents:
             doc_id = document.doc_id
 
+            if not doc_id.strip():
+                raise ValueError("document id must be non-empty")
+
             if doc_id in doc_lens:
                 raise ValueError(f"duplicate document id: {doc_id!r}")
 
@@ -77,7 +80,15 @@ class InvertedIndex:
 
     @property
     def terms(self) -> tuple[str, ...]:
-        return tuple(self._postings)
+        return tuple(sorted(self._postings))
+
+    @property
+    def document_ids(self) -> tuple[str, ...]:
+        return tuple(self._doc_lens)
+
+    @property
+    def document_count(self) -> int:
+        return len(self._doc_lens)
 
     def term_frequency(self, term: str, doc_id: str) -> int:
         """Returns count of the term in document doc_id"""

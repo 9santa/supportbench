@@ -163,3 +163,43 @@ def test_multi_token_or_empty_term_is_rejected(index: InvertedIndex, term: str) 
 def test_avg_document_length_is_correct(index: InvertedIndex) -> None:
     # Doc lengths in the fixture corpus are: 8, 7, 6 tokens
     assert index.statistics.avg_doc_len == pytest.approx(7.0)
+
+
+def test_document_ids_are_available(index: InvertedIndex) -> None:
+    assert index.document_ids == (
+        "vpn_linux",
+        "vpn_windows",
+        "gitlab_2fa",
+    )
+
+
+def test_document_ids_cannot_modify_index(index: InvertedIndex) -> None:
+    document_ids = index.document_ids
+    modified_document_ids = document_ids + ("fake_document",)
+
+    assert isinstance(document_ids, tuple)
+    assert "fake_document" in modified_document_ids
+    assert "fake_document" not in document_ids
+
+
+def test_terms_are_available(index: InvertedIndex) -> None:
+    assert "vpn" in index.terms
+    assert "gitlab" in index.terms
+    assert isinstance(index.terms, tuple)
+
+
+def test_empty_document_id_is_rejected() -> None:
+    documents = [
+        Document(
+            doc_id="   ",
+            title="VPN",
+            text="Настройка VPN",
+            category="network",
+        ),
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="document id must be non-empty",
+    ):
+        InvertedIndex.build(documents)
