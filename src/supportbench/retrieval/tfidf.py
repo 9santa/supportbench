@@ -1,5 +1,5 @@
 from collections import Counter, defaultdict
-from math import sqrt, log
+from math import log, sqrt
 
 from supportbench.retrieval.base import SearchResult
 from supportbench.retrieval.inverted_index import InvertedIndex
