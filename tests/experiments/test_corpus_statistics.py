@@ -1,7 +1,7 @@
 import pytest
 
-from supportbench.data.models import Document
 from supportbench.data.corpus_statistics import compute_full_corpus_statistics
+from supportbench.data.models import Document
 from supportbench.retrieval.inverted_index import InvertedIndex
 
 
@@ -15,8 +15,8 @@ def test_computes_document_length_statistics() -> None:
     assert lengths.minimum == 2
     assert lengths.median == 4.0
     assert lengths.mean == pytest.approx(10 / 3)
-    # 2 + 0.8 * (4-2) = 3.6
-    assert lengths.p90 == pytest.approx(3.6)
+    # 4 + 0.8 * (4-4) = 4
+    assert lengths.p90 == pytest.approx(4)
     assert lengths.maximum == 4
     assert lengths.standard_deviation == pytest.approx(0.9428090416)
     assert lengths.coefficient_of_variation == pytest.approx(0.2828427125)

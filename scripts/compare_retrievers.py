@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Literal, cast
 
 from scripts.evaluate_retrieval import select_queries
-from supportbench import data
 from supportbench.data.loaders import (
     load_documents,
     load_queries,
@@ -15,15 +14,13 @@ from supportbench.evaluation.retrieval_analysis import (
     compare_evaluation_results,
 )
 from supportbench.evaluation.retrieval_evaluator import (
-    QueryEvaluation,
     RetrievalEvaluationResult,
     evaluate_retriever,
 )
 from supportbench.retrieval.base import Retriever
 from supportbench.retrieval.bm25 import BM25Retriever
-from supportbench.retrieval.tfidf import TfidfRetriever
 from supportbench.retrieval.inverted_index import InvertedIndex
-
+from supportbench.retrieval.tfidf import TfidfRetriever
 
 type RetrieverName = Literal["tfidf", "bm25"]
 

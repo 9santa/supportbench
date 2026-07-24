@@ -16,6 +16,7 @@ class QueryEvaluation:
     query: str
     relevant_doc_ids: tuple[str, ...]
     retrieved_doc_ids: tuple[str, ...]
+    scores: tuple[float, ...]
     recall_at_1: float
     recall_at_3: float
     recall_at_5: float
@@ -76,6 +77,8 @@ def evaluate_retriever(
 
         retrieved_doc_ids = [result.doc_id for result in results]
 
+        scores = [result.score for result in results]
+
         recall_1 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=1)
         recall_3 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=3)
         recall_5 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=5)
@@ -87,6 +90,7 @@ def evaluate_retriever(
                 query=query.query,
                 relevant_doc_ids=tuple(sorted(relevant_doc_ds)),
                 retrieved_doc_ids=tuple(retrieved_doc_ids),
+                scores=tuple(scores),
                 recall_at_1=recall_1,
                 recall_at_3=recall_3,
                 recall_at_5=recall_5,
