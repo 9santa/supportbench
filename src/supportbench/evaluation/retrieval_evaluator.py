@@ -124,8 +124,8 @@ def evaluate_retriever(
 
 def _mean(values: Iterable[float]) -> float:
     # No list to save memory
-    total = 0
-    count = 0
+    total: float = 0.0
+    count: int = 0
     for v in values:
         count += 1
         total += v

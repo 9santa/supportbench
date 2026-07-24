@@ -1,0 +1,73 @@
+b:
+  - name: b_0_00
+    k1: 1.5
+    b: 0.0
+    split: dev
+    top_k: 5
+
+  - name: b_0_25
+    k1: 1.5
+    b: 0.25
+    split: dev
+    top_k: 5
+
+  - name: b_0_50
+    k1: 1.5
+    b: 0.5
+    split: dev
+    top_k: 5
+
+  - name: b_0_75
+    k1: 1.5
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: b_1_00
+    k1: 1.5
+    b: 1.0
+    split: dev
+    top_k: 5
+
+k1:
+  - name: k1_0_2
+    k1: 0.2
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_0_5
+    k1: 0.5
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_0_8
+    k1: 0.8
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_1_2
+    k1: 1.2
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_1_5
+    k1: 1.5
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_2_0
+    k1: 2.0
+    b: 0.75
+    split: dev
+    top_k: 5
+
+  - name: k1_3_0
+    k1: 3.0
+    b: 0.75
+    split: dev
+    top_k: 5

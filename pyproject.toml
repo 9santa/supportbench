@@ -13,7 +13,8 @@ authors = [
 ]
 dependencies = [
     "numpy",
-    "torch"
+    "torch",
+    "PyYAML",
 ]
 
 [project.optional-dependencies]
