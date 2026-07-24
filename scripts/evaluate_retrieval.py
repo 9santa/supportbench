@@ -8,7 +8,9 @@ from supportbench.data.loaders import (
     load_queries,
 )
 from supportbench.data.models import QueryExample
+from supportbench.evaluation.retrieval_analysis import failures_at_k
 from supportbench.evaluation.retrieval_evaluator import (
+    QueryEvaluation,
     RetrievalEvaluationResult,
     evaluate_retriever,
 )
@@ -22,7 +24,7 @@ type RetrieverName = Literal["tfidf", "bm25"]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
-DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "benchmark" / "queries_test.jsonl"
+DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "benchmark" / "queries_dev.jsonl"
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,6 +33,9 @@ class CliArguments:
     split: str
     documents_path: Path
     queries_path: Path
+    top_k: int
+    show_errors: bool
+    failure_k: int
 
 
 def parse_args() -> CliArguments:
@@ -45,8 +50,8 @@ def parse_args() -> CliArguments:
     )
     parser.add_argument(
         "--split",
-        default="test",
-        help="query split to evaluate (default: test)",
+        default="dev",
+        help="query split to evaluate (default: dev)",
     )
     parser.add_argument(
         "--documents",
@@ -61,7 +66,36 @@ def parse_args() -> CliArguments:
         help=(f"path to queries.jsonl (default: {DEFAULT_QUERIES_PATH})"),
     )
 
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=5,
+        help=("number of retrieved documents per query (default: 5)"),
+    )
+
+    parser.add_argument(
+        "--show-errors",
+        action="store_true",
+        help="show queries with no relevant document in top-k",
+    )
+
+    parser.add_argument(
+        "--failure-k",
+        type=int,
+        choices=(1, 3, 5),
+        default=3,
+        help=("cutoff used to classify retrieval failures (default: 3)"),
+    )
+
     args = parser.parse_args()
+    top_k = cast(int, args.top_k)
+    failure_k = cast(int, args.failure_k)
+
+    if top_k < 5:
+        parser.error("--top-k must be at least 5 to compute Recall@5")
+
+    if failure_k > top_k:
+        parser.error("--failure-k must not be greater than --top-k")
 
     return CliArguments(
         retriever=cast(
@@ -71,6 +105,9 @@ def parse_args() -> CliArguments:
         split=cast(str, args.split),
         documents_path=cast(Path, args.documents),
         queries_path=cast(Path, args.queries),
+        top_k=top_k,
+        show_errors=cast(bool, args.show_errors),
+        failure_k=failure_k,
     )
 
 
@@ -111,6 +148,28 @@ def print_evaluation(
     print(f"MRR:      {result.mrr:.4f}")
 
 
+def print_failures(
+    failures: tuple[QueryEvaluation, ...],
+    *,
+    failure_k: int,
+) -> None:
+    print()
+    print(f"Failures: {len(failures)} (no relevant document in top {failure_k})")
+
+    for failure in failures:
+        print()
+        print(f"[FAIL] {failure.query_id}")
+        print(f"Query: {failure.query}")
+        print("Relevant: " + ", ".join(failure.relevant_doc_ids))
+
+        print("Retrieved:")
+        if not failure.retrieved_doc_ids:
+            print("  No results.")
+
+        for rank, doc_id in enumerate(failure.retrieved_doc_ids, start=1):
+            print(f"  {rank}. {doc_id}")
+
+
 def main() -> None:
     args = parse_args()
 
@@ -133,16 +192,28 @@ def main() -> None:
         index,
     )
 
-    result = evaluate_retriever(
+    evaluation = evaluate_retriever(
         retriever,
         selected_queries,
+        top_k=args.top_k,
     )
 
     print_evaluation(
         retriever_name=args.retriever,
         split=args.split,
-        result=result,
+        result=evaluation,
     )
+
+    if args.show_errors:
+        failures = failures_at_k(
+            evaluation,
+            k=args.failure_k,
+        )
+
+        print_failures(
+            failures,
+            failure_k=args.failure_k,
+        )
 
 
 if __name__ == "__main__":

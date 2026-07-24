@@ -1,0 +1,500 @@
+Retrievers: tfidf, bm25
+Split: dev
+Failure cutoff: top 3
+
+Aggregate metrics:
+
+Retriever     Recall@1  Recall@3  Recall@5       MRR
+tfidf           0.3400    0.7825    0.9600    0.5907
+bm25            0.3525    0.8025    0.9525    0.6005
+
+Per-query differences:
+
+[BM25 BETTER] q0001
+Query: как настроить vpn на ubuntu
+Relevant: vpn_ubuntu_setup
+TFIDF rank: 2
+BM25 rank: 1
+
+[TFIDF BETTER] q0003
+Query: не работает vpn на ubuntu
+Relevant: vpn_ubuntu_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[ALL FAILED@3] q0004
+Query: подключение зависает что проверить
+Relevant: vpn_ubuntu_troubleshooting
+TFIDF: software_install_recovery, vpn_ubuntu_recovery, printer_office_recovery, docker_registry_recovery, vpn_ubuntu_troubleshooting
+BM25: printer_office_recovery, software_install_recovery, vpn_ubuntu_recovery, vpn_ubuntu_troubleshooting, printer_office_troubleshooting
+
+[ALL FAILED@3] q0005
+Query: как восстановить vpn на ubuntu после сбоя
+Relevant: vpn_ubuntu_recovery
+TFIDF: vpn_ubuntu_setup, vpn_ubuntu_troubleshooting, vpn_ubuntu_faq, shared_folder_recovery, vpn_ubuntu_recovery
+BM25: vpn_ubuntu_setup, vpn_ubuntu_faq, vpn_ubuntu_troubleshooting, vpn_ubuntu_recovery, shared_folder_recovery
+
+[ALL FAILED@3] q0006
+Query: потеряна конфигурация vpn ubuntu
+Relevant: vpn_ubuntu_recovery
+TFIDF: vpn_ubuntu_troubleshooting, vpn_ubuntu_setup, vpn_ubuntu_faq, vpn_ubuntu_recovery, vpn_windows_setup
+BM25: vpn_ubuntu_setup, vpn_ubuntu_troubleshooting, vpn_ubuntu_faq, vpn_ubuntu_recovery, vpn_windows_setup
+
+[TFIDF BETTER] q0008
+Query: что запрещено при работе с vpn ubuntu
+Relevant: vpn_ubuntu_faq
+TFIDF rank: 3
+BM25 rank: 4
+
+[TFIDF BETTER] q0010
+Query: первичное подключение vpn windows
+Relevant: vpn_windows_setup
+TFIDF rank: 1
+BM25 rank: 2
+
+[TFIDF BETTER] q0011
+Query: не работает vpn на windows
+Relevant: vpn_windows_troubleshooting
+TFIDF rank: 2
+BM25 rank: 3
+
+[TFIDF BETTER] q0012
+Query: клиент сообщает об ошибке аутентификации что проверить
+Relevant: vpn_windows_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[BM25 BETTER] q0013
+Query: как восстановить vpn на windows после сбоя
+Relevant: vpn_windows_recovery
+TFIDF rank: 4
+BM25 rank: 3
+
+[ALL FAILED@3] q0014
+Query: потеряна конфигурация vpn windows
+Relevant: vpn_windows_recovery
+TFIDF: vpn_windows_setup, vpn_windows_troubleshooting, vpn_windows_faq, vpn_windows_recovery, vpn_macos_setup
+BM25: vpn_windows_setup, vpn_windows_troubleshooting, vpn_windows_faq, vpn_windows_recovery, vpn_macos_setup
+
+[BM25 BETTER] q0015
+Query: правила использования vpn на windows
+Relevant: vpn_windows_faq
+TFIDF rank: 2
+BM25 rank: 1
+
+[BM25 BETTER] q0018
+Query: первичное подключение vpn macos
+Relevant: vpn_macos_setup
+TFIDF rank: 3
+BM25 rank: 2
+
+[BM25 BETTER] q0021
+Query: как восстановить vpn на macos после сбоя
+Relevant: vpn_macos_recovery
+TFIDF rank: 4
+BM25 rank: 2
+
+[ALL FAILED@3] q0022
+Query: потеряна конфигурация vpn macos
+Relevant: vpn_macos_recovery
+TFIDF: vpn_macos_troubleshooting, vpn_macos_faq, vpn_macos_setup, vpn_macos_recovery, zoom_screen_setup
+BM25: vpn_macos_troubleshooting, vpn_macos_setup, vpn_macos_faq, vpn_macos_recovery, zoom_screen_setup
+
+[TFIDF BETTER] q0024
+Query: что запрещено при работе с vpn macos
+Relevant: vpn_macos_faq
+TFIDF rank: 3
+BM25 rank: 4
+
+[ALL FAILED@3] q0029
+Query: как восстановить корпоративный wi-fi после сбоя
+Relevant: wifi_office_recovery
+TFIDF: wifi_office_setup, wifi_office_faq, wifi_office_troubleshooting, wifi_office_recovery, shared_folder_recovery
+BM25: wifi_office_setup, wifi_office_faq, wifi_office_troubleshooting, wifi_office_recovery, shared_folder_recovery
+
+[BM25 BETTER] q0031
+Query: правила использования корпоративный wi-fi
+Relevant: wifi_office_faq
+TFIDF rank: 2
+BM25 rank: 1
+
+[BM25 BETTER] q0035
+Query: не работает внутренний dns
+Relevant: dns_internal_troubleshooting
+TFIDF rank: 4
+BM25 rank: 3
+
+[BM25 BETTER] q0037
+Query: как восстановить внутренний dns после сбоя
+Relevant: dns_internal_recovery
+TFIDF rank: 3
+BM25 rank: 1
+
+[ALL FAILED@3] q0038
+Query: потеряна конфигурация dns nslookup
+Relevant: dns_internal_recovery
+TFIDF: dns_internal_setup, dns_internal_troubleshooting, dns_internal_faq, dns_internal_recovery, vpn_ubuntu_troubleshooting
+BM25: dns_internal_setup, dns_internal_troubleshooting, dns_internal_faq, dns_internal_recovery, vpn_ubuntu_troubleshooting
+
+[BM25 BETTER] q0045
+Query: как восстановить корпоративный proxy после сбоя
+Relevant: proxy_browser_recovery
+TFIDF rank: 3
+BM25 rank: 1
+
+[ALL FAILED@3] q0048
+Query: что запрещено при работе с proxy pac
+Relevant: proxy_browser_faq
+TFIDF: proxy_browser_setup, proxy_browser_troubleshooting, proxy_browser_recovery, proxy_browser_faq, antivirus_alert_faq
+BM25: proxy_browser_recovery, proxy_browser_setup, proxy_browser_troubleshooting, proxy_browser_faq, password_reset_recovery
+
+[TFIDF BETTER] q0052
+Query: одноразовый код не принимается что проверить
+Relevant: gitlab_2fa_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[ALL FAILED@3] q0056
+Query: что запрещено при работе с gitlab 2fa
+Relevant: gitlab_2fa_faq
+TFIDF: gitlab_2fa_setup, gitlab_2fa_recovery, gitlab_2fa_troubleshooting, antivirus_alert_faq, gitlab_2fa_faq
+BM25: gitlab_2fa_setup, gitlab_2fa_recovery, gitlab_2fa_troubleshooting, password_reset_recovery, gitlab_2fa_faq
+
+[BM25 BETTER] q0061
+Query: как восстановить сброс корпоративного пароля после сбоя
+Relevant: password_reset_recovery
+TFIDF rank: 4
+BM25 rank: 3
+
+[ALL FAILED@3] q0062
+Query: потеряна конфигурация пароль сброс
+Relevant: password_reset_recovery
+TFIDF: password_reset_troubleshooting, password_reset_setup, password_reset_faq, password_reset_recovery, vpn_macos_setup
+BM25: password_reset_troubleshooting, password_reset_setup, password_reset_faq, password_reset_recovery, vpn_macos_setup
+
+[TFIDF BETTER] q0064
+Query: что запрещено при работе с пароль сброс
+Relevant: password_reset_faq
+TFIDF rank: 3
+BM25 rank: 4
+
+[BM25 BETTER] q0065
+Query: как настроить ssh-ключи
+Relevant: ssh_keys_setup
+TFIDF rank: 3
+BM25 rank: 2
+
+[TFIDF BETTER] q0067
+Query: не работает ssh-ключи
+Relevant: ssh_keys_troubleshooting
+TFIDF rank: 2
+BM25 rank: 3
+
+[BM25 BETTER] q0069
+Query: как восстановить ssh-ключи после сбоя
+Relevant: ssh_keys_recovery
+TFIDF rank: 4
+BM25 rank: 2
+
+[ALL FAILED@3] q0072
+Query: что запрещено при работе с ssh ключ
+Relevant: ssh_keys_faq
+TFIDF: ssh_keys_setup, ssh_keys_recovery, ssh_keys_troubleshooting, ssh_keys_faq, antivirus_alert_faq
+BM25: ssh_keys_recovery, ssh_keys_setup, ssh_keys_troubleshooting, ssh_keys_faq, bitlocker_recovery_recovery
+
+[BM25 BETTER] q0073
+Query: как настроить корневой сертификат компании
+Relevant: corporate_ca_setup
+TFIDF rank: 3
+BM25 rank: 2
+
+[BM25 BETTER] q0074
+Query: первичное подключение сертификат ca
+Relevant: corporate_ca_setup
+TFIDF rank: 2
+BM25 rank: 1
+
+[TFIDF BETTER] q0075
+Query: не работает корневой сертификат компании
+Relevant: corporate_ca_troubleshooting
+TFIDF rank: 2
+BM25 rank: 3
+
+[BM25 BETTER] q0077
+Query: как восстановить корневой сертификат компании после сбоя
+Relevant: corporate_ca_recovery
+TFIDF rank: 3
+BM25 rank: 2
+
+[ALL FAILED@3] q0078
+Query: потеряна конфигурация сертификат ca
+Relevant: corporate_ca_recovery
+TFIDF: corporate_ca_troubleshooting, corporate_ca_setup, docker_registry_troubleshooting, docker_registry_recovery, docker_registry_faq
+BM25: corporate_ca_setup, corporate_ca_troubleshooting, docker_registry_troubleshooting, docker_registry_faq, docker_registry_recovery
+
+[BM25 BETTER] q0085
+Query: как восстановить профиль outlook после сбоя
+Relevant: outlook_profile_recovery
+TFIDF rank: 2
+BM25 rank: 1
+
+[TFIDF BETTER] q0086
+Query: потеряна конфигурация outlook почта
+Relevant: outlook_profile_recovery
+TFIDF rank: 3
+BM25 rank: 4
+
+[BM25 BETTER] q0087
+Query: правила использования профиль outlook
+Relevant: outlook_profile_faq
+TFIDF rank: 3
+BM25 rank: 1
+
+[ALL FAILED@3] q0088
+Query: что запрещено при работе с outlook почта
+Relevant: outlook_profile_faq
+TFIDF: outlook_profile_setup, outlook_profile_troubleshooting, outlook_profile_recovery, outlook_profile_faq, antivirus_alert_faq
+BM25: outlook_profile_setup, outlook_profile_troubleshooting, outlook_profile_recovery, mailbox_quota_setup, mailbox_quota_troubleshooting
+
+[ALL FAILED@3] q0094
+Query: потеряна конфигурация почта квота
+Relevant: mailbox_quota_recovery
+TFIDF: mailbox_quota_setup, mailbox_quota_troubleshooting, mailbox_quota_faq, outlook_profile_setup, outlook_profile_troubleshooting
+BM25: mailbox_quota_setup, mailbox_quota_troubleshooting, mailbox_quota_faq, outlook_profile_setup, outlook_profile_troubleshooting
+
+[TFIDF BETTER] q0096
+Query: что запрещено при работе с почта квота
+Relevant: mailbox_quota_faq
+TFIDF rank: 3
+BM25 rank: 4
+
+[TFIDF BETTER] q0100
+Query: собеседники не слышат пользователя что проверить
+Relevant: teams_audio_setup, teams_audio_troubleshooting
+TFIDF rank: 2
+BM25 rank: 3
+
+[BM25 BETTER] q0101
+Query: как восстановить звук в microsoft teams после сбоя
+Relevant: teams_audio_recovery
+TFIDF rank: 4
+BM25 rank: 3
+
+[ALL FAILED@3] q0104
+Query: что запрещено при работе с teams микрофон
+Relevant: teams_audio_faq
+TFIDF: teams_audio_setup, teams_audio_recovery, teams_audio_troubleshooting, antivirus_alert_faq, teams_audio_faq
+BM25: teams_audio_setup, teams_audio_recovery, teams_audio_troubleshooting, password_reset_recovery, teams_audio_faq
+
+[ALL FAILED@3] q0107
+Query: не работает демонстрация экрана в zoom
+Relevant: zoom_screen_troubleshooting
+TFIDF: zoom_screen_setup, zoom_screen_faq, zoom_screen_recovery, zoom_screen_troubleshooting, browser_cache_recovery
+BM25: zoom_screen_faq, zoom_screen_setup, zoom_screen_recovery, zoom_screen_troubleshooting, browser_cache_troubleshooting
+
+[BM25 BETTER] q0111
+Query: правила использования демонстрация экрана в zoom
+Relevant: zoom_screen_faq
+TFIDF rank: 2
+BM25 rank: 1
+
+[BM25 BETTER] q0112
+Query: что запрещено при работе с zoom экран
+Relevant: zoom_screen_faq
+TFIDF rank: 4
+BM25 rank: 1
+
+[BM25 BETTER] q0115
+Query: не работает офисный принтер
+Relevant: printer_office_troubleshooting
+TFIDF rank: 4
+BM25 rank: 3
+
+[BM25 BETTER] q0117
+Query: как восстановить офисный принтер после сбоя
+Relevant: printer_office_recovery
+TFIDF rank: 2
+BM25 rank: 1
+
+[TFIDF BETTER] q0118
+Query: потеряна конфигурация принтер печать
+Relevant: printer_office_recovery
+TFIDF rank: 3
+BM25 rank: 4
+
+[ALL FAILED@3] q0123
+Query: не работает восстановление bitlocker
+Relevant: bitlocker_recovery_troubleshooting
+TFIDF: bitlocker_recovery_setup, bitlocker_recovery_recovery, bitlocker_recovery_faq, bitlocker_recovery_troubleshooting, browser_cache_recovery
+BM25: bitlocker_recovery_setup, bitlocker_recovery_recovery, bitlocker_recovery_faq, bitlocker_recovery_troubleshooting, browser_cache_recovery
+
+[ALL FAILED@3] q0128
+Query: что запрещено при работе с bitlocker recovery key
+Relevant: bitlocker_recovery_faq
+TFIDF: bitlocker_recovery_setup, bitlocker_recovery_recovery, bitlocker_recovery_troubleshooting, bitlocker_recovery_faq, gitlab_2fa_recovery
+BM25: bitlocker_recovery_setup, bitlocker_recovery_recovery, bitlocker_recovery_troubleshooting, gitlab_2fa_recovery, gitlab_2fa_setup
+
+[ALL FAILED@3] q0134
+Query: потеряна конфигурация антивирус malware
+Relevant: antivirus_alert_recovery
+TFIDF: antivirus_alert_troubleshooting, antivirus_alert_setup, antivirus_alert_faq, antivirus_alert_recovery
+BM25: antivirus_alert_troubleshooting, antivirus_alert_setup, antivirus_alert_faq, antivirus_alert_recovery
+
+[TFIDF BETTER] q0140
+Query: установка зависает что проверить
+Relevant: software_install_setup, software_install_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[BM25 BETTER] q0141
+Query: как восстановить установка корпоративного по после сбоя
+Relevant: software_install_recovery
+TFIDF rank: 3
+BM25 rank: 2
+
+[ALL FAILED@3] q0144
+Query: что запрещено при работе с установка software center
+Relevant: software_install_faq
+TFIDF: software_install_setup, software_install_troubleshooting, software_install_recovery, software_install_faq, antivirus_alert_faq
+BM25: software_install_setup, software_install_recovery, software_install_troubleshooting, software_install_faq, password_reset_recovery
+
+[BM25 BETTER] q0145
+Query: как настроить запрос прав доступа
+Relevant: access_request_setup
+TFIDF rank: 3
+BM25 rank: 2
+
+[TFIDF BETTER] q0147
+Query: не работает запрос прав доступа
+Relevant: access_request_troubleshooting
+TFIDF rank: 2
+BM25 rank: 3
+
+[TFIDF BETTER] q0148
+Query: заявка согласована что проверить
+Relevant: access_request_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[TFIDF BETTER] q0149
+Query: как восстановить запрос прав доступа после сбоя
+Relevant: access_request_recovery
+TFIDF rank: 2
+BM25 rank: 3
+
+[ALL FAILED@3] q0152
+Query: что запрещено при работе с доступ роль
+Relevant: access_request_faq
+TFIDF: access_request_setup, access_request_troubleshooting, antivirus_alert_faq, access_request_recovery, kubernetes_access_recovery
+BM25: access_request_setup, access_request_recovery, access_request_troubleshooting, kubernetes_access_recovery, password_reset_recovery
+
+[TFIDF BETTER] q0156
+Query: папка не открывается что проверить
+Relevant: shared_folder_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[ALL FAILED@3] q0168
+Query: что запрещено при работе с rdp remote desktop
+Relevant: remote_desktop_faq
+TFIDF: remote_desktop_setup, remote_desktop_troubleshooting, remote_desktop_recovery, remote_desktop_faq, antivirus_alert_faq
+BM25: remote_desktop_troubleshooting, remote_desktop_setup, remote_desktop_recovery, remote_desktop_faq, password_reset_recovery
+
+[TFIDF BETTER] q0172
+Query: файл удалён что проверить
+Relevant: backup_restore_troubleshooting
+TFIDF rank: 1
+BM25 rank: 2
+
+[ALL FAILED@3] q0174
+Query: потеряна конфигурация backup резервная копия
+Relevant: backup_restore_recovery
+TFIDF: backup_restore_setup, backup_restore_troubleshooting
+BM25: backup_restore_setup, backup_restore_troubleshooting
+
+[ALL FAILED@3] q0176
+Query: что запрещено при работе с backup резервная копия
+Relevant: backup_restore_faq
+TFIDF: backup_restore_setup, backup_restore_troubleshooting, antivirus_alert_faq, password_reset_recovery, mailbox_quota_recovery
+BM25: backup_restore_setup, backup_restore_troubleshooting, password_reset_recovery, mailbox_quota_recovery, antivirus_alert_faq
+
+[TFIDF BETTER] q0177
+Query: как настроить кэш и cookies браузера
+Relevant: browser_cache_setup
+TFIDF rank: 1
+BM25 rank: 2
+
+[BM25 BETTER] q0181
+Query: как восстановить кэш и cookies браузера после сбоя
+Relevant: browser_cache_recovery
+TFIDF rank: 4
+BM25 rank: 3
+
+[ALL FAILED@3] q0182
+Query: потеряна конфигурация браузер cache
+Relevant: browser_cache_recovery
+TFIDF: browser_cache_setup, browser_cache_troubleshooting, proxy_browser_troubleshooting, browser_cache_recovery, browser_cache_faq
+BM25: browser_cache_setup, browser_cache_troubleshooting, proxy_browser_troubleshooting, browser_cache_faq, browser_cache_recovery
+
+[ALL FAILED@3] q0184
+Query: что запрещено при работе с браузер cache
+Relevant: browser_cache_faq
+TFIDF: browser_cache_setup, browser_cache_troubleshooting, antivirus_alert_faq, browser_cache_recovery, proxy_browser_troubleshooting
+BM25: browser_cache_setup, browser_cache_troubleshooting, browser_cache_recovery, proxy_browser_recovery, corporate_ca_recovery
+
+[TFIDF BETTER] q0185
+Query: как настроить доступ к docker registry
+Relevant: docker_registry_setup
+TFIDF rank: 1
+BM25 rank: 2
+
+[TFIDF BETTER] q0189
+Query: как восстановить доступ к docker registry после сбоя
+Relevant: docker_registry_recovery
+TFIDF rank: 2
+BM25 rank: 3
+
+[BM25 BETTER] q0191
+Query: правила использования доступ к docker registry
+Relevant: docker_registry_faq
+TFIDF rank: 2
+BM25 rank: 1
+
+[BM25 BETTER] q0192
+Query: что запрещено при работе с docker registry
+Relevant: docker_registry_faq
+TFIDF rank: 4
+BM25 rank: 3
+
+[BM25 BETTER] q0197
+Query: как восстановить доступ к kubernetes после сбоя
+Relevant: kubernetes_access_recovery
+TFIDF rank: 4
+BM25 rank: 2
+
+[ALL FAILED@3] q0198
+Query: потеряна конфигурация kubernetes kubectl
+Relevant: kubernetes_access_recovery
+TFIDF: kubernetes_access_setup, kubernetes_access_troubleshooting, kubernetes_access_faq, kubernetes_access_recovery
+BM25: kubernetes_access_setup, kubernetes_access_troubleshooting, kubernetes_access_faq, kubernetes_access_recovery
+
+Comparison summary:
+Queries: 200
+All succeeded@3: 156
+Mixed results@3: 17
+All failed@3: 27
+TFIDF better by RR in: 26 queries
+BM25 better by RR in: 30 queries
+Tied by RR: 144
+
+
+# 11 из 27 общих провалов top-3 — шаблон «потеряна конфигурация → recovery»;
+ещё 11 — «что запрещено при работе → FAQ».
+
+То есть 22 из 27 общих провалов, около 81%, относятся всего к двум систематическим классам ошибок. Это отличный результат для error analysis: проблема локализована.
+
+# Поскольку lexical retrievers достигают около 95% Recall@5, но только около 35% Recall@1, reranker должен улучшить выбор между setup, troubleshooting, recovery и FAQ-документами одной темы.
+
+
+# Гипотеза: почему tfidf и bm25 показывают почти одинаковые результаты?
+TF-IDF и BM25 показывают близкие результаты, поскольку корпус состоит из коротких документов с низким разбросом длины и преимущественно единичными вхождениями терминов. В этих условиях механизмы BM25 — насыщение TF и нормализация длины — оказывают слабое влияние, а ранжирование обоих методов в основном определяется IDF и лексическим пересечением.
