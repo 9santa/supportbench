@@ -2,7 +2,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from supportbench.evaluation.evaluation_export import export_query_evaluations
+from supportbench.experiments.evaluation_export import (
+    export_query_evaluations,
+    build_bm25_experiment_summary,
+    export_bm25_experiment_summary,
+)
 from supportbench.evaluation.retrieval_evaluator import (
     QueryEvaluation,
     RetrievalEvaluationResult,
@@ -83,3 +87,45 @@ def test_export_creates_parent_directories(
 
     assert output_path.exists()
     assert output_path.read_text(encoding="utf-8") == ""
+
+
+def test_exports_bm25_experiment_summary(
+    tmp_path: Path,
+) -> None:
+    result = RetrievalEvaluationResult(
+        query_count=2,
+        recall_at_1=0.5,
+        recall_at_3=0.75,
+        recall_at_5=1.0,
+        mrr=0.625,
+        queries=(),
+    )
+
+    summary = build_bm25_experiment_summary(
+        experiment="b_0_50",
+        k1=1.5,
+        b=0.5,
+        split="dev",
+        top_k=5,
+        result=result,
+    )
+
+    output_path = tmp_path / "summary.json"
+
+    export_bm25_experiment_summary(
+        summary,
+        output_path,
+    )
+
+    assert json.loads(output_path.read_text(encoding="utf-8")) == {
+        "experiment": "b_0_50",
+        "k1": 1.5,
+        "b": 0.5,
+        "split": "dev",
+        "top_k": 5,
+        "query_count": 2,
+        "recall_at_1": 0.5,
+        "recall_at_3": 0.75,
+        "recall_at_5": 1.0,
+        "mrr": 0.625,
+    }
