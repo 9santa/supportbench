@@ -6,13 +6,13 @@ from supportbench.evaluation.retrieval_evaluator import (
     RetrievalEvaluationResult,
     evaluate_retriever,
 )
-from supportbench.retrieval.bm25 import BM25Retriever
-from supportbench.retrieval.inverted_index import InvertedIndex
 from supportbench.experiments.evaluation_export import (
     build_bm25_experiment_summary,
     export_bm25_experiment_summary,
     export_query_evaluations,
 )
+from supportbench.retrieval.bm25 import BM25Retriever
+from supportbench.retrieval.inverted_index import InvertedIndex
 
 
 @dataclass(frozen=True, slots=True)

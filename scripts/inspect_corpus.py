@@ -1,12 +1,12 @@
 import argparse
 from pathlib import Path
 
-from supportbench.data.loaders import load_documents
-from supportbench.retrieval.inverted_index import InvertedIndex
 from supportbench.data.corpus_statistics import (
     FullCorpusStats,
     compute_full_corpus_statistics,
 )
+from supportbench.data.loaders import load_documents
+from supportbench.retrieval.inverted_index import InvertedIndex
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
