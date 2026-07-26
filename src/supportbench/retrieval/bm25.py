@@ -19,8 +19,8 @@ class BM25Retriever:
         self,
         index: InvertedIndex,
         *,
-        k1: float = 1.5,
-        b: float = 0.75,
+        k1: float = 0.5,
+        b: float = 1.0,
     ) -> None:
         if k1 <= 0:
             raise ValueError("k1 must be positive")

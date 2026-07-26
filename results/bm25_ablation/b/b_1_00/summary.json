@@ -1,0 +1,12 @@
+{
+  "experiment": "b_1_00",
+  "k1": 1.5,
+  "b": 1.0,
+  "split": "dev",
+  "top_k": 5,
+  "query_count": 200,
+  "recall_at_1": 0.3925,
+  "recall_at_3": 0.795,
+  "recall_at_5": 0.9475,
+  "mrr": 0.6193333333333333
+}

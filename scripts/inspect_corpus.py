@@ -3,6 +3,10 @@ from pathlib import Path
 
 from supportbench.data.loaders import load_documents
 from supportbench.retrieval.inverted_index import InvertedIndex
+from supportbench.data.corpus_statistics import (
+    FullCorpusStats,
+    compute_full_corpus_statistics,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
@@ -16,26 +20,29 @@ def most_common_terms(index: InvertedIndex, *, limit: int) -> list[tuple[str, in
     return terms_with_frequence[:limit]
 
 
-def print_stats(index: InvertedIndex, *, top_k: int) -> None:
-    stats = index.statistics
+def print_stats(statistics: FullCorpusStats) -> None:
+    lengths = statistics.document_lengths
+    frequencies = statistics.posting_frequencies
 
-    print(f"Documents: {stats.document_count}")
-    print(f"Vocabulary size: {stats.vocab_size}")
-    print(f"Average document length: {stats.avg_doc_len:.2f}")
+    print("Corpus statistics:")
     print()
-    print("Top terms by document frequency:")
+    print("Document lengths:")
+    print(f"  min:    {lengths.minimum}")
+    print(f"  median: {lengths.median:.2f}")
+    print(f"  mean:   {lengths.mean:.2f}")
+    print(f"  p90:    {lengths.p90:.2f}")
+    print(f"  max:    {lengths.maximum}")
+    print(f"  std:    {lengths.standard_deviation:.2f}")
+    print(f"  CV:     {lengths.coefficient_of_variation:.4f}")
 
-    top_terms = most_common_terms(
-        index,
-        limit=top_k,
-    )
-
-    if not top_terms:
-        print("No terms found.")
-        return
-
-    for position, (term, document_frequency) in enumerate(top_terms, start=1):
-        print(f"{position}. {term}, df={document_frequency}")
+    print()
+    print("Posting frequencies:")
+    print(f"  postings: {frequencies.posting_count}")
+    print(f"  tf=1:     {frequencies.share_tf_1:.2%}")
+    print(f"  tf=2:     {frequencies.share_tf_2:.2%}")
+    print(f"  tf>=3:   {frequencies.share_tf_3_or_more:.2%}")
+    print(f"  mean tf:  {frequencies.mean:.2f}")
+    print(f"  max tf:   {frequencies.maximum}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,7 +77,9 @@ def main() -> None:
     documents = load_documents(args.path)
     index = InvertedIndex.build(documents)
 
-    print_stats(index, top_k=args.top)
+    corpus_stats = compute_full_corpus_statistics(index)
+    print_stats(corpus_stats)
+    print()
 
 
 if __name__ == "__main__":
