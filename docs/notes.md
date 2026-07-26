@@ -597,3 +597,8 @@ Recall@1	0.3525	0.4300	+0.0775	+21.99%
 Recall@3	0.8025	0.7925	−0.0100	−1.25%
 Recall@5	0.9525	0.9375	−0.0150	−1.57%
 MRR	0.6005	0.6488	+0.0483	+8.04%
+
+### Summary:
+
+Large improvement in top-1 recall (+22%) and a solid gain in MRR (+8%).
+Slight drops in Recall@3 and Recall@5 (−1.25% and −1.57%).
