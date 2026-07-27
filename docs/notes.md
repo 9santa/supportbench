@@ -642,3 +642,79 @@ Recall@3: 0.9600
 Recall@5: 0.9875
 Recall@10: 0.9875
 MRR:      0.8842
+
+
+
+# Hybrid Weighted RRF
+### bm25 weight = 1, dense weight = 1
+Retriever: hybrid
+Split: dev
+Queries: 200
+
+Recall@1: 0.6325
+Recall@3: 0.9125
+Recall@5: 0.9800
+Recall@10: 0.9800
+MRR:      0.7971
+
+### bm25 weight = 1, dense weight = 2
+Retriever: hybrid
+Split: dev
+Queries: 200
+
+Recall@1: 0.7075
+Recall@3: 0.9300
+Recall@5: 0.9825
+Recall@10: 0.9825
+MRR:      0.8471
+
+
+
+### bm25 weight = 1, dense weight = 3
+Retriever: hybrid
+Split: dev
+Queries: 200
+
+Recall@1: 0.7350
+Recall@3: 0.9450
+Recall@5: 0.9825
+Recall@10: 0.9825
+MRR:      0.8658
+
+
+Конфигурация	R@1	R@3	R@5	R@10	MRR
+Dense	0.7600	0.9600	0.9875	0.9875	0.8842
+RRF 1:1	0.6325	0.9125	0.9800	0.9800	0.7971
+RRF 1:2	0.7075	0.9300	0.9825	0.9825	0.8471
+RRF 1:3	0.7350	0.9450	0.9825	0.9825	0.8658
+
+Потери относительно dense:
+
+Конфигурация	Δ R@1	Δ R@3	Δ R@5	Δ MRR
+RRF 1:1	−0.1275	−0.0475	−0.0075	−0.0871
+RRF 1:2	−0.0525	−0.0300	−0.0050	−0.0371
+RRF 1:3	−0.0250	−0.0150	−0.0050	−0.0184
+
+
+rrf_k = 20, RRF 1:3
+Recall@1: 0.7400
+Recall@3: 0.9475
+Recall@5: 0.9875
+Recall@10: 0.9875
+MRR:      0.8702
+
+
+rrf_k = 10, RRF 1:3
+Recall@1: 0.7450
+Recall@3: 0.9500
+Recall@5: 0.9900
+Recall@10: 0.9900
+MRR:      0.8742
+
+
+rrf_k = 20, RRF 1 : 5
+Recall@1: 0.7550
+Recall@3: 0.9500
+Recall@5: 0.9900
+Recall@10: 0.9900
+MRR:      0.8796

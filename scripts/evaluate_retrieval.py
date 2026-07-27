@@ -1,4 +1,5 @@
 import argparse
+import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +24,7 @@ from supportbench.retrieval.dense_build import (
 )
 from supportbench.retrieval.dense_encoder import SentenceTransformerDenceEncoder
 from supportbench.retrieval.dense_index import FaissFlatVectorIndex
+from supportbench.retrieval.hybrid import WeightedRRFHybrid, WeightedRetrieverSource
 from supportbench.retrieval.inverted_index import InvertedIndex
 from supportbench.retrieval.tfidf import TfidfRetriever
 
@@ -30,6 +32,7 @@ type RetrieverName = Literal[
     "tfidf",
     "bm25",
     "dense",
+    "hybrid",
 ]
 
 
@@ -51,6 +54,10 @@ class CliArguments:
     dense_model_name: str
     dense_device: str
     dense_batch_size: int
+    bm25_weight: float
+    dense_weight: float
+    candidate_k: int
+    rrf_k: int
 
 
 def parse_args() -> CliArguments:
@@ -59,7 +66,7 @@ def parse_args() -> CliArguments:
     )
     parser.add_argument(
         "--retriever",
-        choices=("tfidf", "bm25", "dense"),
+        choices=("tfidf", "bm25", "dense", "hybrid"),
         default="bm25",
         help="retrieval algorithm (default: bm25)",
     )
@@ -126,6 +133,34 @@ def parse_args() -> CliArguments:
         default=16,
     )
 
+    parser.add_argument(
+        "--bm25-weight",
+        type=float,
+        default=1.0,
+        help="BM25 retriever weight in weighted RRF",
+    )
+
+    parser.add_argument(
+        "--dense-weight",
+        type=float,
+        default=1.0,
+        help="Dense retriever weight in weighted RRF",
+    )
+
+    parser.add_argument(
+        "--candidate-k",
+        type=int,
+        default=50,
+        help="candidate count requested from each retriever",
+    )
+
+    parser.add_argument(
+        "--rrf-k",
+        type=int,
+        default=60,
+        help="RRF rank smoothing constant",
+    )
+
     args = parser.parse_args()
     top_k = cast(int, args.top_k)
     failure_k = cast(int, args.failure_k)
@@ -135,6 +170,12 @@ def parse_args() -> CliArguments:
 
     if failure_k > top_k:
         parser.error("--failure-k must not be greater than --top-k")
+
+    if not math.isfinite(args.bm25_weight) or args.bm25_weight < 0.0:
+        parser.error("--bm25-weight must be finite and non-negative")
+
+    if not math.isfinite(args.dense_weight) or args.dense_weight < 0.0:
+        parser.error("--dense-weight must be finite and non-negative")
 
     return CliArguments(
         retriever=cast(
@@ -151,6 +192,35 @@ def parse_args() -> CliArguments:
         dense_model_name=cast(str, args.dense_model),
         dense_device=cast(str, args.dense_device),
         dense_batch_size=cast(int, args.dense_batch_size),
+        bm25_weight=cast(float, args.bm25_weight),
+        dense_weight=cast(float, args.dense_weight),
+        candidate_k=cast(int, args.candidate_k),
+        rrf_k=cast(int, args.rrf_k),
+    )
+
+
+def create_dense_retriver(
+    args: CliArguments,
+    *,
+    documents: Sequence[Document],
+) -> DenseRetriever:
+    fingerprint = compute_document_fingerprint(documents)
+
+    vector_index = FaissFlatVectorIndex.load(
+        args.dense_index_path,
+        expected_document_fingerprint=fingerprint,
+        expected_model_name=args.dense_model_name,
+    )
+
+    encoder = SentenceTransformerDenceEncoder(
+        args.dense_model_name,
+        device=args.dense_device,
+        batch_size=args.dense_batch_size,
+    )
+
+    return DenseRetriever(
+        encoder,
+        vector_index,
     )
 
 
@@ -169,23 +239,34 @@ def create_retriever(
         return BM25Retriever(index)
 
     if name == "dense":
-        fingerprint = compute_document_fingerprint(documents)
+        return create_dense_retriver(args, documents=documents)
 
-        vector_index = FaissFlatVectorIndex.load(
-            args.dense_index_path,
-            expected_document_fingerprint=fingerprint,
-            expected_model_name=args.dense_model_name,
+    if name == "hybrid":
+        index = InvertedIndex.build(documents)
+
+        bm25 = BM25Retriever(
+            index,
+            k1=0.5,
+            b=1.0,
         )
 
-        encoder = SentenceTransformerDenceEncoder(
-            args.dense_model_name,
-            device=args.dense_device,
-            batch_size=args.dense_batch_size,
-        )
+        dense = create_dense_retriver(args, documents=documents)
 
-        return DenseRetriever(
-            encoder,
-            vector_index,
+        return WeightedRRFHybrid(
+            sources=(
+                WeightedRetrieverSource(
+                    name="bm25",
+                    retriever=bm25,
+                    weight=args.bm25_weight,
+                ),
+                WeightedRetrieverSource(
+                    name="dense",
+                    retriever=dense,
+                    weight=args.dense_weight,
+                ),
+            ),
+            candidate_k=args.candidate_k,
+            rrf_k=args.rrf_k,
         )
 
     raise ValueError(f"unknown retriever: {name!r}")
