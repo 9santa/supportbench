@@ -17,8 +17,10 @@ venv/
 .ruff_cache/
 .mypy_cache/
 .coverage
-htmlcov/
 
 # OS
 .DS_Store
 concatenated_sources.txt
+
+# Artifacts storage
+artifacts/
