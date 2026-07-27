@@ -10,7 +10,6 @@ from supportbench.retrieval.dense_index import (
     compute_document_fingerprint,
 )
 
-
 type FloatMatrix = NDArray[np.float32]
 type FloatVector = NDArray[np.float32]
 

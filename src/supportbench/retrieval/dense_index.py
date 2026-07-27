@@ -5,13 +5,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Protocol, Self, cast
 
-import faiss  # type: ignore[import-untyped]
+import faiss
 import numpy as np
 import numpy.typing as npt
 
 from supportbench.data.models import Document
 from supportbench.retrieval.dense_encoder import FloatMatrix
-
 
 type FloatVector = npt.NDArray[np.float32]
 
