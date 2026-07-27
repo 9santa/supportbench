@@ -21,6 +21,7 @@ def test_exports_query_evaluations_as_jsonl(
         recall_at_1=1.0,
         recall_at_3=1.0,
         recall_at_5=1.0,
+        recall_at_10=1.0,
         mrr=1.0,
         queries=(
             QueryEvaluation(
@@ -35,6 +36,7 @@ def test_exports_query_evaluations_as_jsonl(
                 recall_at_1=1.0,
                 recall_at_3=1.0,
                 recall_at_5=1.0,
+                recall_at_10=1.0,
                 reciprocal_rank=1.0,
             ),
         ),
@@ -62,6 +64,7 @@ def test_exports_query_evaluations_as_jsonl(
             "recall_at_1": 1.0,
             "recall_at_3": 1.0,
             "recall_at_5": 1.0,
+            "recall_at_10": 1.0,
             "reciprocal_rank": 1.0,
         }
     ]
@@ -75,6 +78,7 @@ def test_export_creates_parent_directories(
         recall_at_1=0.0,
         recall_at_3=0.0,
         recall_at_5=0.0,
+        recall_at_10=0.0,
         mrr=0.0,
         queries=(),
     )
@@ -97,6 +101,7 @@ def test_exports_bm25_experiment_summary(
         recall_at_1=0.5,
         recall_at_3=0.75,
         recall_at_5=1.0,
+        recall_at_10=1.0,
         mrr=0.625,
         queries=(),
     )
@@ -127,5 +132,6 @@ def test_exports_bm25_experiment_summary(
         "recall_at_1": 0.5,
         "recall_at_3": 0.75,
         "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
         "mrr": 0.625,
     }

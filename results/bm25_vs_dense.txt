@@ -1,0 +1,674 @@
+Retrievers: bm25, dense
+Split: dev
+Failure cutoff: top 3
+
+Aggregate metrics:
+
+Retriever     Recall@1  Recall@3  Recall@5       MRR
+bm25                   0.4300   0.7925   0.9375   0.9375   0.6488
+dense                  0.7600   0.9600   0.9875   0.9875   0.8842
+
+Per-query differences:
+
+[DENSE BETTER] q0002
+Query: первичное подключение vpn ubuntu
+Relevant: vpn_ubuntu_setup
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0004
+Query: подключение зависает что проверить
+Relevant: vpn_ubuntu_troubleshooting
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0006
+Query: потеряна конфигурация vpn ubuntu
+Relevant: vpn_ubuntu_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0008
+Query: что запрещено при работе с vpn ubuntu
+Relevant: vpn_ubuntu_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0010
+Query: первичное подключение vpn windows
+Relevant: vpn_windows_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0012
+Query: клиент сообщает об ошибке аутентификации что проверить
+Relevant: vpn_windows_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0014
+Query: потеряна конфигурация vpn windows
+Relevant: vpn_windows_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0017
+Query: как настроить vpn на macos
+Relevant: vpn_macos_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0018
+Query: первичное подключение vpn macos
+Relevant: vpn_macos_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0019
+Query: не работает vpn на macos
+Relevant: vpn_macos_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0020
+Query: macos блокирует расширение что проверить
+Relevant: vpn_macos_setup, vpn_macos_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0022
+Query: потеряна конфигурация vpn macos
+Relevant: vpn_macos_recovery
+BM25 rank: 4
+DENSE rank: 2
+
+[BM25 BETTER] q0023
+Query: правила использования vpn на macos
+Relevant: vpn_macos_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0024
+Query: что запрещено при работе с vpn macos
+Relevant: vpn_macos_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[BM25 BETTER] q0027
+Query: не работает корпоративный wi-fi
+Relevant: wifi_office_troubleshooting
+BM25 rank: 3
+DENSE rank: 4
+
+[DENSE BETTER] q0028
+Query: сеть запрашивает пароль повторно что проверить
+Relevant: wifi_office_troubleshooting
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0029
+Query: как восстановить корпоративный wi-fi после сбоя
+Relevant: wifi_office_recovery
+BM25 rank: 2
+DENSE rank: 1
+
+[BM25 BETTER] q0031
+Query: правила использования корпоративный wi-fi
+Relevant: wifi_office_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0032
+Query: что запрещено при работе с wifi wi-fi
+Relevant: wifi_office_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0033
+Query: как настроить внутренний dns
+Relevant: dns_internal_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0036
+Query: сервис открывается по ip что проверить
+Relevant: dns_internal_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0038
+Query: потеряна конфигурация dns nslookup
+Relevant: dns_internal_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0040
+Query: что запрещено при работе с dns nslookup
+Relevant: dns_internal_faq, dns_internal_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0046
+Query: потеряна конфигурация proxy pac
+Relevant: proxy_browser_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0048
+Query: что запрещено при работе с proxy pac
+Relevant: proxy_browser_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0049
+Query: как настроить двухфакторная аутентификация gitlab
+Relevant: gitlab_2fa_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0051
+Query: не работает двухфакторная аутентификация gitlab
+Relevant: gitlab_2fa_troubleshooting
+BM25 rank: 3
+DENSE rank: 2
+
+[DENSE BETTER] q0052
+Query: одноразовый код не принимается что проверить
+Relevant: gitlab_2fa_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0054
+Query: потеряна конфигурация gitlab 2fa
+Relevant: gitlab_2fa_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[BM25 BETTER] q0055
+Query: правила использования двухфакторная аутентификация gitlab
+Relevant: gitlab_2fa_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0056
+Query: что запрещено при работе с gitlab 2fa
+Relevant: gitlab_2fa_faq
+BM25 rank: None
+DENSE rank: 3
+
+[DENSE BETTER] q0057
+Query: как настроить сброс корпоративного пароля
+Relevant: password_reset_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0060
+Query: старый пароль истёк что проверить
+Relevant: password_reset_setup, password_reset_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0062
+Query: потеряна конфигурация пароль сброс
+Relevant: password_reset_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0064
+Query: что запрещено при работе с пароль сброс
+Relevant: password_reset_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0065
+Query: как настроить ssh-ключи
+Relevant: ssh_keys_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0067
+Query: не работает ssh-ключи
+Relevant: ssh_keys_troubleshooting
+BM25 rank: 3
+DENSE rank: 2
+
+[DENSE BETTER] q0072
+Query: что запрещено при работе с ssh ключ
+Relevant: ssh_keys_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0073
+Query: как настроить корневой сертификат компании
+Relevant: corporate_ca_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[BM25 BETTER] q0075
+Query: не работает корневой сертификат компании
+Relevant: corporate_ca_troubleshooting
+BM25 rank: 2
+DENSE rank: 3
+
+[DENSE BETTER] q0078
+Query: потеряна конфигурация сертификат ca
+Relevant: corporate_ca_recovery
+BM25 rank: None
+DENSE rank: 1
+
+[BM25 BETTER] q0079
+Query: правила использования корневой сертификат компании
+Relevant: corporate_ca_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[BM25 BETTER] q0080
+Query: что запрещено при работе с сертификат ca
+Relevant: corporate_ca_faq, corporate_ca_setup
+BM25 rank: 2
+DENSE rank: 3
+
+[BM25 BETTER] q0083
+Query: не работает профиль outlook
+Relevant: outlook_profile_troubleshooting
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0084
+Query: outlook запрашивает пароль что проверить
+Relevant: outlook_profile_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0086
+Query: потеряна конфигурация outlook почта
+Relevant: outlook_profile_recovery
+BM25 rank: 4
+DENSE rank: 2
+
+[BM25 BETTER] q0087
+Query: правила использования профиль outlook
+Relevant: outlook_profile_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0088
+Query: что запрещено при работе с outlook почта
+Relevant: outlook_profile_faq
+BM25 rank: None
+DENSE rank: 1
+
+[DENSE BETTER] q0089
+Query: как настроить квота почтового ящика
+Relevant: mailbox_quota_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0091
+Query: не работает квота почтового ящика
+Relevant: mailbox_quota_troubleshooting
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0092
+Query: письма не отправляются что проверить
+Relevant: mailbox_quota_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0093
+Query: как восстановить квота почтового ящика после сбоя
+Relevant: mailbox_quota_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0094
+Query: потеряна конфигурация почта квота
+Relevant: mailbox_quota_recovery
+BM25 rank: None
+DENSE rank: 1
+
+[DENSE BETTER] q0096
+Query: что запрещено при работе с почта квота
+Relevant: mailbox_quota_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0097
+Query: как настроить звук в microsoft teams
+Relevant: teams_audio_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0099
+Query: не работает звук в microsoft teams
+Relevant: teams_audio_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0100
+Query: собеседники не слышат пользователя что проверить
+Relevant: teams_audio_setup, teams_audio_troubleshooting
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0102
+Query: потеряна конфигурация teams микрофон
+Relevant: teams_audio_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[BM25 BETTER] q0103
+Query: правила использования звук в microsoft teams
+Relevant: teams_audio_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0104
+Query: что запрещено при работе с teams микрофон
+Relevant: teams_audio_faq
+BM25 rank: None
+DENSE rank: 2
+
+[DENSE BETTER] q0106
+Query: первичное подключение zoom экран
+Relevant: zoom_screen_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0107
+Query: не работает демонстрация экрана в zoom
+Relevant: zoom_screen_troubleshooting
+BM25 rank: 4
+DENSE rank: 3
+
+[DENSE BETTER] q0110
+Query: потеряна конфигурация zoom экран
+Relevant: zoom_screen_recovery, zoom_screen_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[BM25 BETTER] q0111
+Query: правила использования демонстрация экрана в zoom
+Relevant: zoom_screen_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0113
+Query: как настроить офисный принтер
+Relevant: printer_office_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0115
+Query: не работает офисный принтер
+Relevant: printer_office_troubleshooting
+BM25 rank: 4
+DENSE rank: 2
+
+[DENSE BETTER] q0116
+Query: задание зависает в очереди что проверить
+Relevant: printer_office_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0118
+Query: потеряна конфигурация принтер печать
+Relevant: printer_office_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[BM25 BETTER] q0121
+Query: как настроить восстановление bitlocker
+Relevant: bitlocker_recovery_setup
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0123
+Query: не работает восстановление bitlocker
+Relevant: bitlocker_recovery_troubleshooting
+BM25 rank: 4
+DENSE rank: 3
+
+[DENSE BETTER] q0126
+Query: потеряна конфигурация bitlocker recovery key
+Relevant: bitlocker_recovery_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0128
+Query: что запрещено при работе с bitlocker recovery key
+Relevant: bitlocker_recovery_faq
+BM25 rank: None
+DENSE rank: 1
+
+[DENSE BETTER] q0129
+Query: как настроить срабатывание антивируса
+Relevant: antivirus_alert_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0130
+Query: первичное подключение антивирус malware
+Relevant: antivirus_alert_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0134
+Query: потеряна конфигурация антивирус malware
+Relevant: antivirus_alert_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0136
+Query: что запрещено при работе с антивирус malware
+Relevant: antivirus_alert_faq
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0137
+Query: как настроить установка корпоративного по
+Relevant: software_install_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0140
+Query: установка зависает что проверить
+Relevant: software_install_setup, software_install_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0142
+Query: потеряна конфигурация установка software center
+Relevant: software_install_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0144
+Query: что запрещено при работе с установка software center
+Relevant: software_install_faq
+BM25 rank: 4
+DENSE rank: 2
+
+[DENSE BETTER] q0145
+Query: как настроить запрос прав доступа
+Relevant: access_request_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0147
+Query: не работает запрос прав доступа
+Relevant: access_request_troubleshooting
+BM25 rank: 3
+DENSE rank: 2
+
+[DENSE BETTER] q0148
+Query: заявка согласована что проверить
+Relevant: access_request_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0149
+Query: как восстановить запрос прав доступа после сбоя
+Relevant: access_request_recovery
+BM25 rank: 2
+DENSE rank: 1
+
+[ALL FAILED@3] q0152
+Query: что запрещено при работе с доступ роль
+Relevant: access_request_faq
+BM25: access_request_setup, access_request_recovery, access_request_troubleshooting, kubernetes_access_recovery, password_reset_recovery
+DENSE: remote_desktop_faq, kubernetes_access_faq, shared_folder_faq, proxy_browser_faq, access_request_troubleshooting
+
+[DENSE BETTER] q0155
+Query: не работает общая сетевая папка
+Relevant: shared_folder_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0156
+Query: папка не открывается что проверить
+Relevant: shared_folder_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0157
+Query: как восстановить общая сетевая папка после сбоя
+Relevant: shared_folder_recovery
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0158
+Query: потеряна конфигурация сетевая папка smb
+Relevant: shared_folder_recovery
+BM25 rank: 3
+DENSE rank: 1
+
+[DENSE BETTER] q0160
+Query: что запрещено при работе с сетевая папка smb
+Relevant: shared_folder_faq, shared_folder_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0161
+Query: как настроить удалённый рабочий стол
+Relevant: remote_desktop_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0165
+Query: как восстановить удалённый рабочий стол после сбоя
+Relevant: remote_desktop_recovery
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0168
+Query: что запрещено при работе с rdp remote desktop
+Relevant: remote_desktop_faq
+BM25 rank: 4
+DENSE rank: 2
+
+[DENSE BETTER] q0169
+Query: как настроить восстановление файлов из резервной копии
+Relevant: backup_restore_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[BM25 BETTER] q0171
+Query: не работает восстановление файлов из резервной копии
+Relevant: backup_restore_troubleshooting
+BM25 rank: 3
+DENSE rank: 4
+
+[DENSE BETTER] q0173
+Query: как восстановить восстановление файлов из резервной копии после сбоя
+Relevant: backup_restore_recovery
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0174
+Query: потеряна конфигурация backup резервная копия
+Relevant: backup_restore_recovery
+BM25 rank: None
+DENSE rank: 1
+
+[DENSE BETTER] q0176
+Query: что запрещено при работе с backup резервная копия
+Relevant: backup_restore_faq
+BM25 rank: None
+DENSE rank: 1
+
+[DENSE BETTER] q0177
+Query: как настроить кэш и cookies браузера
+Relevant: browser_cache_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0179
+Query: не работает кэш и cookies браузера
+Relevant: browser_cache_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0182
+Query: потеряна конфигурация браузер cache
+Relevant: browser_cache_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[BM25 BETTER] q0183
+Query: правила использования кэш и cookies браузера
+Relevant: browser_cache_faq
+BM25 rank: 1
+DENSE rank: 2
+
+[DENSE BETTER] q0184
+Query: что запрещено при работе с браузер cache
+Relevant: browser_cache_faq
+BM25 rank: None
+DENSE rank: 3
+
+[DENSE BETTER] q0185
+Query: как настроить доступ к docker registry
+Relevant: docker_registry_setup
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0192
+Query: что запрещено при работе с docker registry
+Relevant: docker_registry_faq
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0195
+Query: не работает доступ к kubernetes
+Relevant: kubernetes_access_troubleshooting
+BM25 rank: 3
+DENSE rank: 2
+
+[DENSE BETTER] q0196
+Query: kubectl сообщает unauthorized что проверить
+Relevant: kubernetes_access_troubleshooting
+BM25 rank: 2
+DENSE rank: 1
+
+[DENSE BETTER] q0198
+Query: потеряна конфигурация kubernetes kubectl
+Relevant: kubernetes_access_recovery
+BM25 rank: 4
+DENSE rank: 1
+
+[DENSE BETTER] q0200
+Query: что запрещено при работе с kubernetes kubectl
+Relevant: kubernetes_access_faq, kubernetes_access_setup
+BM25 rank: 2
+DENSE rank: 1
+
+Comparison summary:
+Queries: 200
+All succeeded@3: 163
+Mixed results@3: 36
+All failed@3: 1
+BM25 better by RR in: 14 queries
+DENSE better by RR in: 94 queries
+Tied by RR: 92

@@ -20,6 +20,7 @@ class QueryEvaluation:
     recall_at_1: float
     recall_at_3: float
     recall_at_5: float
+    recall_at_10: float
     reciprocal_rank: float
 
     @property
@@ -39,6 +40,7 @@ class RetrievalEvaluationResult:
     recall_at_1: float
     recall_at_3: float
     recall_at_5: float
+    recall_at_10: float
     mrr: float
     queries: tuple[QueryEvaluation, ...]
 
@@ -47,7 +49,7 @@ def evaluate_retriever(
     retriever: Retriever,
     queries: list[QueryExample],
     *,
-    top_k: int = 5,
+    top_k: int = 10,
 ) -> RetrievalEvaluationResult:
     """Evaluate a retriever."""
     if not queries:
@@ -56,12 +58,13 @@ def evaluate_retriever(
             recall_at_1=0,
             recall_at_3=0,
             recall_at_5=0,
+            recall_at_10=0,
             mrr=0.0,
             queries=tuple(),
         )
 
-    if top_k < 5:
-        raise ValueError("top_k must be at least 5 to compute Recall@5")
+    if top_k < 10:
+        raise ValueError("top_k must be at least 10 to compute Recall@10")
 
     query_evals: list[QueryEvaluation] = []
 
@@ -82,6 +85,7 @@ def evaluate_retriever(
         recall_1 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=1)
         recall_3 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=3)
         recall_5 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=5)
+        recall_10 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=10)
         r_rank = reciprocal_rank(retrieved_doc_ids, relevant_doc_ds)
 
         query_evals.append(
@@ -94,6 +98,7 @@ def evaluate_retriever(
                 recall_at_1=recall_1,
                 recall_at_3=recall_3,
                 recall_at_5=recall_5,
+                recall_at_10=recall_10,
                 reciprocal_rank=r_rank,
             )
         )
@@ -107,6 +112,7 @@ def evaluate_retriever(
             recall_at_1=0,
             recall_at_3=0,
             recall_at_5=0,
+            recall_at_10=0,
             mrr=0.0,
             queries=tuple(),
         )
@@ -117,6 +123,7 @@ def evaluate_retriever(
         recall_at_1=_mean(item.recall_at_1 for item in evaluations),
         recall_at_3=_mean(item.recall_at_3 for item in evaluations),
         recall_at_5=_mean(item.recall_at_5 for item in evaluations),
+        recall_at_10=_mean(item.recall_at_10 for item in evaluations),
         mrr=mean_reciprocal_rank([item.reciprocal_rank for item in evaluations]),
         queries=evaluations,
     )

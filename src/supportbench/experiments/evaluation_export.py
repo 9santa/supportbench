@@ -35,6 +35,7 @@ def _query_evaluation_to_dict(evaluation: QueryEvaluation) -> dict[str, Any]:
         "recall_at_1": evaluation.recall_at_1,
         "recall_at_3": evaluation.recall_at_3,
         "recall_at_5": evaluation.recall_at_5,
+        "recall_at_10": evaluation.recall_at_10,
         "reciprocal_rank": evaluation.reciprocal_rank,
     }
 
@@ -50,6 +51,7 @@ class BM25ExperimentSummary:
     recall_at_1: float
     recall_at_3: float
     recall_at_5: float
+    recall_at_10: float
     mrr: float
 
 
@@ -72,6 +74,7 @@ def build_bm25_experiment_summary(
         recall_at_1=result.recall_at_1,
         recall_at_3=result.recall_at_3,
         recall_at_5=result.recall_at_5,
+        recall_at_10=result.recall_at_10,
         mrr=result.mrr,
     )
 

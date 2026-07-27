@@ -602,3 +602,43 @@ MRR	0.6005	0.6488	+0.0483	+8.04%
 
 Large improvement in top-1 recall (+22%) and a solid gain in MRR (+8%).
 Slight drops in Recall@3 and Recall@5 (−1.25% and −1.57%).
+
+
+
+
+
+# Flow:
+query
+  ↓
+encode_queries([query])
+  ↓
+матрица shape (1, dimension)
+  ↓
+берём embeddings[0]
+  ↓
+vector index search
+  ↓
+VectorSearchResult
+  ↓
+SearchResult с rank 1, 2, 3...
+
+
+
+
+# First evaluation of DenseRetriever
+dense-dev-v1
+
+model: intfloat/multilingual-e5-base
+index: FAISS IndexFlatIP
+normalized: true
+document_format: title_newline_text
+
+Retriever: dense
+Split: dev
+Queries: 200
+
+Recall@1: 0.7600
+Recall@3: 0.9600
+Recall@5: 0.9875
+Recall@10: 0.9875
+MRR:      0.8842

@@ -1,5 +1,5 @@
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Self
@@ -48,7 +48,7 @@ class InvertedIndex:
         )
 
     @classmethod
-    def build(cls, documents: list[Document]) -> Self:
+    def build(cls, documents: Sequence[Document]) -> Self:
         postings: dict[str, dict[str, int]] = {}
         doc_lens: dict[str, int] = {}
 

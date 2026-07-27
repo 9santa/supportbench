@@ -1,4 +1,5 @@
 import argparse
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
@@ -7,7 +8,7 @@ from supportbench.data.loaders import (
     load_documents,
     load_queries,
 )
-from supportbench.data.models import QueryExample
+from supportbench.data.models import Document, QueryExample
 from supportbench.evaluation.retrieval_analysis import failures_at_k
 from supportbench.evaluation.retrieval_evaluator import (
     QueryEvaluation,
@@ -16,10 +17,20 @@ from supportbench.evaluation.retrieval_evaluator import (
 )
 from supportbench.retrieval.base import Retriever
 from supportbench.retrieval.bm25 import BM25Retriever
+from supportbench.retrieval.dense import DenseRetriever
+from supportbench.retrieval.dense_build import (
+    compute_document_fingerprint,
+)
+from supportbench.retrieval.dense_encoder import SentenceTransformerDenceEncoder
+from supportbench.retrieval.dense_index import FaissFlatVectorIndex
 from supportbench.retrieval.inverted_index import InvertedIndex
 from supportbench.retrieval.tfidf import TfidfRetriever
 
-type RetrieverName = Literal["tfidf", "bm25"]
+type RetrieverName = Literal[
+    "tfidf",
+    "bm25",
+    "dense",
+]
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +47,10 @@ class CliArguments:
     top_k: int
     show_errors: bool
     failure_k: int
+    dense_index_path: Path
+    dense_model_name: str
+    dense_device: str
+    dense_batch_size: int
 
 
 def parse_args() -> CliArguments:
@@ -44,7 +59,7 @@ def parse_args() -> CliArguments:
     )
     parser.add_argument(
         "--retriever",
-        choices=("tfidf", "bm25"),
+        choices=("tfidf", "bm25", "dense"),
         default="bm25",
         help="retrieval algorithm (default: bm25)",
     )
@@ -87,6 +102,30 @@ def parse_args() -> CliArguments:
         help=("cutoff used to classify retrieval failures (default: 3)"),
     )
 
+    parser.add_argument(
+        "--dense-index",
+        type=Path,
+        default=(PROJECT_ROOT / "artifacts" / "dense" / "multilingual-e5-base"),
+    )
+
+    parser.add_argument(
+        "--dense-model",
+        type=str,
+        default="intfloat/multilingual-e5-base",
+    )
+
+    parser.add_argument(
+        "--dense-device",
+        type=str,
+        default="cuda",
+    )
+
+    parser.add_argument(
+        "--dense-batch-size",
+        type=int,
+        default=16,
+    )
+
     args = parser.parse_args()
     top_k = cast(int, args.top_k)
     failure_k = cast(int, args.failure_k)
@@ -108,18 +147,46 @@ def parse_args() -> CliArguments:
         top_k=top_k,
         show_errors=cast(bool, args.show_errors),
         failure_k=failure_k,
+        dense_index_path=cast(Path, args.dense_index),
+        dense_model_name=cast(str, args.dense_model),
+        dense_device=cast(str, args.dense_device),
+        dense_batch_size=cast(int, args.dense_batch_size),
     )
 
 
 def create_retriever(
-    name: RetrieverName,
-    index: InvertedIndex,
+    args: CliArguments,
+    *,
+    documents: Sequence[Document],
 ) -> Retriever:
+    name: str = args.retriever
     if name == "tfidf":
+        index = InvertedIndex.build(documents)
         return TfidfRetriever(index)
 
     if name == "bm25":
+        index = InvertedIndex.build(documents)
         return BM25Retriever(index)
+
+    if name == "dense":
+        fingerprint = compute_document_fingerprint(documents)
+
+        vector_index = FaissFlatVectorIndex.load(
+            args.dense_index_path,
+            expected_document_fingerprint=fingerprint,
+            expected_model_name=args.dense_model_name,
+        )
+
+        encoder = SentenceTransformerDenceEncoder(
+            args.dense_model_name,
+            device=args.dense_device,
+            batch_size=args.dense_batch_size,
+        )
+
+        return DenseRetriever(
+            encoder,
+            vector_index,
+        )
 
     raise ValueError(f"unknown retriever: {name!r}")
 
@@ -145,6 +212,7 @@ def print_evaluation(
     print(f"Recall@1: {result.recall_at_1:.4f}")
     print(f"Recall@3: {result.recall_at_3:.4f}")
     print(f"Recall@5: {result.recall_at_5:.4f}")
+    print(f"Recall@10: {result.recall_at_10:.4f}")
     print(f"MRR:      {result.mrr:.4f}")
 
 
@@ -175,9 +243,9 @@ def main() -> None:
 
     documents = load_documents(args.documents_path)
 
-    index = InvertedIndex.build(documents)
+    document_ids = set(doc.doc_id for doc in documents)
 
-    queries = load_queries(args.queries_path, set(index.document_ids))
+    queries = load_queries(args.queries_path, document_ids)
 
     selected_queries = select_queries(
         queries,
@@ -188,8 +256,8 @@ def main() -> None:
         raise SystemExit(f"no queries found for split {args.split!r}")
 
     retriever = create_retriever(
-        args.retriever,
-        index,
+        args,
+        documents=documents,
     )
 
     evaluation = evaluate_retriever(

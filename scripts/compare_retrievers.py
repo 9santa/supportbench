@@ -2,13 +2,14 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
+from collections.abc import Sequence
 
 from scripts.evaluate_retrieval import select_queries
 from supportbench.data.loaders import (
     load_documents,
     load_queries,
 )
-from supportbench.data.models import QueryExample
+from supportbench.data.models import QueryExample, Document
 from supportbench.evaluation.retrieval_analysis import (
     QueryComparison,
     compare_evaluation_results,
@@ -21,8 +22,14 @@ from supportbench.retrieval.base import Retriever
 from supportbench.retrieval.bm25 import BM25Retriever
 from supportbench.retrieval.inverted_index import InvertedIndex
 from supportbench.retrieval.tfidf import TfidfRetriever
+from supportbench.retrieval.dense import DenseRetriever
+from supportbench.retrieval.dense_build import (
+    compute_document_fingerprint,
+)
+from supportbench.retrieval.dense_encoder import SentenceTransformerDenceEncoder
+from supportbench.retrieval.dense_index import FaissFlatVectorIndex
 
-type RetrieverName = Literal["tfidf", "bm25"]
+type RetrieverName = Literal["tfidf", "bm25", "dense"]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
@@ -37,6 +44,7 @@ class CLIArguments:
     queries_path: Path
     top_k: int
     failure_k: int
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,9 +63,9 @@ def parse_args() -> CLIArguments:
     parser.add_argument(
         "--retrievers",
         nargs="+",
-        choices=("tfidf", "bm25"),
-        default=("tfidf", "bm25"),
-        help=("retrieval algorithms to compare (default: tfidf bm25)"),
+        choices=("tfidf", "bm25", "dense"),
+        default=("tfidf", "bm25", "dense"),
+        help=("retrieval algorithms to compare (default: tfidf bm25 dense)"),
     )
 
     parser.add_argument("--split", default="dev", help="query split to evaluate (default: dev)")
@@ -78,8 +86,8 @@ def parse_args() -> CLIArguments:
     parser.add_argument(
         "--top-k",
         type=int,
-        default=5,
-        help=("number of retrieved documents per query (default: 5)"),
+        default=10,
+        help=("number of retrieved documents per query (default: 10)"),
     )
 
     parser.add_argument(
@@ -102,8 +110,8 @@ def parse_args() -> CLIArguments:
     if len(set(retrievers)) != len(retrievers):
         parser.error("retrievers must be different")
 
-    if top_k < 5:
-        parser.error("--top-k must be at least 5 to compute Recall@5")
+    if top_k < 10:
+        parser.error("--top-k must be at least 10 to compute Recall@10")
 
     if failure_k > top_k:
         parser.error("--failure-k must not be greater than --top-k")
@@ -120,15 +128,39 @@ def parse_args() -> CLIArguments:
 
 def create_retriever(
     name: RetrieverName,
-    index: InvertedIndex,
+    *,
+    documents: Sequence[Document],
 ) -> Retriever:
     if name == "tfidf":
+        index = InvertedIndex.build(documents)
         return TfidfRetriever(index)
 
     if name == "bm25":
+        index = InvertedIndex.build(documents)
         return BM25Retriever(index)
 
+    if name == "dense":
+        fingerprint = compute_document_fingerprint(documents)
+
+        vector_index = FaissFlatVectorIndex.load(
+            (PROJECT_ROOT / "artifacts" / "dense" / "multilingual-e5-base"),
+            expected_document_fingerprint=fingerprint,
+            expected_model_name="intfloat/multilingual-e5-base",
+        )
+
+        encoder = SentenceTransformerDenceEncoder(
+            "intfloat/multilingual-e5-base",
+            device="cuda",
+            batch_size=16,
+        )
+
+        return DenseRetriever(
+            encoder,
+            vector_index,
+        )
+
     raise ValueError(f"unknown retriever: {name!r}")
+
 
 
 def evaluate_retrievers(
@@ -137,11 +169,12 @@ def evaluate_retrievers(
     index: InvertedIndex,
     queries: list[QueryExample],
     top_k: int,
+    documents: Sequence[Document],
 ) -> dict[str, RetrievalEvaluationResult]:
     results: dict[str, RetrievalEvaluationResult] = {}
 
     for name in retriever_names:
-        retriever = create_retriever(name, index)
+        retriever = create_retriever(name, documents=documents)
 
         results[name] = evaluate_retriever(retriever, queries, top_k=top_k)
 
@@ -155,11 +188,12 @@ def print_metric_table(results: dict[str, RetrievalEvaluationResult]) -> None:
 
     for retriever_name, result in results.items():
         print(
-            f"{retriever_name:<12}"
-            f"{result.recall_at_1:>10.4f}"
-            f"{result.recall_at_3:>10.4f}"
-            f"{result.recall_at_5:>10.4f}"
-            f"{result.mrr:>10.4f}"
+            f"{retriever_name:<20}"
+            f"{result.recall_at_1:>9.4f}"
+            f"{result.recall_at_3:>9.4f}"
+            f"{result.recall_at_5:>9.4f}"
+            f"{result.recall_at_10:>9.4f}"
+            f"{result.mrr:>9.4f}"
         )
 
 
@@ -311,6 +345,7 @@ def main() -> None:
         index=index,
         queries=selected_queries,
         top_k=args.top_k,
+        documents=documents,
     )
 
     comparisons = compare_evaluation_results(evaluation_results)
