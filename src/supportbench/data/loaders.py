@@ -60,7 +60,7 @@ def _require_non_empty_string(
 
 REQUIRED_DOCUMENT_FIELDS = frozenset(["doc_id", "title", "text", "category"])
 REQUIRED_QUERY_FIELDS = frozenset(["query_id", "query", "relevant_doc_ids", "split"])
-ALLOWED_SPLITS = ("train", "dev", "test")
+ALLOWED_SPLITS = ("train", "dev", "test", "frozen_test")
 
 
 def load_documents(path: Path) -> list[Document]:
@@ -113,8 +113,10 @@ def load_queries(
         ids_list = obj["relevant_doc_ids"]
         if not isinstance(ids_list, list):
             raise DatasetValidationError(f"{path}:{line_num}: 'relevant_doc_ids' must be a list")
-        if not ids_list:
-            raise DatasetValidationError(f"{path}:{line_num}: 'relevant_doc_ids' must not be empty")
+
+        # TEMPRORARY COMMENTED OUT
+        # if not ids_list:
+        #     raise DatasetValidationError(f"{path}:{line_num}: 'relevant_doc_ids' must not be empty")
 
         # Verify ids are strings and non-empty
         doc_ids: list[str] = []

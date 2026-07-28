@@ -718,3 +718,85 @@ Recall@3: 0.9500
 Recall@5: 0.9900
 Recall@10: 0.9900
 MRR:      0.8796
+
+
+
+
+# FIRST RESULTS ON NEW DOCUMENTS CORPUS "documents_v2.jsonl, OLD QUERIES "queries_dev.jsonl"
+### DENSE RETRIEVER
+Retriever: dense
+Split: dev
+Queries: 200
+
+Recall@1: 0.7200
+Recall@3: 0.9075
+Recall@5: 0.9450
+Recall@10: 0.9675
+MRR:      0.8420
+
+
+
+### BM25 RETRIEVER
+Retriever: bm25
+Split: dev
+Queries: 200
+
+Recall@1: 0.3375
+Recall@3: 0.7175
+Recall@5: 0.8425
+Recall@10: 0.8800
+MRR:      0.5556
+
+
+### HYBRID RETRIEVER (DEFAULT CONFIG)
+Retriever: hybrid
+Split: dev
+Queries: 200
+
+Recall@1: 0.6200
+Recall@3: 0.8425
+Recall@5: 0.9225
+Recall@10: 0.9275
+MRR:      0.7635
+
+
+
+# FIRST RESULTS ON NEW DOCUMENTS CORPUS "documents_v2.jsonl, NEW QUERIES "queries_v2_{dev/frozen_test}.jsonl"
+### DENSE
+Retriever: dense
+Split: dev
+Queries: 500
+
+Recall@1: 0.6293
+Recall@3: 0.8343
+Recall@5: 0.8827
+Recall@10: 0.9263
+MRR:      0.7827
+
+
+
+### BM25
+Retriever: bm25
+Split: dev
+Queries: 500
+
+Recall@1: 0.3780
+Recall@3: 0.6813
+Recall@5: 0.8263
+Recall@10: 0.8693
+MRR:      0.5770
+
+
+
+### HYBRID
+Retriever: hybrid
+Split: dev
+Queries: 500
+
+Recall@1: 0.5690
+Recall@3: 0.7953
+Recall@5: 0.8883
+Recall@10: 0.9157
+MRR:      0.7380
+
+

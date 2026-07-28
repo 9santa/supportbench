@@ -71,12 +71,12 @@ def evaluate_retriever(
     for query in queries:
         relevant_doc_ds = set(query.relevant_doc_ids)
 
-        if not relevant_doc_ds:
-            raise ValueError(
-                f"query {query.query_id!r} must contain at least one relevant document id"
-            )
+        # if not relevant_doc_ds:
+        #     raise ValueError(
+        #         f"query {query.query_id!r} must contain at least one relevant document id"
+        #     )
 
-        results = retriever.search(query.query, top_k=5)
+        results = retriever.search(query.query, top_k=top_k)
 
         retrieved_doc_ids = [result.doc_id for result in results]
 

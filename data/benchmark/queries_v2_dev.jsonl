@@ -1,0 +1,500 @@
+{"query_id":"q0001","query":"как настроить vpn на ubuntu","relevant_doc_ids":["vpn_ubuntu_setup"],"split":"dev"}
+{"query_id":"q0002","query":"первичное подключение vpn ubuntu","relevant_doc_ids":["vpn_ubuntu_setup"],"split":"dev"}
+{"query_id":"q0003","query":"не работает vpn на ubuntu","relevant_doc_ids":["vpn_ubuntu_troubleshooting"],"split":"dev"}
+{"query_id":"q0004","query":"подключение зависает что проверить","relevant_doc_ids":["vpn_ubuntu_troubleshooting"],"split":"dev"}
+{"query_id":"q0005","query":"как восстановить vpn на ubuntu после сбоя","relevant_doc_ids":["vpn_ubuntu_recovery"],"split":"dev"}
+{"query_id":"q0006","query":"потеряна конфигурация vpn ubuntu","relevant_doc_ids":["vpn_ubuntu_recovery"],"split":"dev"}
+{"query_id":"q0007","query":"правила использования vpn на ubuntu","relevant_doc_ids":["vpn_ubuntu_faq"],"split":"dev"}
+{"query_id":"q0008","query":"что запрещено при работе с vpn ubuntu","relevant_doc_ids":["vpn_ubuntu_faq"],"split":"dev"}
+{"query_id":"q0009","query":"как настроить vpn на windows","relevant_doc_ids":["vpn_windows_setup"],"split":"dev"}
+{"query_id":"q0010","query":"первичное подключение vpn windows","relevant_doc_ids":["vpn_windows_setup"],"split":"dev"}
+{"query_id":"q0011","query":"не работает vpn на windows","relevant_doc_ids":["vpn_windows_troubleshooting"],"split":"dev"}
+{"query_id":"q0012","query":"клиент сообщает об ошибке аутентификации что проверить","relevant_doc_ids":["vpn_windows_troubleshooting"],"split":"dev"}
+{"query_id":"q0013","query":"как восстановить vpn на windows после сбоя","relevant_doc_ids":["vpn_windows_recovery"],"split":"dev"}
+{"query_id":"q0014","query":"потеряна конфигурация vpn windows","relevant_doc_ids":["vpn_windows_recovery"],"split":"dev"}
+{"query_id":"q0015","query":"правила использования vpn на windows","relevant_doc_ids":["vpn_windows_faq"],"split":"dev"}
+{"query_id":"q0016","query":"что запрещено при работе с vpn windows","relevant_doc_ids":["vpn_windows_faq"],"split":"dev"}
+{"query_id":"q0017","query":"как настроить vpn на macos","relevant_doc_ids":["vpn_macos_setup"],"split":"dev"}
+{"query_id":"q0018","query":"первичное подключение vpn macos","relevant_doc_ids":["vpn_macos_setup"],"split":"dev"}
+{"query_id":"q0019","query":"не работает vpn на macos","relevant_doc_ids":["vpn_macos_troubleshooting"],"split":"dev"}
+{"query_id":"q0020","query":"macos блокирует расширение что проверить","relevant_doc_ids":["vpn_macos_troubleshooting","vpn_macos_setup"],"split":"dev"}
+{"query_id":"q0021","query":"как восстановить vpn на macos после сбоя","relevant_doc_ids":["vpn_macos_recovery"],"split":"dev"}
+{"query_id":"q0022","query":"потеряна конфигурация vpn macos","relevant_doc_ids":["vpn_macos_recovery"],"split":"dev"}
+{"query_id":"q0023","query":"правила использования vpn на macos","relevant_doc_ids":["vpn_macos_faq"],"split":"dev"}
+{"query_id":"q0024","query":"что запрещено при работе с vpn macos","relevant_doc_ids":["vpn_macos_faq"],"split":"dev"}
+{"query_id":"q0025","query":"как настроить корпоративный wi-fi","relevant_doc_ids":["wifi_office_setup"],"split":"dev"}
+{"query_id":"q0026","query":"первичное подключение wifi wi-fi","relevant_doc_ids":["wifi_office_setup"],"split":"dev"}
+{"query_id":"q0027","query":"не работает корпоративный wi-fi","relevant_doc_ids":["wifi_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0028","query":"сеть запрашивает пароль повторно что проверить","relevant_doc_ids":["wifi_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0029","query":"как восстановить корпоративный wi-fi после сбоя","relevant_doc_ids":["wifi_office_recovery"],"split":"dev"}
+{"query_id":"q0030","query":"потеряна конфигурация wifi wi-fi","relevant_doc_ids":["wifi_office_recovery","wifi_office_setup"],"split":"dev"}
+{"query_id":"q0031","query":"правила использования корпоративный wi-fi","relevant_doc_ids":["wifi_office_faq"],"split":"dev"}
+{"query_id":"q0032","query":"что запрещено при работе с wifi wi-fi","relevant_doc_ids":["wifi_office_faq"],"split":"dev"}
+{"query_id":"q0033","query":"как настроить внутренний dns","relevant_doc_ids":["dns_internal_setup"],"split":"dev"}
+{"query_id":"q0034","query":"первичное подключение dns nslookup","relevant_doc_ids":["dns_internal_setup"],"split":"dev"}
+{"query_id":"q0035","query":"не работает внутренний dns","relevant_doc_ids":["dns_internal_troubleshooting"],"split":"dev"}
+{"query_id":"q0036","query":"сервис открывается по ip что проверить","relevant_doc_ids":["dns_internal_troubleshooting"],"split":"dev"}
+{"query_id":"q0037","query":"как восстановить внутренний dns после сбоя","relevant_doc_ids":["dns_internal_recovery"],"split":"dev"}
+{"query_id":"q0038","query":"потеряна конфигурация dns nslookup","relevant_doc_ids":["dns_internal_recovery"],"split":"dev"}
+{"query_id":"q0039","query":"правила использования внутренний dns","relevant_doc_ids":["dns_internal_faq"],"split":"dev"}
+{"query_id":"q0040","query":"что запрещено при работе с dns nslookup","relevant_doc_ids":["dns_internal_faq","dns_internal_setup"],"split":"dev"}
+{"query_id":"q0041","query":"как настроить корпоративный proxy","relevant_doc_ids":["proxy_browser_setup"],"split":"dev"}
+{"query_id":"q0042","query":"первичное подключение proxy pac","relevant_doc_ids":["proxy_browser_setup"],"split":"dev"}
+{"query_id":"q0043","query":"не работает корпоративный proxy","relevant_doc_ids":["proxy_browser_troubleshooting"],"split":"dev"}
+{"query_id":"q0044","query":"браузер показывает 407 proxy authentication required или часть сайтов не загружается. что проверить","relevant_doc_ids":["proxy_browser_troubleshooting"],"split":"dev"}
+{"query_id":"q0045","query":"как восстановить корпоративный proxy после сбоя","relevant_doc_ids":["proxy_browser_recovery"],"split":"dev"}
+{"query_id":"q0046","query":"потеряна конфигурация proxy pac","relevant_doc_ids":["proxy_browser_recovery"],"split":"dev"}
+{"query_id":"q0047","query":"правила использования корпоративный proxy","relevant_doc_ids":["proxy_browser_faq"],"split":"dev"}
+{"query_id":"q0048","query":"что запрещено при работе с proxy pac","relevant_doc_ids":["proxy_browser_faq"],"split":"dev"}
+{"query_id":"q0049","query":"как настроить двухфакторная аутентификация gitlab","relevant_doc_ids":["gitlab_2fa_setup"],"split":"dev"}
+{"query_id":"q0050","query":"первичное подключение gitlab 2fa","relevant_doc_ids":["gitlab_2fa_setup"],"split":"dev"}
+{"query_id":"q0051","query":"не работает двухфакторная аутентификация gitlab","relevant_doc_ids":["gitlab_2fa_troubleshooting"],"split":"dev"}
+{"query_id":"q0052","query":"одноразовый код не принимается что проверить","relevant_doc_ids":["gitlab_2fa_troubleshooting"],"split":"dev"}
+{"query_id":"q0053","query":"как восстановить двухфакторная аутентификация gitlab после сбоя","relevant_doc_ids":["gitlab_2fa_recovery"],"split":"dev"}
+{"query_id":"q0054","query":"потеряна конфигурация gitlab 2fa","relevant_doc_ids":["gitlab_2fa_recovery"],"split":"dev"}
+{"query_id":"q0055","query":"правила использования двухфакторная аутентификация gitlab","relevant_doc_ids":["gitlab_2fa_faq"],"split":"dev"}
+{"query_id":"q0056","query":"что запрещено при работе с gitlab 2fa","relevant_doc_ids":["gitlab_2fa_faq"],"split":"dev"}
+{"query_id":"q0057","query":"как настроить сброс корпоративного пароля","relevant_doc_ids":["password_reset_setup"],"split":"dev"}
+{"query_id":"q0058","query":"первичное подключение пароль сброс","relevant_doc_ids":["password_reset_setup"],"split":"dev"}
+{"query_id":"q0059","query":"не работает сброс корпоративного пароля","relevant_doc_ids":["password_reset_troubleshooting"],"split":"dev"}
+{"query_id":"q0060","query":"старый пароль истёк что проверить","relevant_doc_ids":["password_reset_troubleshooting","password_reset_setup"],"split":"dev"}
+{"query_id":"q0061","query":"как восстановить сброс корпоративного пароля после сбоя","relevant_doc_ids":["password_reset_recovery"],"split":"dev"}
+{"query_id":"q0062","query":"потеряна конфигурация пароль сброс","relevant_doc_ids":["password_reset_recovery"],"split":"dev"}
+{"query_id":"q0063","query":"правила использования сброс корпоративного пароля","relevant_doc_ids":["password_reset_faq"],"split":"dev"}
+{"query_id":"q0064","query":"что запрещено при работе с пароль сброс","relevant_doc_ids":["password_reset_faq"],"split":"dev"}
+{"query_id":"q0065","query":"как настроить ssh-ключи","relevant_doc_ids":["ssh_keys_setup"],"split":"dev"}
+{"query_id":"q0066","query":"первичное подключение ssh ключ","relevant_doc_ids":["ssh_keys_setup"],"split":"dev"}
+{"query_id":"q0067","query":"не работает ssh-ключи","relevant_doc_ids":["ssh_keys_troubleshooting"],"split":"dev"}
+{"query_id":"q0068","query":"сервер отвечает permission denied publickey или используется неверный приватный ключ. что проверить","relevant_doc_ids":["ssh_keys_troubleshooting"],"split":"dev"}
+{"query_id":"q0069","query":"как восстановить ssh-ключи после сбоя","relevant_doc_ids":["ssh_keys_recovery"],"split":"dev"}
+{"query_id":"q0070","query":"потеряна конфигурация ssh ключ","relevant_doc_ids":["ssh_keys_recovery","ssh_keys_setup"],"split":"dev"}
+{"query_id":"q0071","query":"правила использования ssh-ключи","relevant_doc_ids":["ssh_keys_faq"],"split":"dev"}
+{"query_id":"q0072","query":"что запрещено при работе с ssh ключ","relevant_doc_ids":["ssh_keys_faq"],"split":"dev"}
+{"query_id":"q0073","query":"как настроить корневой сертификат компании","relevant_doc_ids":["corporate_ca_setup"],"split":"dev"}
+{"query_id":"q0074","query":"первичное подключение сертификат ca","relevant_doc_ids":["corporate_ca_setup"],"split":"dev"}
+{"query_id":"q0075","query":"не работает корневой сертификат компании","relevant_doc_ids":["corporate_ca_troubleshooting"],"split":"dev"}
+{"query_id":"q0076","query":"браузер показывает ошибку tls что проверить","relevant_doc_ids":["corporate_ca_troubleshooting"],"split":"dev"}
+{"query_id":"q0077","query":"как восстановить корневой сертификат компании после сбоя","relevant_doc_ids":["corporate_ca_recovery"],"split":"dev"}
+{"query_id":"q0078","query":"потеряна конфигурация сертификат ca","relevant_doc_ids":["corporate_ca_recovery"],"split":"dev"}
+{"query_id":"q0079","query":"правила использования корневой сертификат компании","relevant_doc_ids":["corporate_ca_faq"],"split":"dev"}
+{"query_id":"q0080","query":"что запрещено при работе с сертификат ca","relevant_doc_ids":["corporate_ca_faq","corporate_ca_setup"],"split":"dev"}
+{"query_id":"q0081","query":"как настроить профиль outlook","relevant_doc_ids":["outlook_profile_setup"],"split":"dev"}
+{"query_id":"q0082","query":"первичное подключение outlook почта","relevant_doc_ids":["outlook_profile_setup"],"split":"dev"}
+{"query_id":"q0083","query":"не работает профиль outlook","relevant_doc_ids":["outlook_profile_troubleshooting"],"split":"dev"}
+{"query_id":"q0084","query":"outlook запрашивает пароль что проверить","relevant_doc_ids":["outlook_profile_troubleshooting"],"split":"dev"}
+{"query_id":"q0085","query":"как восстановить профиль outlook после сбоя","relevant_doc_ids":["outlook_profile_recovery"],"split":"dev"}
+{"query_id":"q0086","query":"потеряна конфигурация outlook почта","relevant_doc_ids":["outlook_profile_recovery"],"split":"dev"}
+{"query_id":"q0087","query":"правила использования профиль outlook","relevant_doc_ids":["outlook_profile_faq"],"split":"dev"}
+{"query_id":"q0088","query":"что запрещено при работе с outlook почта","relevant_doc_ids":["outlook_profile_faq"],"split":"dev"}
+{"query_id":"q0089","query":"как настроить квота почтового ящика","relevant_doc_ids":["mailbox_quota_setup"],"split":"dev"}
+{"query_id":"q0090","query":"первичное подключение почта квота","relevant_doc_ids":["mailbox_quota_setup"],"split":"dev"}
+{"query_id":"q0091","query":"не работает квота почтового ящика","relevant_doc_ids":["mailbox_quota_troubleshooting"],"split":"dev"}
+{"query_id":"q0092","query":"письма не отправляются что проверить","relevant_doc_ids":["mailbox_quota_troubleshooting"],"split":"dev"}
+{"query_id":"q0093","query":"как восстановить квота почтового ящика после сбоя","relevant_doc_ids":["mailbox_quota_recovery"],"split":"dev"}
+{"query_id":"q0094","query":"потеряна конфигурация почта квота","relevant_doc_ids":["mailbox_quota_recovery"],"split":"dev"}
+{"query_id":"q0095","query":"правила использования квота почтового ящика","relevant_doc_ids":["mailbox_quota_faq"],"split":"dev"}
+{"query_id":"q0096","query":"что запрещено при работе с почта квота","relevant_doc_ids":["mailbox_quota_faq"],"split":"dev"}
+{"query_id":"q0097","query":"как настроить звук в microsoft teams","relevant_doc_ids":["teams_audio_setup"],"split":"dev"}
+{"query_id":"q0098","query":"первичное подключение teams микрофон","relevant_doc_ids":["teams_audio_setup"],"split":"dev"}
+{"query_id":"q0099","query":"не работает звук в microsoft teams","relevant_doc_ids":["teams_audio_troubleshooting"],"split":"dev"}
+{"query_id":"q0100","query":"собеседники не слышат пользователя что проверить","relevant_doc_ids":["teams_audio_troubleshooting","teams_audio_setup"],"split":"dev"}
+{"query_id":"q0101","query":"как восстановить звук в microsoft teams после сбоя","relevant_doc_ids":["teams_audio_recovery"],"split":"dev"}
+{"query_id":"q0102","query":"потеряна конфигурация teams микрофон","relevant_doc_ids":["teams_audio_recovery"],"split":"dev"}
+{"query_id":"q0103","query":"правила использования звук в microsoft teams","relevant_doc_ids":["teams_audio_faq"],"split":"dev"}
+{"query_id":"q0104","query":"что запрещено при работе с teams микрофон","relevant_doc_ids":["teams_audio_faq"],"split":"dev"}
+{"query_id":"q0105","query":"как настроить демонстрация экрана в zoom","relevant_doc_ids":["zoom_screen_setup"],"split":"dev"}
+{"query_id":"q0106","query":"первичное подключение zoom экран","relevant_doc_ids":["zoom_screen_setup"],"split":"dev"}
+{"query_id":"q0107","query":"не работает демонстрация экрана в zoom","relevant_doc_ids":["zoom_screen_troubleshooting"],"split":"dev"}
+{"query_id":"q0108","query":"участники видят чёрный экран что проверить","relevant_doc_ids":["zoom_screen_troubleshooting"],"split":"dev"}
+{"query_id":"q0109","query":"как восстановить демонстрация экрана в zoom после сбоя","relevant_doc_ids":["zoom_screen_recovery"],"split":"dev"}
+{"query_id":"q0110","query":"потеряна конфигурация zoom экран","relevant_doc_ids":["zoom_screen_recovery","zoom_screen_setup"],"split":"dev"}
+{"query_id":"q0111","query":"правила использования демонстрация экрана в zoom","relevant_doc_ids":["zoom_screen_faq"],"split":"dev"}
+{"query_id":"q0112","query":"что запрещено при работе с zoom экран","relevant_doc_ids":["zoom_screen_faq"],"split":"dev"}
+{"query_id":"q0113","query":"как настроить офисный принтер","relevant_doc_ids":["printer_office_setup"],"split":"dev"}
+{"query_id":"q0114","query":"первичное подключение принтер печать","relevant_doc_ids":["printer_office_setup"],"split":"dev"}
+{"query_id":"q0115","query":"не работает офисный принтер","relevant_doc_ids":["printer_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0116","query":"задание зависает в очереди что проверить","relevant_doc_ids":["printer_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0117","query":"как восстановить офисный принтер после сбоя","relevant_doc_ids":["printer_office_recovery"],"split":"dev"}
+{"query_id":"q0118","query":"потеряна конфигурация принтер печать","relevant_doc_ids":["printer_office_recovery"],"split":"dev"}
+{"query_id":"q0119","query":"правила использования офисный принтер","relevant_doc_ids":["printer_office_faq"],"split":"dev"}
+{"query_id":"q0120","query":"что запрещено при работе с принтер печать","relevant_doc_ids":["printer_office_faq","printer_office_setup"],"split":"dev"}
+{"query_id":"q0121","query":"как настроить восстановление bitlocker","relevant_doc_ids":["bitlocker_recovery_setup"],"split":"dev"}
+{"query_id":"q0122","query":"первичное подключение bitlocker recovery key","relevant_doc_ids":["bitlocker_recovery_setup"],"split":"dev"}
+{"query_id":"q0123","query":"не работает восстановление bitlocker","relevant_doc_ids":["bitlocker_recovery_troubleshooting"],"split":"dev"}
+{"query_id":"q0124","query":"после обновления bios компьютер запрашивает 48-значный ключ восстановления. что проверить","relevant_doc_ids":["bitlocker_recovery_troubleshooting"],"split":"dev"}
+{"query_id":"q0125","query":"как восстановить восстановление bitlocker после сбоя","relevant_doc_ids":["bitlocker_recovery_recovery"],"split":"dev"}
+{"query_id":"q0126","query":"потеряна конфигурация bitlocker recovery key","relevant_doc_ids":["bitlocker_recovery_recovery"],"split":"dev"}
+{"query_id":"q0127","query":"правила использования восстановление bitlocker","relevant_doc_ids":["bitlocker_recovery_faq"],"split":"dev"}
+{"query_id":"q0128","query":"что запрещено при работе с bitlocker recovery key","relevant_doc_ids":["bitlocker_recovery_faq"],"split":"dev"}
+{"query_id":"q0129","query":"как настроить срабатывание антивируса","relevant_doc_ids":["antivirus_alert_setup"],"split":"dev"}
+{"query_id":"q0130","query":"первичное подключение антивирус malware","relevant_doc_ids":["antivirus_alert_setup"],"split":"dev"}
+{"query_id":"q0131","query":"не работает срабатывание антивируса","relevant_doc_ids":["antivirus_alert_troubleshooting"],"split":"dev"}
+{"query_id":"q0132","query":"антивирус поместил файл в карантин что проверить","relevant_doc_ids":["antivirus_alert_troubleshooting"],"split":"dev"}
+{"query_id":"q0133","query":"как восстановить срабатывание антивируса после сбоя","relevant_doc_ids":["antivirus_alert_recovery"],"split":"dev"}
+{"query_id":"q0134","query":"потеряна конфигурация антивирус malware","relevant_doc_ids":["antivirus_alert_recovery"],"split":"dev"}
+{"query_id":"q0135","query":"правила использования срабатывание антивируса","relevant_doc_ids":["antivirus_alert_faq"],"split":"dev"}
+{"query_id":"q0136","query":"что запрещено при работе с антивирус malware","relevant_doc_ids":["antivirus_alert_faq"],"split":"dev"}
+{"query_id":"q0137","query":"как настроить установка корпоративного по","relevant_doc_ids":["software_install_setup"],"split":"dev"}
+{"query_id":"q0138","query":"первичное подключение установка software center","relevant_doc_ids":["software_install_setup"],"split":"dev"}
+{"query_id":"q0139","query":"не работает установка корпоративного по","relevant_doc_ids":["software_install_troubleshooting"],"split":"dev"}
+{"query_id":"q0140","query":"установка зависает что проверить","relevant_doc_ids":["software_install_troubleshooting","software_install_setup"],"split":"dev"}
+{"query_id":"q0141","query":"как восстановить установка корпоративного по после сбоя","relevant_doc_ids":["software_install_recovery"],"split":"dev"}
+{"query_id":"q0142","query":"потеряна конфигурация установка software center","relevant_doc_ids":["software_install_recovery"],"split":"dev"}
+{"query_id":"q0143","query":"правила использования установка корпоративного по","relevant_doc_ids":["software_install_faq"],"split":"dev"}
+{"query_id":"q0144","query":"что запрещено при работе с установка software center","relevant_doc_ids":["software_install_faq"],"split":"dev"}
+{"query_id":"q0145","query":"как настроить запрос прав доступа","relevant_doc_ids":["access_request_setup"],"split":"dev"}
+{"query_id":"q0146","query":"первичное подключение доступ роль","relevant_doc_ids":["access_request_setup"],"split":"dev"}
+{"query_id":"q0147","query":"не работает запрос прав доступа","relevant_doc_ids":["access_request_troubleshooting"],"split":"dev"}
+{"query_id":"q0148","query":"заявка согласована что проверить","relevant_doc_ids":["access_request_troubleshooting"],"split":"dev"}
+{"query_id":"q0149","query":"как восстановить запрос прав доступа после сбоя","relevant_doc_ids":["access_request_recovery"],"split":"dev"}
+{"query_id":"q0150","query":"потеряна конфигурация доступ роль","relevant_doc_ids":["access_request_recovery","access_request_setup"],"split":"dev"}
+{"query_id":"q0151","query":"правила использования запрос прав доступа","relevant_doc_ids":["access_request_faq"],"split":"dev"}
+{"query_id":"q0152","query":"что запрещено при работе с доступ роль","relevant_doc_ids":["access_request_faq"],"split":"dev"}
+{"query_id":"q0153","query":"как настроить общая сетевая папка","relevant_doc_ids":["shared_folder_setup"],"split":"dev"}
+{"query_id":"q0154","query":"первичное подключение сетевая папка smb","relevant_doc_ids":["shared_folder_setup"],"split":"dev"}
+{"query_id":"q0155","query":"не работает общая сетевая папка","relevant_doc_ids":["shared_folder_troubleshooting"],"split":"dev"}
+{"query_id":"q0156","query":"папка не открывается что проверить","relevant_doc_ids":["shared_folder_troubleshooting"],"split":"dev"}
+{"query_id":"q0157","query":"как восстановить общая сетевая папка после сбоя","relevant_doc_ids":["shared_folder_recovery"],"split":"dev"}
+{"query_id":"q0158","query":"потеряна конфигурация сетевая папка smb","relevant_doc_ids":["shared_folder_recovery"],"split":"dev"}
+{"query_id":"q0159","query":"правила использования общая сетевая папка","relevant_doc_ids":["shared_folder_faq"],"split":"dev"}
+{"query_id":"q0160","query":"что запрещено при работе с сетевая папка smb","relevant_doc_ids":["shared_folder_faq","shared_folder_setup"],"split":"dev"}
+{"query_id":"q0161","query":"как настроить удалённый рабочий стол","relevant_doc_ids":["remote_desktop_setup"],"split":"dev"}
+{"query_id":"q0162","query":"первичное подключение rdp remote desktop","relevant_doc_ids":["remote_desktop_setup"],"split":"dev"}
+{"query_id":"q0163","query":"не работает удалённый рабочий стол","relevant_doc_ids":["remote_desktop_troubleshooting"],"split":"dev"}
+{"query_id":"q0164","query":"rdp не соединяется что проверить","relevant_doc_ids":["remote_desktop_troubleshooting"],"split":"dev"}
+{"query_id":"q0165","query":"как восстановить удалённый рабочий стол после сбоя","relevant_doc_ids":["remote_desktop_recovery"],"split":"dev"}
+{"query_id":"q0166","query":"потеряна конфигурация rdp remote desktop","relevant_doc_ids":["remote_desktop_recovery"],"split":"dev"}
+{"query_id":"q0167","query":"правила использования удалённый рабочий стол","relevant_doc_ids":["remote_desktop_faq"],"split":"dev"}
+{"query_id":"q0168","query":"что запрещено при работе с rdp remote desktop","relevant_doc_ids":["remote_desktop_faq"],"split":"dev"}
+{"query_id":"q0169","query":"как настроить восстановление файлов из резервной копии","relevant_doc_ids":["backup_restore_setup"],"split":"dev"}
+{"query_id":"q0170","query":"первичное подключение backup резервная копия","relevant_doc_ids":["backup_restore_setup"],"split":"dev"}
+{"query_id":"q0171","query":"не работает восстановление файлов из резервной копии","relevant_doc_ids":["backup_restore_troubleshooting"],"split":"dev"}
+{"query_id":"q0172","query":"файл удалён что проверить","relevant_doc_ids":["backup_restore_troubleshooting"],"split":"dev"}
+{"query_id":"q0173","query":"как восстановить восстановление файлов из резервной копии после сбоя","relevant_doc_ids":["backup_restore_recovery"],"split":"dev"}
+{"query_id":"q0174","query":"потеряна конфигурация backup резервная копия","relevant_doc_ids":["backup_restore_recovery"],"split":"dev"}
+{"query_id":"q0175","query":"правила использования восстановление файлов из резервной копии","relevant_doc_ids":["backup_restore_faq"],"split":"dev"}
+{"query_id":"q0176","query":"что запрещено при работе с backup резервная копия","relevant_doc_ids":["backup_restore_faq"],"split":"dev"}
+{"query_id":"q0177","query":"как настроить кэш и cookies браузера","relevant_doc_ids":["browser_cache_setup"],"split":"dev"}
+{"query_id":"q0178","query":"первичное подключение браузер cache","relevant_doc_ids":["browser_cache_setup"],"split":"dev"}
+{"query_id":"q0179","query":"не работает кэш и cookies браузера","relevant_doc_ids":["browser_cache_troubleshooting"],"split":"dev"}
+{"query_id":"q0180","query":"сайт показывает старую страницу что проверить","relevant_doc_ids":["browser_cache_troubleshooting","browser_cache_setup"],"split":"dev"}
+{"query_id":"q0181","query":"как восстановить кэш и cookies браузера после сбоя","relevant_doc_ids":["browser_cache_recovery"],"split":"dev"}
+{"query_id":"q0182","query":"потеряна конфигурация браузер cache","relevant_doc_ids":["browser_cache_recovery"],"split":"dev"}
+{"query_id":"q0183","query":"правила использования кэш и cookies браузера","relevant_doc_ids":["browser_cache_faq"],"split":"dev"}
+{"query_id":"q0184","query":"что запрещено при работе с браузер cache","relevant_doc_ids":["browser_cache_faq"],"split":"dev"}
+{"query_id":"q0185","query":"как настроить доступ к docker registry","relevant_doc_ids":["docker_registry_setup"],"split":"dev"}
+{"query_id":"q0186","query":"первичное подключение docker registry","relevant_doc_ids":["docker_registry_setup"],"split":"dev"}
+{"query_id":"q0187","query":"не работает доступ к docker registry","relevant_doc_ids":["docker_registry_troubleshooting"],"split":"dev"}
+{"query_id":"q0188","query":"docker pull возвращает unauthorized что проверить","relevant_doc_ids":["docker_registry_troubleshooting"],"split":"dev"}
+{"query_id":"q0189","query":"как восстановить доступ к docker registry после сбоя","relevant_doc_ids":["docker_registry_recovery"],"split":"dev"}
+{"query_id":"q0190","query":"потеряна конфигурация docker registry","relevant_doc_ids":["docker_registry_recovery","docker_registry_setup"],"split":"dev"}
+{"query_id":"q0191","query":"правила использования доступ к docker registry","relevant_doc_ids":["docker_registry_faq"],"split":"dev"}
+{"query_id":"q0192","query":"что запрещено при работе с docker registry","relevant_doc_ids":["docker_registry_faq"],"split":"dev"}
+{"query_id":"q0193","query":"как настроить доступ к kubernetes","relevant_doc_ids":["kubernetes_access_setup"],"split":"dev"}
+{"query_id":"q0194","query":"первичное подключение kubernetes kubectl","relevant_doc_ids":["kubernetes_access_setup"],"split":"dev"}
+{"query_id":"q0195","query":"не работает доступ к kubernetes","relevant_doc_ids":["kubernetes_access_troubleshooting"],"split":"dev"}
+{"query_id":"q0196","query":"kubectl сообщает unauthorized что проверить","relevant_doc_ids":["kubernetes_access_troubleshooting"],"split":"dev"}
+{"query_id":"q0197","query":"как восстановить доступ к kubernetes после сбоя","relevant_doc_ids":["kubernetes_access_recovery"],"split":"dev"}
+{"query_id":"q0198","query":"потеряна конфигурация kubernetes kubectl","relevant_doc_ids":["kubernetes_access_recovery"],"split":"dev"}
+{"query_id":"q0199","query":"правила использования доступ к kubernetes","relevant_doc_ids":["kubernetes_access_faq"],"split":"dev"}
+{"query_id":"q0200","query":"что запрещено при работе с kubernetes kubectl","relevant_doc_ids":["kubernetes_access_faq","kubernetes_access_setup"],"split":"dev"}
+{"query_id":"q0201","query":"переход на новую конфигурацию справка для сотрудника — филиал HR-6390/A4D2","relevant_doc_ids":["hr_spravka_dlya_sotrudnika_filial_migration"],"split":"dev"}
+{"query_id":"q0202","query":"настройка Python package index — Kubernetes production","relevant_doc_ids":["development_python_package_index_kubernetes_production_setup"],"split":"dev"}
+{"query_id":"q0203","query":"восстановление заявка на уборку — аварийный режим","relevant_doc_ids":["facilities_zayavka_na_uborku_avariynyy_rezhim_recovery"],"split":"dev"}
+{"query_id":"q0204","query":"устранение неполадок пропуск в офис — серверная зона","relevant_doc_ids":["facilities_propusk_v_ofis_servernaya_zona_troubleshooting"],"split":"dev"}
+{"query_id":"q0205","query":"миграция и совместимость пропуск в офис — филиал","relevant_doc_ids":["facilities_propusk_v_ofis_filial_migration"],"split":"dev"}
+{"query_id":"q0206","query":"настройка поток Kafka — Airflow environment","relevant_doc_ids":["data_potok_kafka_airflow_environment_setup"],"split":"dev"}
+{"query_id":"q0207","query":"восстановление push-уведомления — legacy OS","relevant_doc_ids":["mobile_push_uvedomleniya_legacy_os_recovery"],"split":"dev"}
+{"query_id":"q0208","query":"устранение неполадок MDM-профиль — Samsung Knox","relevant_doc_ids":["mobile_mdm_profil_samsung_knox_troubleshooting"],"split":"dev"}
+{"query_id":"q0209","query":"настройка термопринтер этикеток — Windows 11","relevant_doc_ids":["hardware_termoprinter_etiketok_windows_11_setup"],"split":"dev"}
+{"query_id":"q0210","query":"правила и ограничения смарт-карта — складской терминал","relevant_doc_ids":["hardware_smart_karta_skladskoy_terminal_policy"],"split":"dev"}
+{"query_id":"q0211","query":"устранение неполадок desktop-клиент ERP — офлайн-сегмент","relevant_doc_ids":["software_desktop_klient_erp_oflayn_segment_troubleshooting"],"split":"dev"}
+{"query_id":"q0212","query":"переход на новую конфигурацию аппаратный токен FIDO2 — Microsoft Entra ID AUTH-8026/DF5B","relevant_doc_ids":["access_apparatnyy_token_fido2_microsoft_entra_id_migration"],"split":"dev"}
+{"query_id":"q0213","query":"устранение неполадок смарт-карта — Ubuntu","relevant_doc_ids":["hardware_smart_karta_ubuntu_troubleshooting"],"split":"dev"}
+{"query_id":"q0214","query":"восстановление шифрование диска — архивная среда 2023","relevant_doc_ids":["security_shifrovanie_diska_arhivnaya_sreda_2023_recovery"],"split":"dev"}
+{"query_id":"q0215","query":"инструкция по первичному включению код-ревью в GitLab — air-gapped runner","relevant_doc_ids":["development_kod_revyu_v_gitlab_air_gapped_runner_setup"],"split":"dev"}
+{"query_id":"q0216","query":"устранение неполадок возврат обращения клиента — legacy queue","relevant_doc_ids":["customer_support_vozvrat_obrascheniya_klienta_legacy_queue_troubleshooting"],"split":"dev"}
+{"query_id":"q0217","query":"политика использования смарт-карта — Ubuntu HW-6082/C0F3","relevant_doc_ids":["hardware_smart_karta_ubuntu_policy"],"split":"dev"}
+{"query_id":"q0218","query":"диагностика ошибки SMTP relay — почтовый шлюз MAIL-6708/9BCA","relevant_doc_ids":["email_smtp_relay_pochtovyy_shlyuz_troubleshooting"],"split":"dev"}
+{"query_id":"q0219","query":"диагностика ошибки счёт поставщика — филиал FIN-9043/E756","relevant_doc_ids":["finance_schet_postavschika_filial_troubleshooting"],"split":"dev"}
+{"query_id":"q0220","query":"политика использования поток Kafka — staging lakehouse DATA-1428/3F88","relevant_doc_ids":["data_potok_kafka_staging_lakehouse_policy"],"split":"dev"}
+{"query_id":"q0221","query":"диагностика ошибки личный сетевой диск — SharePoint Online STOR-8765/5CFB","relevant_doc_ids":["storage_lichnyy_setevoy_disk_sharepoint_online_troubleshooting"],"split":"dev"}
+{"query_id":"q0222","query":"диагностика ошибки учётная запись привилегированного доступа — Okta tenant AUTH-1912/CBE5","relevant_doc_ids":["access_uchetnaya_zapis_privilegirovannogo_dostupa_okta_tenant_troubleshooting"],"split":"dev"}
+{"query_id":"q0223","query":"правила и ограничения артефакт сборки — staging namespace","relevant_doc_ids":["development_artefakt_sborki_staging_namespace_policy"],"split":"dev"}
+{"query_id":"q0224","query":"правила и ограничения корпоративная карта — архивный регламент 2022","relevant_doc_ids":["finance_korporativnaya_karta_arhivnyy_reglament_2022_policy"],"split":"dev"}
+{"query_id":"q0225","query":"план восстановления performance review — SAP SuccessFactors HR-4003/9FAD","relevant_doc_ids":["hr_performance_review_sap_successfactors_recovery"],"split":"dev"}
+{"query_id":"q0226","query":"восстановление календарь ресурса — почтовый шлюз","relevant_doc_ids":["email_kalendar_resursa_pochtovyy_shlyuz_recovery"],"split":"dev"}
+{"query_id":"q0227","query":"миграция и совместимость performance review — архивный процесс 2023","relevant_doc_ids":["hr_performance_review_arhivnyy_process_2023_migration"],"split":"dev"}
+{"query_id":"q0228","query":"правила и ограничения восстановление удалённой версии файла — S3-compatible cloud","relevant_doc_ids":["storage_vosstanovlenie_udalennoy_versii_fayla_s3_compatible_cloud_policy"],"split":"dev"}
+{"query_id":"q0229","query":"переход на новую конфигурацию объектное хранилище S3 — SharePoint Online STOR-7893/22F4","relevant_doc_ids":["storage_obektnoe_hranilische_s3_sharepoint_online_migration"],"split":"dev"}
+{"query_id":"q0230","query":"инструкция по первичному включению корпоративный браузер — Windows 11 x64","relevant_doc_ids":["software_korporativnyy_brauzer_windows_11_x64_setup"],"split":"dev"}
+{"query_id":"q0231","query":"правила и ограничения справка для сотрудника — SAP SuccessFactors","relevant_doc_ids":["hr_spravka_dlya_sotrudnika_sap_successfactors_policy"],"split":"dev"}
+{"query_id":"q0232","query":"переход на новую конфигурацию аппаратный токен FIDO2 — локальный Active Directory AUTH-8300/97E1","relevant_doc_ids":["access_apparatnyy_token_fido2_lokalnyy_active_directory_migration"],"split":"dev"}
+{"query_id":"q0233","query":"план восстановления экспорт отчёта CSV — legacy Oracle mart DATA-4002/DC81","relevant_doc_ids":["data_eksport_otcheta_csv_legacy_oracle_mart_recovery"],"split":"dev"}
+{"query_id":"q0234","query":"правила и ограничения deep link — offline field mode","relevant_doc_ids":["mobile_deep_link_offline_field_mode_policy"],"split":"dev"}
+{"query_id":"q0235","query":"инструкция по первичному включению счёт поставщика — ERP production","relevant_doc_ids":["finance_schet_postavschika_erp_production_setup"],"split":"dev"}
+{"query_id":"q0236","query":"правила и ограничения USB-C док-станция — Ubuntu","relevant_doc_ids":["hardware_usb_c_dok_stanciya_ubuntu_policy"],"split":"dev"}
+{"query_id":"q0237","query":"восстановление электронная подпись документа — desktop client","relevant_doc_ids":["business_apps_elektronnaya_podpis_dokumenta_desktop_client_recovery"],"split":"dev"}
+{"query_id":"q0238","query":"правила и ограничения менеджер паролей — Ubuntu LTS","relevant_doc_ids":["software_menedzher_paroley_ubuntu_lts_policy"],"split":"dev"}
+{"query_id":"q0239","query":"план восстановления проверка фишингового письма — контейнерный кластер SEC-7010/2C28","relevant_doc_ids":["security_proverka_fishingovogo_pisma_konteynernyy_klaster_recovery"],"split":"dev"}
+{"query_id":"q0240","query":"политика использования онбординг сотрудника — мобильное приложение HR-1018/3447","relevant_doc_ids":["hr_onbording_sotrudnika_mobilnoe_prilozhenie_policy"],"split":"dev"}
+{"query_id":"q0241","query":"настройка performance review — HR portal","relevant_doc_ids":["hr_performance_review_hr_portal_setup"],"split":"dev"}
+{"query_id":"q0242","query":"переход на новую конфигурацию deep link — BYOD-режим MOB-7353/CC08","relevant_doc_ids":["mobile_deep_link_byod_rezhim_migration"],"split":"dev"}
+{"query_id":"q0243","query":"инструкция по первичному включению доступ в серверную — главный офис","relevant_doc_ids":["facilities_dostup_v_servernuyu_glavnyy_ofis_setup"],"split":"dev"}
+{"query_id":"q0244","query":"политика использования сетевой VLAN — Android 15 NET-4572/A904","relevant_doc_ids":["network_setevoy_vlan_android_15_policy"],"split":"dev"}
+{"query_id":"q0245","query":"инструкция по первичному включению корпоративный портал — веб-интерфейс","relevant_doc_ids":["business_apps_korporativnyy_portal_veb_interfeys_setup"],"split":"dev"}
+{"query_id":"q0246","query":"миграция и совместимость рабочий контейнер — Samsung Knox","relevant_doc_ids":["mobile_rabochiy_konteyner_samsung_knox_migration"],"split":"dev"}
+{"query_id":"q0247","query":"политика использования legal hold — регион RU COMP-7595/0299","relevant_doc_ids":["legal_compliance_legal_hold_region_ru_policy"],"split":"dev"}
+{"query_id":"q0248","query":"настройка секреты в Vault — Linux-сервер","relevant_doc_ids":["security_sekrety_v_vault_linux_server_setup"],"split":"dev"}
+{"query_id":"q0249","query":"политика использования платёжное поручение — тестовый контур FIN-0197/454A","relevant_doc_ids":["finance_platezhnoe_poruchenie_testovyy_kontur_policy"],"split":"dev"}
+{"query_id":"q0250","query":"миграция и совместимость аварийное оповещение здания — ночная смена","relevant_doc_ids":["facilities_avariynoe_opoveschenie_zdaniya_nochnaya_smena_migration"],"split":"dev"}
+{"query_id":"q0251","query":"что делать для отката рабочий контейнер — shared device после неудачного изменения","relevant_doc_ids":["mobile_rabochiy_konteyner_shared_device_recovery"],"split":"dev"}
+{"query_id":"q0252","query":"почему может сбоить архив почты — Exchange Online и где смотреть диагностику","relevant_doc_ids":["email_arhiv_pochty_exchange_online_troubleshooting"],"split":"dev"}
+{"query_id":"q0253","query":"что нужно сделать перед началом работы с корпоративная карта — архивный регламент 2022","relevant_doc_ids":["finance_korporativnaya_karta_arhivnyy_reglament_2022_setup"],"split":"dev"}
+{"query_id":"q0254","query":"что разрешено и запрещено при работе с бюджет подразделения — портал поставщиков","relevant_doc_ids":["finance_byudzhet_podrazdeleniya_portal_postavschikov_policy"],"split":"dev"}
+{"query_id":"q0255","query":"что проверить до обновления архив почты — Exchange Online и как откатиться","relevant_doc_ids":["email_arhiv_pochty_exchange_online_migration"],"split":"dev"}
+{"query_id":"q0256","query":"что делать для отката чат поддержки — VDI-клиент после неудачного изменения","relevant_doc_ids":["communication_chat_podderzhki_vdi_klient_recovery"],"split":"dev"}
+{"query_id":"q0257","query":"что делать для отката сменный журнал — розничная точка после неудачного изменения","relevant_doc_ids":["operations_smennyy_zhurnal_roznichnaya_tochka_recovery"],"split":"dev"}
+{"query_id":"q0258","query":"как перейти на новый вариант IAM policy — production region без потери настроек","relevant_doc_ids":["cloud_iam_policy_production_region_migration"],"split":"dev"}
+{"query_id":"q0259","query":"какие обязательные требования действуют для IAM policy — disaster recovery region","relevant_doc_ids":["cloud_iam_policy_disaster_recovery_region_policy"],"split":"dev"}
+{"query_id":"q0260","query":"как перейти на новый вариант виртуальная машина — sandbox environment без потери настроек","relevant_doc_ids":["cloud_virtualnaya_mashina_sandbox_environment_migration"],"split":"dev"}
+{"query_id":"q0261","query":"что проверить до обновления онбординг сотрудника — филиал и как откатиться","relevant_doc_ids":["hr_onbording_sotrudnika_filial_migration"],"split":"dev"}
+{"query_id":"q0262","query":"как безопасно вернуть электронная подпись документа — production tenant в рабочее состояние","relevant_doc_ids":["business_apps_elektronnaya_podpis_dokumenta_production_tenant_recovery"],"split":"dev"}
+{"query_id":"q0263","query":"какие обязательные требования действуют для отзыв покупателя — payment sandbox","relevant_doc_ids":["ecommerce_otzyv_pokupatelya_payment_sandbox_policy"],"split":"dev"}
+{"query_id":"q0264","query":"какие обязательные требования действуют для трансляция town hall — переговорная MTR","relevant_doc_ids":["communication_translyaciya_town_hall_peregovornaya_mtr_policy"],"split":"dev"}
+{"query_id":"q0265","query":"какие обязательные требования действуют для карточка товара — Android app","relevant_doc_ids":["ecommerce_kartochka_tovara_android_app_policy"],"split":"dev"}
+{"query_id":"q0266","query":"что проверить до обновления serverless function — sandbox environment и как откатиться","relevant_doc_ids":["cloud_serverless_function_sandbox_environment_migration"],"split":"dev"}
+{"query_id":"q0267","query":"как перейти на новый вариант антиспам-карантин — архивная конфигурация 2022 без потери настроек","relevant_doc_ids":["email_antispam_karantin_arhivnaya_konfiguraciya_2022_migration"],"split":"dev"}
+{"query_id":"q0268","query":"почему может сбоить PAC-файл proxy — Windows 11 и где смотреть диагностику","relevant_doc_ids":["network_pac_fayl_proxy_windows_11_troubleshooting"],"split":"dev"}
+{"query_id":"q0269","query":"что делать для отката конференц-камера — кассовое место после неудачного изменения","relevant_doc_ids":["hardware_konferenc_kamera_kassovoe_mesto_recovery"],"split":"dev"}
+{"query_id":"q0270","query":"VPN на Ubuntu перестал работать, с чего начать проверку","relevant_doc_ids":["vpn_ubuntu_troubleshooting"],"split":"dev"}
+{"query_id":"q0271","query":"что разрешено и запрещено при работе с корпоративный портал — production tenant","relevant_doc_ids":["business_apps_korporativnyy_portal_production_tenant_policy"],"split":"dev"}
+{"query_id":"q0272","query":"как перейти на новый вариант агент удалённой поддержки — macOS Apple Silicon без потери настроек","relevant_doc_ids":["software_agent_udalennoy_podderzhki_macos_apple_silicon_migration"],"split":"dev"}
+{"query_id":"q0273","query":"что нужно сделать перед началом работы с портал самообслуживания паролей — Microsoft Entra ID","relevant_doc_ids":["access_portal_samoobsluzhivaniya_paroley_microsoft_entra_id_setup"],"split":"dev"}
+{"query_id":"q0274","query":"что проверить до обновления data catalog — production DWH и как откатиться","relevant_doc_ids":["data_data_catalog_production_dwh_migration"],"split":"dev"}
+{"query_id":"q0275","query":"почему может сбоить биометрический вход — iOS supervised и где смотреть диагностику","relevant_doc_ids":["mobile_biometricheskiy_vhod_ios_supervised_troubleshooting"],"split":"dev"}
+{"query_id":"q0276","query":"почему может сбоить реестр обработки данных — дочерняя компания и где смотреть диагностику","relevant_doc_ids":["legal_compliance_reestr_obrabotki_dannyh_dochernyaya_kompaniya_troubleshooting"],"split":"dev"}
+{"query_id":"q0277","query":"что разрешено и запрещено при работе с PDF-редактор — киоск-режим","relevant_doc_ids":["software_pdf_redaktor_kiosk_rezhim_policy"],"split":"dev"}
+{"query_id":"q0278","query":"что делать для отката парковочное разрешение — склад после неудачного изменения","relevant_doc_ids":["facilities_parkovochnoe_razreshenie_sklad_recovery"],"split":"dev"}
+{"query_id":"q0279","query":"Офисный принтер перестал работать, с чего начать проверку","relevant_doc_ids":["printer_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0280","query":"что проверить до обновления возврат обращения клиента — legacy queue и как откатиться","relevant_doc_ids":["customer_support_vozvrat_obrascheniya_klienta_legacy_queue_migration"],"split":"dev"}
+{"query_id":"q0281","query":"как впервые запустить экспорт отчёта CSV — legacy Oracle mart","relevant_doc_ids":["data_eksport_otcheta_csv_legacy_oracle_mart_setup"],"split":"dev"}
+{"query_id":"q0282","query":"как безопасно вернуть offline mode — Samsung Knox в рабочее состояние","relevant_doc_ids":["mobile_offline_mode_samsung_knox_recovery"],"split":"dev"}
+{"query_id":"q0283","query":"как перейти на новый вариант платёжное поручение — портал поставщиков без потери настроек","relevant_doc_ids":["finance_platezhnoe_poruchenie_portal_postavschikov_migration"],"split":"dev"}
+{"query_id":"q0284","query":"как безопасно вернуть ETL-пайплайн — Kafka cluster в рабочее состояние","relevant_doc_ids":["data_etl_payplayn_kafka_cluster_recovery"],"split":"dev"}
+{"query_id":"q0285","query":"балансировка DNS — Windows 11 перестал работать, с чего начать проверку","relevant_doc_ids":["network_balansirovka_dns_windows_11_troubleshooting"],"split":"dev"}
+{"query_id":"q0286","query":"как перейти на новый вариант корпоративное приложение — legacy OS без потери настроек","relevant_doc_ids":["mobile_korporativnoe_prilozhenie_legacy_os_migration"],"split":"dev"}
+{"query_id":"q0287","query":"что разрешено и запрещено при работе с виртуальная машина — private cloud","relevant_doc_ids":["cloud_virtualnaya_mashina_private_cloud_policy"],"split":"dev"}
+{"query_id":"q0288","query":"как безопасно вернуть поток Kafka — production DWH в рабочее состояние","relevant_doc_ids":["data_potok_kafka_production_dwh_recovery"],"split":"dev"}
+{"query_id":"q0289","query":"что нужно сделать перед началом работы с SMTP relay — гибридный Exchange","relevant_doc_ids":["email_smtp_relay_gibridnyy_exchange_setup"],"split":"dev"}
+{"query_id":"q0290","query":"как перейти на новый вариант конференц-камера — macOS без потери настроек","relevant_doc_ids":["hardware_konferenc_kamera_macos_migration"],"split":"dev"}
+{"query_id":"q0291","query":"что делать для отката план непрерывности бизнеса — DR-сценарий после неудачного изменения","relevant_doc_ids":["operations_plan_nepreryvnosti_biznesa_dr_scenariy_recovery"],"split":"dev"}
+{"query_id":"q0292","query":"что разрешено и запрещено при работе с запись встречи — мобильное приложение","relevant_doc_ids":["communication_zapis_vstrechi_mobilnoe_prilozhenie_policy"],"split":"dev"}
+{"query_id":"q0293","query":"почему может сбоить закрытие месяца — архивный регламент 2022 и где смотреть диагностику","relevant_doc_ids":["finance_zakrytie_mesyaca_arhivnyy_reglament_2022_troubleshooting"],"split":"dev"}
+{"query_id":"q0294","query":"как перейти на новый вариант секреты в Vault — контейнерный кластер без потери настроек","relevant_doc_ids":["security_sekrety_v_vault_konteynernyy_klaster_migration"],"split":"dev"}
+{"query_id":"q0295","query":"что нужно сделать перед началом работы с offboarding checklist — мобильное приложение","relevant_doc_ids":["hr_offboarding_checklist_mobilnoe_prilozhenie_setup"],"split":"dev"}
+{"query_id":"q0296","query":"как перейти на новый вариант offboarding checklist — мобильное приложение без потери настроек","relevant_doc_ids":["hr_offboarding_checklist_mobilnoe_prilozhenie_migration"],"split":"dev"}
+{"query_id":"q0297","query":"что разрешено и запрещено при работе с WireGuard-туннель — филиал через MPLS","relevant_doc_ids":["network_wireguard_tunnel_filial_cherez_mpls_policy"],"split":"dev"}
+{"query_id":"q0298","query":"какие обязательные требования действуют для согласие на обработку данных — регион RU","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_region_ru_policy"],"split":"dev"}
+{"query_id":"q0299","query":"что проверить до обновления вебинар в Teams — мобильное приложение и как откатиться","relevant_doc_ids":["communication_vebinar_v_teams_mobilnoe_prilozhenie_migration"],"split":"dev"}
+{"query_id":"q0300","query":"что разрешено и запрещено при работе с offline mode — shared device","relevant_doc_ids":["mobile_offline_mode_shared_device_policy"],"split":"dev"}
+{"query_id":"q0301","query":"второй монитор — Ubuntu: драйвер установлен, однако система выбирает универсальный профиль, что проверить","relevant_doc_ids":["hardware_vtoroy_monitor_ubuntu_troubleshooting"],"split":"dev"}
+{"query_id":"q0302","query":"почему проверка фишингового письма в рабочая станция Windows: агент показывает healthy, но политика не применяется","relevant_doc_ids":["security_proverka_fishingovogo_pisma_rabochaya_stanciya_windows_troubleshooting"],"split":"dev"}
+{"query_id":"q0303","query":"почему онбординг сотрудника в локальная HRIS: изменение согласовано, но не отображается в профиле","relevant_doc_ids":["hr_onbording_sotrudnika_lokalnaya_hris_troubleshooting"],"split":"dev"}
+{"query_id":"q0304","query":"ошибка CALL-1914/C634 — демонстрация экрана доступна, но системный звук не передаётся; нужна диагностика","relevant_doc_ids":["communication_subtitry_v_videozvonke_microsoft_teams_troubleshooting"],"split":"dev"}
+{"query_id":"q0305","query":"карточка товара — iOS app: карточка опубликована, но не видна в одном канале, что проверить","relevant_doc_ids":["ecommerce_kartochka_tovara_ios_app_troubleshooting"],"split":"dev"}
+{"query_id":"q0306","query":"serverless function — sandbox environment: роль назначена на subscription, но операция всё равно запрещена, что проверить","relevant_doc_ids":["cloud_serverless_function_sandbox_environment_troubleshooting"],"split":"dev"}
+{"query_id":"q0307","query":"отзыв покупателя — warehouse integration: карточка опубликована, но не видна в одном канале, что проверить","relevant_doc_ids":["ecommerce_otzyv_pokupatelya_warehouse_integration_troubleshooting"],"split":"dev"}
+{"query_id":"q0308","query":"виртуальная машина — AWS account: автомасштабирование не запускается при росте нагрузки, что проверить","relevant_doc_ids":["cloud_virtualnaya_mashina_aws_account_troubleshooting"],"split":"dev"}
+{"query_id":"q0309","query":"почему единый вход sso в локальный Active Directory: вход блокируется после смены устройства или номера телефона","relevant_doc_ids":["access_edinyy_vhod_sso_lokalnyy_active_directory_troubleshooting"],"split":"dev"}
+{"query_id":"q0310","query":"почему sip-телефония в переговорная MTR: демонстрация экрана доступна, но системный звук не передаётся","relevant_doc_ids":["communication_sip_telefoniya_peregovornaya_mtr_troubleshooting"],"split":"dev"}
+{"query_id":"q0311","query":"почему кэш и cookies браузера в системе: Сайт показывает старую страницу, зацикливает вход или работает в режиме инкогнито, но не в обычном окне","relevant_doc_ids":["browser_cache_troubleshooting"],"split":"dev"}
+{"query_id":"q0312","query":"почему обучающий курс в филиал: изменение согласовано, но не отображается в профиле","relevant_doc_ids":["hr_obuchayuschiy_kurs_filial_troubleshooting"],"split":"dev"}
+{"query_id":"q0313","query":"почему data catalog в production DWH: дашборд показывает разные значения после смены фильтра","relevant_doc_ids":["data_data_catalog_production_dwh_troubleshooting"],"split":"dev"}
+{"query_id":"q0314","query":"почему рабочий контейнер в BYOD-режим: рабочий контейнер блокируется после обновления ОС","relevant_doc_ids":["mobile_rabochiy_konteyner_byod_rezhim_troubleshooting"],"split":"dev"}
+{"query_id":"q0315","query":"ошибка HW-6846/DA06 — устройство определяется, но рабочая функция недоступна; нужна диагностика","relevant_doc_ids":["hardware_vtoroy_monitor_macos_troubleshooting"],"split":"dev"}
+{"query_id":"q0316","query":"согласие на обработку данных — DMS production: поиск возвращает неполный набор систем, что проверить","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_dms_production_troubleshooting"],"split":"dev"}
+{"query_id":"q0317","query":"ошибка DATA-8493/1BD4 — пайплайн завершился успешно, но данные за последний период отсутствуют; нужна диагностика","relevant_doc_ids":["data_bi_dashbord_staging_lakehouse_troubleshooting"],"split":"dev"}
+{"query_id":"q0318","query":"SMTP relay — Outlook for Mac: письмо доставляется во внешние домены, но не во внутреннюю группу, что проверить","relevant_doc_ids":["email_smtp_relay_outlook_for_mac_troubleshooting"],"split":"dev"}
+{"query_id":"q0319","query":"почему секреты в vault в контейнерный кластер: сертификат принят системой, но приложение считает его недоверенным","relevant_doc_ids":["security_sekrety_v_vault_konteynernyy_klaster_troubleshooting"],"split":"dev"}
+{"query_id":"q0320","query":"почему сканер штрихкодов в Windows 11: после выхода из сна пропадает питание на порту","relevant_doc_ids":["hardware_skaner_shtrihkodov_windows_11_troubleshooting"],"split":"dev"}
+{"query_id":"q0321","query":"ошибка BIZ-9179/7ED9 — объект сохранён, но не попадает на следующий этап процесса; нужна диагностика","relevant_doc_ids":["business_apps_sistema_upravleniya_proektami_mobilnoe_prilozhenie_troubleshooting"],"split":"dev"}
+{"query_id":"q0322","query":"почему восстановление удалённой версии файла в S3-compatible cloud: восстановленная версия имеет старые разрешения","relevant_doc_ids":["storage_vosstanovlenie_udalennoy_versii_fayla_s3_compatible_cloud_troubleshooting"],"split":"dev"}
+{"query_id":"q0323","query":"ошибка BIZ-5754/58DD — пользователь видит модуль, однако не может открыть запись; нужна диагностика","relevant_doc_ids":["business_apps_erp_zakaz_filialnaya_installyaciya_troubleshooting"],"split":"dev"}
+{"query_id":"q0324","query":"почему smtp relay в мобильный клиент: отправитель видит success, а сообщение попадает в карантин","relevant_doc_ids":["email_smtp_relay_mobilnyy_klient_troubleshooting"],"split":"dev"}
+{"query_id":"q0325","query":"ошибка без кода — Сеть запрашивает пароль повторно, подключается без интернета или отклоняет сертификат; нужна диагностика","relevant_doc_ids":["wifi_office_troubleshooting"],"split":"dev"}
+{"query_id":"q0326","query":"ошибка AUTH-2871/ADE3 — пользователь проходит пароль, но получает отказ авторизации; нужна диагностика","relevant_doc_ids":["access_portal_samoobsluzhivaniya_paroley_okta_tenant_troubleshooting"],"split":"dev"}
+{"query_id":"q0327","query":"ошибка HR-6714/9E17 — offboarding завершён, однако актив остался закреплён; нужна диагностика","relevant_doc_ids":["hr_offboarding_checklist_mobilnoe_prilozhenie_troubleshooting"],"split":"dev"}
+{"query_id":"q0328","query":"IAM policy — Azure subscription: ресурс создан, но endpoint недоступен из корпораитвной сети, что проверить","relevant_doc_ids":["cloud_iam_policy_azure_subscription_troubleshooting"],"split":"dev"}
+{"query_id":"q0329","query":"ошибка без кода — RDP не соединяется, показывает CredSSP error или сообщает, что удалённый компьютер недоступен; нужна диагностика","relevant_doc_ids":["remote_desktop_troubleshooting"],"split":"dev"}
+{"query_id":"q0330","query":"ошибка AUTH-6980/59B1 — пользователь проходит пароль, но получает отказ авторизации; нужна диагностика","relevant_doc_ids":["access_edinyy_vhod_sso_microsoft_entra_id_troubleshooting"],"split":"dev"}
+{"query_id":"q0331","query":"почему корпоротивный браузер в киоск-режим: установка завершается успешно, но приложение не запускается","relevant_doc_ids":["software_korporativnyy_brauzer_kiosk_rezhim_troubleshooting"],"split":"dev"}
+{"query_id":"q0332","query":"CI/CD secret — Kubernetes production: публикация пакета возвращает conflict для существующей версии, что проверить","relevant_doc_ids":["development_ci_cd_secret_kubernetes_production_troubleshooting"],"split":"dev"}
+{"query_id":"q0333","query":"почему экспорт персональных данных в DMS production: поиск возвращает неполный набор систем","relevant_doc_ids":["legal_compliance_eksport_personalnyh_dannyh_dms_production_troubleshooting"],"split":"dev"}
+{"query_id":"q0334","query":"балансировка DNS — Ubuntu 24.04: соединение устанавливается, но внутренний ресурс не открывается, что проверить","relevant_doc_ids":["network_balansirovka_dns_ubuntu_24_04_troubleshooting"],"split":"dev"}
+{"query_id":"q0335","query":"ошибка без кода — Сервис открывается по IP, но не открывается по имени, либо разрешается устаревший адрес; нужна диагностика","relevant_doc_ids":["dns_internal_troubleshooting"],"split":"dev"}
+{"query_id":"q0336","query":"идентификация клиента — телефонная линия: обращение автоматически переоткрывается после системного уведомления, что проверить","relevant_doc_ids":["customer_support_identifikaciya_klienta_telefonnaya_liniya_troubleshooting"],"split":"dev"}
+{"query_id":"q0337","query":"виртуальная машина — Google Cloud project: ресурс создан, но endpoint недоступен из корпоративной сети, что проверить","relevant_doc_ids":["cloud_virtualnaya_mashina_google_cloud_project_troubleshooting"],"split":"dev"}
+{"query_id":"q0338","query":"ошибка APP-6436/EC16 — установка завершается успешно, но приложение не запускается; нужна диагностика","relevant_doc_ids":["software_obnovlenie_java_runtime_macos_apple_silicon_troubleshooting"],"split":"dev"}
+{"query_id":"q0339","query":"наряд на обслуживание — DR-сценарий: остаток существует в системе, однако недоступен для отбора, что проверить","relevant_doc_ids":["operations_naryad_na_obsluzhivanie_dr_scenariy_troubleshooting"],"split":"dev"}
+{"query_id":"q0340","query":"ошибка MAIL-4790/DCC5 — письмо доставляется во внешние домены, но не во внутреннюю группу; нужна диагностика","relevant_doc_ids":["email_kalendar_resursa_pochtovyy_shlyuz_troubleshooting"],"split":"dev"}
+{"query_id":"q0341","query":"ошибка AUTH-9172/18B4 — вход блокируется после смены устройства или номера телефона; нужна диагностика","relevant_doc_ids":["access_service_account_lokalnyy_active_directory_troubleshooting"],"split":"dev"}
+{"query_id":"q0342","query":"ошибка DEV-6711/F3E1 — локальная сборка проходит, а CI не видит зависимость; нужна диагностика","relevant_doc_ids":["development_python_package_index_legacy_pipeline_troubleshooting"],"split":"dev"}
+{"query_id":"q0343","query":"ошибка FIN-7536/71F2 — сумма совпадает, однако система сообщает о дубликате; нужна диагностика","relevant_doc_ids":["finance_avansovyy_otchet_erp_production_troubleshooting"],"split":"dev"}
+{"query_id":"q0344","query":"почему таблица витрины данных в legacy Oracle mart: дашборд показывает разные значения после смены фильтра","relevant_doc_ids":["data_tablica_vitriny_dannyh_legacy_oracle_mart_troubleshooting"],"split":"dev"}
+{"query_id":"q0345","query":"почему cloud load balancer в Azure subscription: ресурс создан, но endpoint недоступен из корпоративной сети","relevant_doc_ids":["cloud_cloud_load_balancer_azure_subscription_troubleshooting"],"split":"dev"}
+{"query_id":"q0346","query":"нужен безопасный rollback для правило пересылки — архивная конфигурация 2022","relevant_doc_ids":["email_pravilo_peresylki_arhivnaya_konfiguraciya_2022_recovery"],"split":"dev"}
+{"query_id":"q0347","query":"нужен безопасный rollback для онбординг сотрудника — SAP SuccessFactors","relevant_doc_ids":["hr_onbording_sotrudnika_sap_successfactors_recovery"],"split":"dev"}
+{"query_id":"q0348","query":"менеджер паролей — киоск-режим сломался после изменения, как откатить","relevant_doc_ids":["software_menedzher_paroley_kiosk_rezhim_recovery"],"split":"dev"}
+{"query_id":"q0349","query":"как восстановить план непрерывности бизнеса — ночная смена после сбоя без потери данных","relevant_doc_ids":["operations_plan_nepreryvnosti_biznesa_nochnaya_smena_recovery"],"split":"dev"}
+{"query_id":"q0350","query":"нужен безопасный rollback для секреты в Vault — облачная подписка","relevant_doc_ids":["security_sekrety_v_vault_oblachnaya_podpiska_recovery"],"split":"dev"}
+{"query_id":"q0351","query":"как восстановить временный доступ подрядчика — legacy LDAP после сбоя без потери данных","relevant_doc_ids":["access_vremennyy_dostup_podryadchika_legacy_ldap_recovery"],"split":"dev"}
+{"query_id":"q0352","query":"нужен безопасный rollback для климат-контроль — серверная зона","relevant_doc_ids":["facilities_klimat_kontrol_servernaya_zona_recovery"],"split":"dev"}
+{"query_id":"q0353","query":"managed database — sandbox environment сломался после изменения, как откатить","relevant_doc_ids":["cloud_managed_database_sandbox_environment_recovery"],"split":"dev"}
+{"query_id":"q0354","query":"как восстановить чат поддержки — Zoom Workplace после сбоя без потери данных","relevant_doc_ids":["communication_chat_podderzhki_zoom_workplace_recovery"],"split":"dev"}
+{"query_id":"q0355","query":"как восстановить Срабатывание антивируса после сбоя без потери данных","relevant_doc_ids":["antivirus_alert_recovery"],"split":"dev"}
+{"query_id":"q0356","query":"нужен безопасный rollback для смарт-карта — тонкий клиент","relevant_doc_ids":["hardware_smart_karta_tonkiy_klient_recovery"],"split":"dev"}
+{"query_id":"q0357","query":"как восстановить Корпоративный Wi-Fi после сбоя без потери данных","relevant_doc_ids":["wifi_office_recovery"],"split":"dev"}
+{"query_id":"q0358","query":"нужен безопасный rollback для код-ревью в GitLab — GitHub Enterprise","relevant_doc_ids":["development_kod_revyu_v_gitlab_github_enterprise_recovery"],"split":"dev"}
+{"query_id":"q0359","query":"CI/CD secret — staging namespace сломался после изменения, как откатить","relevant_doc_ids":["development_ci_cd_secret_staging_namespace_recovery"],"split":"dev"}
+{"query_id":"q0360","query":"рабочий контейнер — legacy OS сломался после изменения, как откатить","relevant_doc_ids":["mobile_rabochiy_konteyner_legacy_os_recovery"],"split":"dev"}
+{"query_id":"q0361","query":"как восстановить архив проекта — NAS в филиале после сбоя без потери данных","relevant_doc_ids":["storage_arhiv_proekta_nas_v_filiale_recovery"],"split":"dev"}
+{"query_id":"q0362","query":"Доступ к Kubernetes сломался после изменения, как откатить","relevant_doc_ids":["kubernetes_access_recovery"],"split":"dev"}
+{"query_id":"q0363","query":"как восстановить согласие на обработку данных — DMS production после сбоя без потери данных","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_dms_production_recovery"],"split":"dev"}
+{"query_id":"q0364","query":"онбординг сотрудника — филиал сломался после изменения, как откатить","relevant_doc_ids":["hr_onbording_sotrudnika_filial_recovery"],"split":"dev"}
+{"query_id":"q0365","query":"портал самообслуживания паролей — Microsoft Entra ID сломался после изменения, как откатить","relevant_doc_ids":["access_portal_samoobsluzhivaniya_paroley_microsoft_entra_id_recovery"],"split":"dev"}
+{"query_id":"q0366","query":"как восстановить гарнитура call-центра — macOS после сбоя без потери данных","relevant_doc_ids":["hardware_garnitura_call_centra_macos_recovery"],"split":"dev"}
+{"query_id":"q0367","query":"как восстановить заявка на уборку — серверная зона после сбоя без потери данных","relevant_doc_ids":["facilities_zayavka_na_uborku_servernaya_zona_recovery"],"split":"dev"}
+{"query_id":"q0368","query":"корпоративная карта — мобильный банк сломался после изменения, как откатить","relevant_doc_ids":["finance_korporativnaya_karta_mobilnyy_bank_recovery"],"split":"dev"}
+{"query_id":"q0369","query":"поток Kafka — Tableau Server сломался после изменения, как откатить","relevant_doc_ids":["data_potok_kafka_tableau_server_recovery"],"split":"dev"}
+{"query_id":"q0370","query":"как восстановить managed database — disaster recovery region после сбоя без потери данных","relevant_doc_ids":["cloud_managed_database_disaster_recovery_region_recovery"],"split":"dev"}
+{"query_id":"q0371","query":"кто и на каких условиях может использовать секреты в Vault — облачная подписка","relevant_doc_ids":["security_sekrety_v_vault_oblachnaya_podpiska_policy"],"split":"dev"}
+{"query_id":"q0372","query":"разрешено ли нарушать правило: публичный endpoint требует security review","relevant_doc_ids":["cloud_managed_database_production_region_policy"],"split":"dev"}
+{"query_id":"q0373","query":"кто и на каких условиях может использовать инцидент производства — производственная площадка","relevant_doc_ids":["operations_incident_proizvodstva_proizvodstvennaya_ploschadka_policy"],"split":"dev"}
+{"query_id":"q0374","query":"какие ограничения действуют для заявка на отпуск — Workday tenant","relevant_doc_ids":["hr_zayavka_na_otpusk_workday_tenant_policy"],"split":"dev"}
+{"query_id":"q0375","query":"кто и на каких условиях может использовать код-ревью в GitLab — GitLab CI","relevant_doc_ids":["development_kod_revyu_v_gitlab_gitlab_ci_policy"],"split":"dev"}
+{"query_id":"q0376","query":"что запрещено при работе с BI-дашборд — legacy Oracle mart","relevant_doc_ids":["data_bi_dashbord_legacy_oracle_mart_policy"],"split":"dev"}
+{"query_id":"q0377","query":"какие ограничения действуют для идентификация клиента — чат-канал","relevant_doc_ids":["customer_support_identifikaciya_klienta_chat_kanal_policy"],"split":"dev"}
+{"query_id":"q0378","query":"кто и на каких условиях может использовать сменный журнал — филиал","relevant_doc_ids":["operations_smennyy_zhurnal_filial_policy"],"split":"dev"}
+{"query_id":"q0379","query":"разрешено ли нарушать правило: доступ подрядчика должен иметь дату автоматического завершения","relevant_doc_ids":["access_uchetnaya_zapis_privilegirovannogo_dostupa_okta_tenant_policy"],"split":"dev"}
+{"query_id":"q0380","query":"кто и на каких условиях может использовать календарь ресурса — Outlook for Mac","relevant_doc_ids":["email_kalendar_resursa_outlook_for_mac_policy"],"split":"dev"}
+{"query_id":"q0381","query":"какие ограничения действуют для serverless function — AWS account","relevant_doc_ids":["cloud_serverless_function_aws_account_policy"],"split":"dev"}
+{"query_id":"q0382","query":"разрешено ли нарушать правило: привилегии выдаются по принципу least privilege","relevant_doc_ids":["access_apparatnyy_token_fido2_microsoft_entra_id_policy"],"split":"dev"}
+{"query_id":"q0383","query":"какие ограничения действуют для IAM policy — Azure subscription","relevant_doc_ids":["cloud_iam_policy_azure_subscription_policy"],"split":"dev"}
+{"query_id":"q0384","query":"разрешено ли нарушать правило: привилегии выдаются по принципу least privilege вариант 2","relevant_doc_ids":["access_service_account_vpn_gateway_policy"],"split":"dev"}
+{"query_id":"q0385","query":"разрешено ли нарушать правило: чужой пропуск нельзя передавать","relevant_doc_ids":["facilities_klimat_kontrol_servernaya_zona_policy"],"split":"dev"}
+{"query_id":"q0386","query":"какие ограничения действуют для ERP-заказ — production tenant","relevant_doc_ids":["business_apps_erp_zakaz_production_tenant_policy"],"split":"dev"}
+{"query_id":"q0387","query":"кто и на каких условиях может использовать архив почты — Exchange Online","relevant_doc_ids":["email_arhiv_pochty_exchange_online_policy"],"split":"dev"}
+{"query_id":"q0388","query":"разрешено ли нарушать правило: аварийные инструкции имеют приоритет над обычными заявками","relevant_doc_ids":["facilities_zayavka_na_uborku_servernaya_zona_policy"],"split":"dev"}
+{"query_id":"q0389","query":"разрешено ли нарушать правило: доступ в ограниченную зону выдаётся на минимальный срок","relevant_doc_ids":["facilities_klimat_kontrol_nochnaya_smena_policy"],"split":"dev"}
+{"query_id":"q0390","query":"какие ограничения действуют для термопринтер этикеток — Windows 11","relevant_doc_ids":["hardware_termoprinter_etiketok_windows_11_policy"],"split":"dev"}
+{"query_id":"q0391","query":"какие ограничения действуют для качество данных — Kafka cluster","relevant_doc_ids":["data_kachestvo_dannyh_kafka_cluster_policy"],"split":"dev"}
+{"query_id":"q0392","query":"разрешено ли нарушать правило: изменение реквизитов поставщика требует независимой проверки","relevant_doc_ids":["finance_avansovyy_otchet_filial_policy"],"split":"dev"}
+{"query_id":"q0393","query":"какие ограничения действуют для база известных проблем — CRM production","relevant_doc_ids":["customer_support_baza_izvestnyh_problem_crm_production_policy"],"split":"dev"}
+{"query_id":"q0394","query":"разрешено ли нарушать правило: лицензия назначается конкретному пользователю или устройству","relevant_doc_ids":["software_pdf_redaktor_macos_apple_silicon_policy"],"split":"dev"}
+{"query_id":"q0395","query":"какие ограничения действуют для табель рабочего времени — HR portal","relevant_doc_ids":["hr_tabel_rabochego_vremeni_hr_portal_policy"],"split":"dev"}
+{"query_id":"q0396","query":"как настроить managed database — production region и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["cloud_managed_database_production_region_setup","cloud_managed_database_production_region_policy"],"split":"dev"}
+{"query_id":"q0397","query":"BI-дашборд — Airflow environment не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["data_bi_dashbord_airflow_environment_troubleshooting","data_bi_dashbord_airflow_environment_recovery"],"split":"dev"}
+{"query_id":"q0398","query":"как развернуть система управления проектами — мобильное приложение и затем перенести старую конфигурацию","relevant_doc_ids":["business_apps_sistema_upravleniya_proektami_mobilnoe_prilozhenie_setup","business_apps_sistema_upravleniya_proektami_mobilnoe_prilozhenie_migration"],"split":"dev"}
+{"query_id":"q0399","query":"какие правила, риски и rollback нужны при миграции код-ревью в GitLab — Kubernetes production","relevant_doc_ids":["development_kod_revyu_v_gitlab_kubernetes_production_policy","development_kod_revyu_v_gitlab_kubernetes_production_migration"],"split":"dev"}
+{"query_id":"q0400","query":"что проверить при сбое EDR-агент — почтовый шлюз и какие обходные действия запрещены","relevant_doc_ids":["security_edr_agent_pochtovyy_shlyuz_troubleshooting","security_edr_agent_pochtovyy_shlyuz_policy"],"split":"dev"}
+{"query_id":"q0401","query":"как настроить DKIM-подпись — архивная конфигурация 2022 и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["email_dkim_podpis_arhivnaya_konfiguraciya_2022_setup","email_dkim_podpis_arhivnaya_konfiguraciya_2022_policy"],"split":"dev"}
+{"query_id":"q0402","query":"гарнитура call-центра — macOS не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["hardware_garnitura_call_centra_macos_troubleshooting","hardware_garnitura_call_centra_macos_recovery"],"split":"dev"}
+{"query_id":"q0403","query":"как развернуть субтитры в видеозвонке — переговорная MTR и затем перенести старую конфигурацию","relevant_doc_ids":["communication_subtitry_v_videozvonke_peregovornaya_mtr_setup","communication_subtitry_v_videozvonke_peregovornaya_mtr_migration"],"split":"dev"}
+{"query_id":"q0404","query":"какие правила, риски и rollback нужны при миграции трансляция town hall — SIP gateway","relevant_doc_ids":["communication_translyaciya_town_hall_sip_gateway_policy","communication_translyaciya_town_hall_sip_gateway_migration"],"split":"dev"}
+{"query_id":"q0405","query":"что проверить при сбое EDR-агент — MacBook с MDM и какие обходные действия запрещены","relevant_doc_ids":["security_edr_agent_macbook_s_mdm_troubleshooting","security_edr_agent_macbook_s_mdm_policy"],"split":"dev"}
+{"query_id":"q0406","query":"как настроить секреты в Vault — рабочая станция Windows и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["security_sekrety_v_vault_rabochaya_stanciya_windows_setup","security_sekrety_v_vault_rabochaya_stanciya_windows_policy"],"split":"dev"}
+{"query_id":"q0407","query":"запись встречи — переговорная MTR не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["communication_zapis_vstrechi_peregovornaya_mtr_troubleshooting","communication_zapis_vstrechi_peregovornaya_mtr_recovery"],"split":"dev"}
+{"query_id":"q0408","query":"как развернуть рабочий контейнер — iOS supervised и затем перенести старую конфигурацию","relevant_doc_ids":["mobile_rabochiy_konteyner_ios_supervised_setup","mobile_rabochiy_konteyner_ios_supervised_migration"],"split":"dev"}
+{"query_id":"q0409","query":"какие правила, риски и rollback нужны при миграции счёт поставщика — филиал","relevant_doc_ids":["finance_schet_postavschika_filial_policy","finance_schet_postavschika_filial_migration"],"split":"dev"}
+{"query_id":"q0410","query":"что проверить при сбое service desk ticket — архивная версия 2022 и какие обходные действия запрещены","relevant_doc_ids":["business_apps_service_desk_ticket_arhivnaya_versiya_2022_troubleshooting","business_apps_service_desk_ticket_arhivnaya_versiya_2022_policy"],"split":"dev"}
+{"query_id":"q0411","query":"как настроить налоговый документ — филиал и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["finance_nalogovyy_dokument_filial_setup","finance_nalogovyy_dokument_filial_policy"],"split":"dev"}
+{"query_id":"q0412","query":"аварийное оповещение здания — склад не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["facilities_avariynoe_opoveschenie_zdaniya_sklad_troubleshooting","facilities_avariynoe_opoveschenie_zdaniya_sklad_recovery"],"split":"dev"}
+{"query_id":"q0413","query":"как развернуть контроль SLA — производственная площадка и затем перенести старую конфигурацию","relevant_doc_ids":["operations_kontrol_sla_proizvodstvennaya_ploschadka_setup","operations_kontrol_sla_proizvodstvennaya_ploschadka_migration"],"split":"dev"}
+{"query_id":"q0414","query":"какие правила, риски и rollback нужны при миграции отзыв покупателя — warehouse integration","relevant_doc_ids":["ecommerce_otzyv_pokupatelya_warehouse_integration_policy","ecommerce_otzyv_pokupatelya_warehouse_integration_migration"],"split":"dev"}
+{"query_id":"q0415","query":"что проверить при сбое компенсация по SLA — чат-канал и какие обходные действия запрещены","relevant_doc_ids":["customer_support_kompensaciya_po_sla_chat_kanal_troubleshooting","customer_support_kompensaciya_po_sla_chat_kanal_policy"],"split":"dev"}
+{"query_id":"q0416","query":"как настроить биометрический вход — iOS supervised и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["mobile_biometricheskiy_vhod_ios_supervised_setup","mobile_biometricheskiy_vhod_ios_supervised_policy"],"split":"dev"}
+{"query_id":"q0417","query":"согласование договора — веб-интерфейс не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["business_apps_soglasovanie_dogovora_veb_interfeys_troubleshooting","business_apps_soglasovanie_dogovora_veb_interfeys_recovery"],"split":"dev"}
+{"query_id":"q0418","query":"как развернуть код-ревью в GitLab — локальная среда и затем перенести старую конфигурацию","relevant_doc_ids":["development_kod_revyu_v_gitlab_lokalnaya_sreda_setup","development_kod_revyu_v_gitlab_lokalnaya_sreda_migration"],"split":"dev"}
+{"query_id":"q0419","query":"какие правила, риски и rollback нужны при миграции согласие на обработку данных — регион RU","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_region_ru_policy","legal_compliance_soglasie_na_obrabotku_dannyh_region_ru_migration"],"split":"dev"}
+{"query_id":"q0420","query":"что проверить при сбое рабочий контейнер — shared device и какие обходные действия запрещены","relevant_doc_ids":["mobile_rabochiy_konteyner_shared_device_troubleshooting","mobile_rabochiy_konteyner_shared_device_policy"],"split":"dev"}
+{"query_id":"q0421","query":"как настроить гарнитура call-центра — Ubuntu и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["hardware_garnitura_call_centra_ubuntu_setup","hardware_garnitura_call_centra_ubuntu_policy"],"split":"dev"}
+{"query_id":"q0422","query":"budget alert — production region не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["cloud_budget_alert_production_region_troubleshooting","cloud_budget_alert_production_region_recovery"],"split":"dev"}
+{"query_id":"q0423","query":"как развернуть таблица витрины данных — Airflow environment и затем перенести старую конфигурацию","relevant_doc_ids":["data_tablica_vitriny_dannyh_airflow_environment_setup","data_tablica_vitriny_dannyh_airflow_environment_migration"],"split":"dev"}
+{"query_id":"q0424","query":"какие правила, риски и rollback нужны при миграции остатки на витрине — legacy checkout","relevant_doc_ids":["ecommerce_ostatki_na_vitrine_legacy_checkout_policy","ecommerce_ostatki_na_vitrine_legacy_checkout_migration"],"split":"dev"}
+{"query_id":"q0425","query":"что проверить при сбое рабочий контейнер — BYOD-режим и какие обходные действия запрещены","relevant_doc_ids":["mobile_rabochiy_konteyner_byod_rezhim_troubleshooting","mobile_rabochiy_konteyner_byod_rezhim_policy"],"split":"dev"}
+{"query_id":"q0426","query":"как настроить инцидент производства — филиал и какие ограничения после включения нужно соблюдать","relevant_doc_ids":["operations_incident_proizvodstva_filial_setup","operations_incident_proizvodstva_filial_policy"],"split":"dev"}
+{"query_id":"q0427","query":"промокод — iOS app не работает: что проверить и как безопасно восстановить","relevant_doc_ids":["ecommerce_promokod_ios_app_troubleshooting","ecommerce_promokod_ios_app_recovery"],"split":"dev"}
+{"query_id":"q0428","query":"как развернуть платёжное поручение — архивный регламент 2022 и затем перенести старую конфигурацию","relevant_doc_ids":["finance_platezhnoe_poruchenie_arhivnyy_reglament_2022_setup","finance_platezhnoe_poruchenie_arhivnyy_reglament_2022_migration"],"split":"dev"}
+{"query_id":"q0429","query":"какие правила, риски и rollback нужны при миграции контроль SLA — центральный офис","relevant_doc_ids":["operations_kontrol_sla_centralnyy_ofis_policy","operations_kontrol_sla_centralnyy_ofis_migration"],"split":"dev"}
+{"query_id":"q0430","query":"что проверить при сбое PDF-редактор — киоск-режим и какие обходные действия запрещены","relevant_doc_ids":["software_pdf_redaktor_kiosk_rezhim_troubleshooting","software_pdf_redaktor_kiosk_rezhim_policy"],"split":"dev"}
+{"query_id":"q0431","query":"как восстановить после сбоя общая папка отдела","relevant_doc_ids":["storage_obschaya_papka_otdela_windows_klient_recovery","storage_obschaya_papka_otdela_macos_klient_recovery","storage_obschaya_papka_otdela_s3_compatible_cloud_recovery"],"split":"dev"}
+{"query_id":"q0432","query":"как восстановить после сбоя менеджер паролей","relevant_doc_ids":["software_menedzher_paroley_windows_11_x64_recovery","software_menedzher_paroley_macos_apple_silicon_recovery","software_menedzher_paroley_ubuntu_lts_recovery"],"split":"dev"}
+{"query_id":"q0433","query":"как восстановить после сбоя согласие на обработку данных","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_dms_production_recovery","legal_compliance_soglasie_na_obrabotku_dannyh_region_eu_recovery","legal_compliance_soglasie_na_obrabotku_dannyh_region_ru_recovery"],"split":"dev"}
+{"query_id":"q0434","query":"что проверить если не работает балансировка DNS","relevant_doc_ids":["network_balansirovka_dns_windows_11_troubleshooting","network_balansirovka_dns_ubuntu_24_04_troubleshooting","network_balansirovka_dns_android_15_troubleshooting"],"split":"dev"}
+{"query_id":"q0435","query":"как выполнить миграцию и проверить совместимость трансляция town hall","relevant_doc_ids":["communication_translyaciya_town_hall_sip_gateway_migration","communication_translyaciya_town_hall_peregovornaya_mtr_migration"],"split":"dev"}
+{"query_id":"q0436","query":"какие правила и ограничения рабочий контейнер","relevant_doc_ids":["mobile_rabochiy_konteyner_ios_supervised_policy","mobile_rabochiy_konteyner_samsung_knox_policy","mobile_rabochiy_konteyner_byod_rezhim_policy"],"split":"dev"}
+{"query_id":"q0437","query":"что проверить если не работает объектное хранилище S3","relevant_doc_ids":["storage_obektnoe_hranilische_s3_windows_klient_troubleshooting","storage_obektnoe_hranilische_s3_macos_klient_troubleshooting","storage_obektnoe_hranilische_s3_linux_server_troubleshooting"],"split":"dev"}
+{"query_id":"q0438","query":"как выполнить миграцию и проверить совместимость субтитры в видеозвонке","relevant_doc_ids":["communication_subtitry_v_videozvonke_microsoft_teams_migration","communication_subtitry_v_videozvonke_webex_migration","communication_subtitry_v_videozvonke_peregovornaya_mtr_migration"],"split":"dev"}
+{"query_id":"q0439","query":"как настроить container service","relevant_doc_ids":["cloud_container_service_azure_subscription_setup","cloud_container_service_google_cloud_project_setup"],"split":"dev"}
+{"query_id":"q0440","query":"как восстановить после сбоя performance review","relevant_doc_ids":["hr_performance_review_hr_portal_recovery","hr_performance_review_mobilnoe_prilozhenie_recovery","hr_performance_review_sap_successfactors_recovery"],"split":"dev"}
+{"query_id":"q0441","query":"как восстановить после сбоя отзыв покупателя","relevant_doc_ids":["ecommerce_otzyv_pokupatelya_web_storefront_recovery","ecommerce_otzyv_pokupatelya_android_app_recovery","ecommerce_otzyv_pokupatelya_warehouse_integration_recovery"],"split":"dev"}
+{"query_id":"q0442","query":"как восстановить после сбоя смарт-карта","relevant_doc_ids":["hardware_smart_karta_windows_11_recovery","hardware_smart_karta_macos_recovery","hardware_smart_karta_ubuntu_recovery"],"split":"dev"}
+{"query_id":"q0443","query":"как выполнить миграцию и проверить совместимость налоговый документ","relevant_doc_ids":["finance_nalogovyy_dokument_mobilnyy_bank_migration","finance_nalogovyy_dokument_filial_migration","finance_nalogovyy_dokument_testovyy_kontur_migration"],"split":"dev"}
+{"query_id":"q0444","query":"как выполнить миграцию и проверить совместимость онбординг сотрудника","relevant_doc_ids":["hr_onbording_sotrudnika_mobilnoe_prilozhenie_migration","hr_onbording_sotrudnika_sap_successfactors_migration","hr_onbording_sotrudnika_workday_tenant_migration"],"split":"dev"}
+{"query_id":"q0445","query":"как настроить service desk ticket","relevant_doc_ids":["business_apps_service_desk_ticket_desktop_client_setup","business_apps_service_desk_ticket_production_tenant_setup","business_apps_service_desk_ticket_test_tenant_setup"],"split":"dev"}
+{"query_id":"q0446","query":"какие правила и ограничения аппаратный токен FIDO2","relevant_doc_ids":["access_apparatnyy_token_fido2_microsoft_entra_id_policy","access_apparatnyy_token_fido2_okta_tenant_policy","access_apparatnyy_token_fido2_lokalnyy_active_directory_policy"],"split":"dev"}
+{"query_id":"q0447","query":"какие правила и ограничения компенсация по SLA","relevant_doc_ids":["customer_support_kompensaciya_po_sla_chat_kanal_policy","customer_support_kompensaciya_po_sla_email_kanal_policy","customer_support_kompensaciya_po_sla_telefonnaya_liniya_policy"],"split":"dev"}
+{"query_id":"q0448","query":"как настроить CRM-карточка клиента","relevant_doc_ids":["business_apps_crm_kartochka_klienta_veb_interfeys_setup","business_apps_crm_kartochka_klienta_production_tenant_setup","business_apps_crm_kartochka_klienta_test_tenant_setup"],"split":"dev"}
+{"query_id":"q0449","query":"как восстановить после сбоя доступ в серверную","relevant_doc_ids":["facilities_dostup_v_servernuyu_glavnyy_ofis_recovery","facilities_dostup_v_servernuyu_sklad_recovery","facilities_dostup_v_servernuyu_nochnaya_smena_recovery"],"split":"dev"}
+{"query_id":"q0450","query":"как выполнить миграцию и проверить совместимость offline mode","relevant_doc_ids":["mobile_offline_mode_ios_supervised_migration","mobile_offline_mode_samsung_knox_migration","mobile_offline_mode_shared_device_migration"],"split":"dev"}
+{"query_id":"q0451","query":"как настроить Сброс корпоративного пароля вариант 2","relevant_doc_ids":["password_reset_setup","password_reset_troubleshooting","password_reset_recovery"],"split":"dev"}
+{"query_id":"q0452","query":"какие правила и ограничения корпоративная карта","relevant_doc_ids":["finance_korporativnaya_karta_mobilnyy_bank_policy","finance_korporativnaya_karta_portal_postavschikov_policy","finance_korporativnaya_karta_filial_policy"],"split":"dev"}
+{"query_id":"q0453","query":"что проверить если не работает корпоративный браузер","relevant_doc_ids":["software_korporativnyy_brauzer_windows_11_x64_troubleshooting","software_korporativnyy_brauzer_macos_apple_silicon_troubleshooting","software_korporativnyy_brauzer_kiosk_rezhim_troubleshooting"],"split":"dev"}
+{"query_id":"q0454","query":"как настроить авансовый отчёт","relevant_doc_ids":["finance_avansovyy_otchet_erp_production_setup","finance_avansovyy_otchet_sistema_kaznacheystva_setup","finance_avansovyy_otchet_mobilnyy_bank_setup"],"split":"dev"}
+{"query_id":"q0455","query":"как настроить возврат обращения клиента","relevant_doc_ids":["customer_support_vozvrat_obrascheniya_klienta_crm_production_setup","customer_support_vozvrat_obrascheniya_klienta_b2b_klienty_setup","customer_support_vozvrat_obrascheniya_klienta_marketpleys_setup"],"split":"dev"}
+{"query_id":"q0456","query":"как настроить SAML-вход в Salesforce sandbox","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0457","query":"не работает Bluetooth-печать на Zebra ZQ630","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0458","query":"как восстановить восстановление доски Miro","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0459","query":"какие ограничения для лицензия Adobe After Effects","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0460","query":"как мигрировать Oracle Forms с ошибкой ORA-12154","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0461","query":"как настроить Jira Product Discovery workspace","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0462","query":"не работает Notion Enterprise SCIM","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0463","query":"как восстановить Figma Dev Mode seat","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0464","query":"какие ограничения для ServiceNow Discovery probe","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0465","query":"как мигрировать Citrix DaaS HDX policy","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0466","query":"как настроить Snowflake Native App","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0467","query":"не работает Databricks Unity Catalog external location","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0468","query":"как восстановить Redis Enterprise active-active","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0469","query":"какие ограничения для MongoDB Atlas private endpoint","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0470","query":"как мигрировать Grafana Cloud synthetic monitoring","relevant_doc_ids":[],"split":"dev"}
+{"query_id":"q0471","query":"коллеги pls срочно, вчера после обновы — как выполнить миграцию и проверить совместимость код-ревью в GitLab — Kubernetes production ???","relevant_doc_ids":["development_kod_revyu_v_gitlab_kubernetes_production_migration"],"split":"dev"}
+{"query_id":"q0472","query":"из чата: привет, подскажите пж, кажется опять сломалось — какие правила и ограничения код-ревью в GitLab — GitHub Enterprise ???","relevant_doc_ids":["development_kod_revyu_v_gitlab_github_enterprise_policy"],"split":"dev"}
+{"query_id":"q0473","query":"из чата: привет, подскажите пж, кажется опять сломалось — как восстановить после сбоя согласие на обработку данных — архивный регламент 2021 ???","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_arhivnyy_reglament_2021_recovery"],"split":"dev"}
+{"query_id":"q0474","query":"эм ну короче не могу найти, тикет 8471 — что проверить если не работает data catalog — Power BI workspace ???","relevant_doc_ids":["data_data_catalog_power_bi_workspace_troubleshooting"],"split":"dev"}
+{"query_id":"q0475","query":"!!! пользователь пишет второй раз / prod / asap — что проверить если не работает объектное хранилище S3 — SharePoint Online ???","relevant_doc_ids":["storage_obektnoe_hranilische_s3_sharepoint_online_troubleshooting"],"split":"dev"}
+{"query_id":"q0476","query":"из чата: привет, подскажите пж, кажется опять сломалось — как настроить счёт поставщика — тестовый контур ???","relevant_doc_ids":["finance_schet_postavschika_testovyy_kontur_setup"],"split":"dev"}
+{"query_id":"q0477","query":"коллеги pls срочно, вчера после обновы — как восстановить после сбоя ротация TLS-сертификата — контейнерный кластер ???","relevant_doc_ids":["security_rotaciya_tls_sertifikata_konteynernyy_klaster_recovery"],"split":"dev"}
+{"query_id":"q0478","query":"эм ну короче не могу найти, тикет 8471 — какие правила и ограничения гарнитура call-центра — Windows 11 ???","relevant_doc_ids":["hardware_garnitura_call_centra_windows_11_policy"],"split":"dev"}
+{"query_id":"q0479","query":"!!! пользователь пишет второй раз / prod / asap — как настроить авансовый отчёт — архивный регламент 2022 ???","relevant_doc_ids":["finance_avansovyy_otchet_arhivnyy_reglament_2022_setup"],"split":"dev"}
+{"query_id":"q0480","query":"из чата: привет, подскажите пж, кажется опять сломалось — как восстановить после сбоя база известных проблем — email-канал ???","relevant_doc_ids":["customer_support_baza_izvestnyh_problem_email_kanal_recovery"],"split":"dev"}
+{"query_id":"q0481","query":"!!! пользователь пишет второй раз / prod / asap — как настроить IAM policy — production region ???","relevant_doc_ids":["cloud_iam_policy_production_region_setup"],"split":"dev"}
+{"query_id":"q0482","query":"из чата: привет, подскажите пж, кажется опять сломалось — как настроить балансировка DNS — Ubuntu 24.04 ???","relevant_doc_ids":["network_balansirovka_dns_ubuntu_24_04_setup"],"split":"dev"}
+{"query_id":"q0483","query":"эм ну короче не могу найти, тикет 8471 — какие правила и ограничения антиспам-карантин — архивная конфигурация 2022 ???","relevant_doc_ids":["email_antispam_karantin_arhivnaya_konfiguraciya_2022_policy"],"split":"dev"}
+{"query_id":"q0484","query":"из чата: привет, подскажите пж, кажется опять сломалось — как настроить конференц-камера — кассовое место ???","relevant_doc_ids":["hardware_konferenc_kamera_kassovoe_mesto_setup"],"split":"dev"}
+{"query_id":"q0485","query":"из чата: привет, подскажите пж, кажется опять сломалось — какие правила и ограничения serverless function — Google Cloud project ???","relevant_doc_ids":["cloud_serverless_function_google_cloud_project_policy"],"split":"dev"}
+{"query_id":"q0486","query":"какие правла и ограниечния авариное оповещение здания — нончая смена","relevant_doc_ids":["facilities_avariynoe_opoveschenie_zdaniya_nochnaya_smena_policy"],"split":"dev"}
+{"query_id":"q0487","query":"как настрить проврека сттуса заказа — leacy queue","relevant_doc_ids":["customer_support_proverka_statusa_zakaza_legacy_queue_setup"],"split":"dev"}
+{"query_id":"q0488","query":"как восстановить после сбоя корпроативный потал — веб-интерфйс","relevant_doc_ids":["business_apps_korporativnyy_portal_veb_interfeys_recovery"],"split":"dev"}
+{"query_id":"q0489","query":"как натроить заркытие мсяца — филаил","relevant_doc_ids":["finance_zakrytie_mesyaca_filial_setup"],"split":"dev"}
+{"query_id":"q0490","query":"как настроить реестр обрбаотки даных — архинвый ргеламент 2021","relevant_doc_ids":["legal_compliance_reestr_obrabotki_dannyh_arhivnyy_reglament_2021_setup"],"split":"dev"}
+{"query_id":"q0491","query":"как всостановить после сбоя антиспам-карнатин — аривная конфиурация 2022","relevant_doc_ids":["email_antispam_karantin_arhivnaya_konfiguraciya_2022_recovery"],"split":"dev"}
+{"query_id":"q0492","query":"как настоить вирутальная мшина — Azure subscriptoin","relevant_doc_ids":["cloud_virtualnaya_mashina_azure_subscription_setup"],"split":"dev"}
+{"query_id":"q0493","query":"что провертиь если не рбаотает реетср обработки данных — регион RU","relevant_doc_ids":["legal_compliance_reestr_obrabotki_dannyh_region_ru_troubleshooting"],"split":"dev"}
+{"query_id":"q0494","query":"что проверить если не рабоает согласие на обрботку данных — доченяя комания","relevant_doc_ids":["legal_compliance_soglasie_na_obrabotku_dannyh_dochernyaya_kompaniya_troubleshooting"],"split":"dev"}
+{"query_id":"q0495","query":"как выполнить мгирацию и провертиь совместимость менеждер паролей — кисок-режим","relevant_doc_ids":["software_menedzher_paroley_kiosk_rezhim_migration"],"split":"dev"}
+{"query_id":"q0496","query":"migration plan для общая папка отдела — S3-compatible cloud: compatibility и rollback steps","relevant_doc_ids":["storage_obschaya_papka_otdela_s3_compatible_cloud_migration"],"split":"dev"}
+{"query_id":"q0497","query":"доставка в пункт выдачи в payment sandbox returns error, что check first","relevant_doc_ids":["ecommerce_dostavka_v_punkt_vydachi_payment_sandbox_troubleshooting"],"split":"dev"}
+{"query_id":"q0498","query":"единый вход SSO в SAP landscape returns error, что check first","relevant_doc_ids":["access_edinyy_vhod_sso_sap_landscape_troubleshooting"],"split":"dev"}
+{"query_id":"q0499","query":"migration plan для service account — legacy LDAP: compatibility и rollback steps","relevant_doc_ids":["access_service_account_legacy_ldap_migration"],"split":"dev"}
+{"query_id":"q0500","query":"какой policy и access restrictions для CRM-карточка клиента — production tenant","relevant_doc_ids":["business_apps_crm_kartochka_klienta_production_tenant_policy"],"split":"dev"}
