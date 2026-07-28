@@ -193,6 +193,7 @@ def test_duplicate_doc_id_is_rejected(tmp_path: Path) -> None:
 # Тесты для запросов
 # ----------------------------------------------------------------------
 
+
 def test_load_valid_queries(tmp_path: Path) -> None:
     path = tmp_path / "queries.jsonl"
     write_jsonl(
@@ -280,7 +281,7 @@ def test_relevant_doc_ids_must_be_a_list(tmp_path: Path) -> None:
         load_queries(path, known_ids)
 
 
-def test_empty_relevant_documents_are_rejected(tmp_path: Path) -> None:
+def test_empty_relevant_documents_are_allowed(tmp_path: Path) -> None:
     path = tmp_path / "queries.jsonl"
     write_jsonl(
         path,
@@ -288,11 +289,9 @@ def test_empty_relevant_documents_are_rejected(tmp_path: Path) -> None:
     )
     known_ids: set[str] = set()
 
-    with pytest.raises(
-        DatasetValidationError,
-        match=re.escape(f"{path}:1: 'relevant_doc_ids' must not be empty"),
-    ):
-        load_queries(path, known_ids)
+    queries = load_queries(path, known_ids)
+
+    assert queries[0].relevant_doc_ids == ()
 
 
 def test_non_string_relevant_document_is_rejected(tmp_path: Path) -> None:
@@ -351,7 +350,27 @@ def test_invalid_split_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(
         DatasetValidationError,
         match=re.escape(
-            f"{path}:1: invalid split 'production'; must be one of ('train', 'dev', 'test')"
+            f"{path}:1: invalid split 'production'; must be one of "
+            "('train', 'dev', 'test', 'frozen_test')"
         ),
     ):
         load_queries(path, known_ids)
+
+
+def test_frozen_test_split_is_allowed(tmp_path: Path) -> None:
+    path = tmp_path / "queries.jsonl"
+    write_jsonl(
+        path,
+        [
+            {
+                "query_id": "q1",
+                "query": "q",
+                "relevant_doc_ids": ["a"],
+                "split": "frozen_test",
+            }
+        ],
+    )
+
+    queries = load_queries(path, {"a"})
+
+    assert queries[0].split == "frozen_test"

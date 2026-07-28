@@ -1,0 +1,32 @@
+bm25_weight: 1.0
+
+dense_weights:
+  - 1.0
+  - 1.5
+  - 2.0
+  - 3.0
+  - 5.0
+  - 8.0
+  - 13.0
+  - 21.0
+  - 34.0
+  - 55.0
+
+rrf_k_values:
+  - 1
+  - 5
+  - 10
+  - 20
+  - 40
+  - 60
+  - 100
+
+candidate_k_values:
+  - 10
+  - 20
+  - 50
+  - 100
+
+final_top_k: 10
+
+# TOTAL: 280 CONFIGURATIONS

@@ -9,7 +9,6 @@ def recall_at_k(
 
     if not relevant_doc_ids:
         return 0.0
-        # raise ValueError("relevant_doc_ids must not be empty")
 
     retrieved_at_k = set(retrieved_doc_ids[:k])
     # set intersection
@@ -25,7 +24,6 @@ def reciprocal_rank(
     """Return the reciprocal rank of the first relevant document."""
     if not relevant_doc_ids:
         return 0.0
-        # raise ValueError("relevant_doc_ids must not be empty")
 
     for rank, doc_id in enumerate(retrieved_doc_ids, start=1):
         if doc_id in relevant_doc_ids:

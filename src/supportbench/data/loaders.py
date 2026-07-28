@@ -114,9 +114,7 @@ def load_queries(
         if not isinstance(ids_list, list):
             raise DatasetValidationError(f"{path}:{line_num}: 'relevant_doc_ids' must be a list")
 
-        # TEMPRORARY COMMENTED OUT
-        # if not ids_list:
-        #     raise DatasetValidationError(f"{path}:{line_num}: 'relevant_doc_ids' must not be empty")
+        # Empty labels represent unsupported or unanswerable benchmark queries.
 
         # Verify ids are strings and non-empty
         doc_ids: list[str] = []
@@ -150,7 +148,6 @@ def load_queries(
                 f"{', '.join(repr(m) for m in missing)}"
             )
 
-        # split has to be train/dev/test
         if "split" not in obj:
             raise DatasetValidationError(f"{path}:{line_num}: missing required field 'split'")
 

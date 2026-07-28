@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-DatasetSplit = Literal["train", "dev", "test"]  # restrict
+DatasetSplit = Literal["train", "dev", "test", "frozen_test"]
 
 
 @dataclass(frozen=True, slots=True)

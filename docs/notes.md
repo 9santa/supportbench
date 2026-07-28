@@ -800,3 +800,6 @@ Recall@10: 0.9157
 MRR:      0.7380
 
 
+
+
+# GRID SEARCH ON WEIGHTED RRF (params: dense retriever weight and rrf_k)
