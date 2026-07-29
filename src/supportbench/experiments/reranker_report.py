@@ -1,11 +1,15 @@
 import json
 from pathlib import Path
+from collections.abc import Sequence
 
 from supportbench.evaluation.retrieval_evaluator import (
     RetrievalEvaluationResult,
 )
 from supportbench.experiments.reranker_comparison import (
     RerankerComparisonResult,
+)
+from supportbench.experiments.reranker_benchmark import (
+    PipelinePerformanceSummary,
 )
 
 
@@ -181,3 +185,82 @@ def _reranked_metrics(
         "mrr": result.mrr,
         "mrr_cutoff": result.mrr_cutoff,
     }
+
+
+def render_performance_table(
+    summaries: Sequence[PipelinePerformanceSummary],
+    *,
+    gpu_name: str | None,
+    gpu_power_limit_watts: float | None,
+) -> str:
+    lines = [
+        "Performance benchmark:",
+        "",
+    ]
+
+    if gpu_name is not None:
+        lines.append(f"GPU: {gpu_name}")
+
+    if gpu_power_limit_watts is not None:
+        lines.append(f"GPU power limit: {gpu_power_limit_watts:g} W")
+        lines.append("Manual GPU pauses: none")
+        lines.append("")
+
+    lines.extend(
+        [
+            (
+                f"{'Source':<20}"
+                f"{'Retr p50':>11}"
+                f"{'Rerank p50':>12}"
+                f"{'Rerank p95':>12}"
+                f"{'Total p50':>11}"
+                f"{'Total p95':>11}"
+                f"{'Pairs/s':>11}"
+            ),
+        ]
+    )
+
+    for summary in summaries:
+        lines.append(
+            f"{summary.name:<20}"
+            f"{_ms(summary.candidate_retrieval_latency.p50_seconds):>11.2f}"
+            f"{_ms(summary.reranking_latency.p50_seconds):>12.2f}"
+            f"{_ms(summary.reranking_latency.p95_seconds):>12.2f}"
+            f"{_ms(summary.total_latency.p50_seconds):>11.2f}"
+            f"{_ms(summary.total_latency.p95_seconds):>11.2f}"
+            f"{summary.pairs_per_second:>11.2f}"
+        )
+
+    lines.extend(
+        [
+            "",
+            "VRAM:",
+            "",
+            (
+                f"{'Source':<20}"
+                f"{'Peak alloc GiB':>16}"
+                f"{'Peak reserve GiB':>18}"
+                f"{'Rerank +GiB':>15}"
+                f"{'Batches/s':>12}"
+            ),
+        ]
+    )
+
+    for summary in summaries:
+        lines.append(
+            f"{summary.name:<20}"
+            f"{_gib(summary.peak_allocated_bytes):>16.3f}"
+            f"{_gib(summary.peak_reserved_bytes):>18.3f}"
+            f"{_gib(summary.peak_reranking_incremental_bytes):>15.3f}"
+            f"{summary.batches_per_second:>12.2f}"
+        )
+
+    return "\n".join(lines)
+
+
+def _ms(seconds: float) -> float:
+    return seconds * 1_000.0
+
+
+def _gib(byte_count: int) -> float:
+    return byte_count / (1024**3)

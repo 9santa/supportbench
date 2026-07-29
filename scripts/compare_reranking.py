@@ -12,7 +12,7 @@ from supportbench.experiments.reranker_comparison import (
     RRFProfile,
     run_reranker_comparison,
 )
-from supportbench.experiments.reranker_export import (
+from supportbench.experiments.reranker_report import (
     export_reranker_comparison,
     render_reranker_comparison,
 )

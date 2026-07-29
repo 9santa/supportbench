@@ -59,6 +59,7 @@ class RerankingFactory:
             reranker=self._get_reranker(),
             documents=self._documents,
             candidate_k=candidate_k,
+            performance_device=self._config.device,
         )
 
     def _get_reranker(self) -> SentenceTransformerCrossEncoderReranker:

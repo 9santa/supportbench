@@ -1,0 +1,108 @@
+{
+  "environment": {
+    "gpu_name": "NVIDIA GeForce RTX 3070 Ti",
+    "gpu_power_limit_watts": 150.0,
+    "manual_gpu_pauses": false
+  },
+  "reranker": {
+    "model_name": "BAAI/bge-reranker-v2-m3",
+    "batch_size": 16,
+    "candidate_k": 20,
+    "final_top_k": 10
+  },
+  "retrieval": {
+    "source_candidate_k": 100
+  },
+  "pipelines": [
+    {
+      "name": "dense",
+      "query_count": 100,
+      "warmup_query_count": 5,
+      "candidate_pair_count": 2000,
+      "effective_batch_count": 200,
+      "candidate_retrieval_latency_ms": {
+        "mean": 6.582336990140902,
+        "p50": 6.564049997905386,
+        "p95": 6.773731950670481
+      },
+      "reranking_latency_ms": {
+        "mean": 665.2586107300522,
+        "p50": 591.0465340002702,
+        "p95": 901.1972187015999
+      },
+      "total_latency_ms": {
+        "mean": 665.4457746399203,
+        "p50": 591.2316364974686,
+        "p95": 901.3864754977476
+      },
+      "pairs_per_second": 30.0634966273523,
+      "batches_per_second": 3.00634966273523,
+      "queries_per_second": 1.5027520469885176,
+      "peak_allocated_gib": 3.506758213043213,
+      "peak_reserved_gib": 4.34765625,
+      "reranking_peak_allocated_gib": 3.506758213043213,
+      "reranking_peak_reserved_gib": 4.34765625,
+      "reranking_incremental_peak_gib": 0.3477783203125
+    },
+    {
+      "name": "rrf_standalone",
+      "query_count": 100,
+      "warmup_query_count": 5,
+      "candidate_pair_count": 2000,
+      "effective_batch_count": 200,
+      "candidate_retrieval_latency_ms": {
+        "mean": 8.746680909971474,
+        "p50": 8.727723501579021,
+        "p95": 11.56557930244162
+      },
+      "reranking_latency_ms": {
+        "mean": 659.7743353601618,
+        "p50": 552.6092680011061,
+        "p95": 898.632504897796
+      },
+      "total_latency_ms": {
+        "mean": 659.9585991500498,
+        "p50": 552.791921500102,
+        "p95": 898.81599815144
+      },
+      "pairs_per_second": 30.31339494144202,
+      "batches_per_second": 3.031339494144202,
+      "queries_per_second": 1.515246564387348,
+      "peak_allocated_gib": 3.506758213043213,
+      "peak_reserved_gib": 4.34765625,
+      "reranking_peak_allocated_gib": 3.506758213043213,
+      "reranking_peak_reserved_gib": 4.34765625,
+      "reranking_incremental_peak_gib": 0.3477783203125
+    },
+    {
+      "name": "rrf_candidate",
+      "query_count": 100,
+      "warmup_query_count": 5,
+      "candidate_pair_count": 2000,
+      "effective_batch_count": 200,
+      "candidate_retrieval_latency_ms": {
+        "mean": 8.737658899990493,
+        "p50": 8.708006498636678,
+        "p95": 11.499070101854157
+      },
+      "reranking_latency_ms": {
+        "mean": 659.8595002500224,
+        "p50": 558.2584005023818,
+        "p95": 906.8562158474379
+      },
+      "total_latency_ms": {
+        "mean": 660.0439285301036,
+        "p50": 558.4427769990725,
+        "p95": 907.0375122511905
+      },
+      "pairs_per_second": 30.309482537452215,
+      "batches_per_second": 3.0309482537452217,
+      "queries_per_second": 1.5150506758345124,
+      "peak_allocated_gib": 3.506758213043213,
+      "peak_reserved_gib": 4.34765625,
+      "reranking_peak_allocated_gib": 3.506758213043213,
+      "reranking_peak_reserved_gib": 4.34765625,
+      "reranking_incremental_peak_gib": 0.3477783203125
+    }
+  ]
+}

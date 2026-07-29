@@ -803,3 +803,78 @@ MRR:      0.7380
 
 
 # GRID SEARCH ON WEIGHTED RRF (params: dense retriever weight and rrf_k)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Reranker Comparison
+Reranker comparison
+
+Queries: 500
+Reranker candidate pool: 20
+Final result count: 10
+
+Candidate source metrics:
+
+Source                    R@1      R@3      R@5     R@10     R@20     R@50      MRR
+dense                  0.6488   0.8601   0.9100   0.9550   0.9735   0.9735   0.8069
+rrf_standalone         0.6619   0.8581   0.9268   0.9636   0.9821   0.9821   0.8178
+rrf_candidate          0.6100   0.8416   0.9227   0.9660   0.9835   0.9835   0.7852
+
+After cross-encoder reranking:
+
+Source                     R@1       R@3       R@5      R@10       MRR
+dense                   0.7684    0.8808    0.9244    0.9577    0.8852
+rrf_standalone          0.7649    0.8804    0.9241    0.9625    0.8841
+rrf_candidate           0.7670    0.8825    0.9261    0.9629    0.8856
+
+Reranker deltas against each source:
+
+Source                    ΔR@1      ΔR@3      ΔR@5     ΔR@10      ΔMRR
+dense                   0.1196    0.0206    0.0144    0.0027    0.0783
+rrf_standalone          0.1031    0.0223   -0.0027   -0.0010    0.0663
+rrf_candidate           0.1570    0.0409    0.0034   -0.0031    0.1004
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Performance benchmark and metrics
+reranking latency:
+    time spent inside reranker.rerank()
+
+total latency:
+    candidate retrieval
+    + document formatting
+    + reranking
+    + final result construction
+
+VRAM:
+    peak allocated
+    peak reserved
+    incremental allocation during reranking
+
+batch throughput:
+    query-document pairs / reranking second
+    effective batches / reranking second
