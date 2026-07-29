@@ -44,3 +44,8 @@ select = [
 [tool.mypy]
 python_version = "3.12"
 strict = true
+
+[tool.pytest.ini_options]
+markers = [
+    "smoke: integration tests that require local models and cuda available",
+]

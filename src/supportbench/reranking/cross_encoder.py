@@ -14,7 +14,7 @@ from supportbench.reranking.base import (
 type FloatVector = npt.NDArray[np.float32]
 
 
-class SentenseTransformerCrossEncoderReranker(Reranker):
+class SentenceTransformerCrossEncoderReranker(Reranker):
     def __init__(
         self,
         model_name: str,

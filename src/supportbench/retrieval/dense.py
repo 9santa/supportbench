@@ -1,6 +1,6 @@
 import numpy as np
 
-from supportbench.retrieval.base import SearchResult
+from supportbench.retrieval.base import Retriever, SearchResult
 from supportbench.retrieval.dense_encoder import (
     DenseEncoder,
     FloatMatrix,
@@ -10,7 +10,7 @@ from supportbench.retrieval.dense_index import (
 )
 
 
-class DenseRetriever:
+class DenseRetriever(Retriever):
     def __init__(
         self,
         encoder: DenseEncoder,
