@@ -878,3 +878,19 @@ VRAM:
 batch throughput:
     query-document pairs / reranking second
     effective batches / reranking second
+
+
+
+
+
+# RAG Pipeline
+BM25 + Dense
+      ↓
+candidate RRF
+      ↓
+cross-encoder reranker
+      ↓ SearchResult
+RetrievalPipeline
+      ↓ RetrievedDocument
+ContextBuilder
+      ↓ RAGContext
