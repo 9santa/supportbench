@@ -1,0 +1,76 @@
+{
+  "query_count": 500,
+  "reranker_candidate_k": 20,
+  "final_top_k": 10,
+  "pipelines": [
+    {
+      "name": "dense",
+      "candidate": {
+        "query_count": 500,
+        "recall_at_1": 0.648797250859106,
+        "recall_at_3": 0.8601374570446737,
+        "recall_at_5": 0.9099656357388318,
+        "recall_at_10": 0.9549828178694161,
+        "recall_at_20": 0.9735395189003438,
+        "recall_at_50": 0.9735395189003438,
+        "mrr": 0.806917034855179,
+        "mrr_cutoff": 10
+      },
+      "reranked": {
+        "query_count": 500,
+        "recall_at_1": 0.7683848797250854,
+        "recall_at_3": 0.8807560137457043,
+        "recall_at_5": 0.9243986254295535,
+        "recall_at_10": 0.9577319587628867,
+        "mrr": 0.8852454590083453,
+        "mrr_cutoff": 10
+      }
+    },
+    {
+      "name": "rrf_standalone",
+      "candidate": {
+        "query_count": 500,
+        "recall_at_1": 0.6618556701030922,
+        "recall_at_3": 0.8580756013745706,
+        "recall_at_5": 0.9268041237113406,
+        "recall_at_10": 0.9635738831615124,
+        "recall_at_20": 0.9821305841924399,
+        "recall_at_50": 0.9821305841924399,
+        "mrr": 0.8178195058091963,
+        "mrr_cutoff": 10
+      },
+      "reranked": {
+        "query_count": 500,
+        "recall_at_1": 0.7649484536082468,
+        "recall_at_3": 0.8804123711340206,
+        "recall_at_5": 0.9240549828178697,
+        "recall_at_10": 0.9625429553264606,
+        "mrr": 0.8840975290459823,
+        "mrr_cutoff": 10
+      }
+    },
+    {
+      "name": "rrf_candidate",
+      "candidate": {
+        "query_count": 500,
+        "recall_at_1": 0.6099656357388311,
+        "recall_at_3": 0.8415807560137456,
+        "recall_at_5": 0.9226804123711342,
+        "recall_at_10": 0.9659793814432992,
+        "recall_at_20": 0.9835051546391754,
+        "recall_at_50": 0.9835051546391754,
+        "mrr": 0.7851546391752572,
+        "mrr_cutoff": 10
+      },
+      "reranked": {
+        "query_count": 500,
+        "recall_at_1": 0.7670103092783499,
+        "recall_at_3": 0.8824742268041237,
+        "recall_at_5": 0.9261168384879728,
+        "recall_at_10": 0.9628865979381445,
+        "mrr": 0.8855866470299456,
+        "mrr_cutoff": 10
+      }
+    }
+  ]
+}
