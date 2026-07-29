@@ -13,6 +13,15 @@ from supportbench.rag.retrieval_pipeline import (
     RetrievalPipeline,
 )
 
+from supportbench.rag.citation_validator import (
+    CitationValidationError,
+    validate_generated_answer,
+)
+from supportbench.rag.pipeline import (
+    GroundedRAGPipeline,
+    GroundedRAGRun,
+)
+
 __all__ = [
     "ContextBuilder",
     "DocumentStore",
@@ -20,4 +29,11 @@ __all__ = [
     "RAGContext",
     "RetrievedDocument",
     "RetrievalPipeline",
+]
+
+__all__ += [
+    "CitationValidationError",
+    "GroundedRAGPipeline",
+    "GroundedRAGRun",
+    "validate_generated_answer",
 ]

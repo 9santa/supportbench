@@ -33,7 +33,7 @@ class GeneratedAnswerParseError(ValueError):
         self.raw_response = raw_response
 
 
-def parse_generated_response(
+def parse_generated_answer(
     raw_response: str,
 ) -> GeneratedAnswer:
     if not isinstance(raw_response, str):
