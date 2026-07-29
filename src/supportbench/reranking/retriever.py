@@ -1,5 +1,5 @@
-from time import perf_counter
 from collections.abc import Callable, Sequence
+from time import perf_counter
 
 import torch
 
@@ -8,13 +8,13 @@ from supportbench.reranking.base import (
     RerankCandidate,
     Reranker,
 )
-from supportbench.retrieval.base import (
-    Retriever,
-    SearchResult,
-)
 from supportbench.reranking.performance import (
     RerankingSearchMetrics,
     RerankingSearchResponse,
+)
+from supportbench.retrieval.base import (
+    Retriever,
+    SearchResult,
 )
 
 type DocumentFormatter = Callable[
@@ -177,7 +177,7 @@ class RerankingRetriever(Retriever):
 
         tracker.synchronize()
 
-        reranking_seconds = perf_counter() - retrieval_started
+        reranking_seconds = perf_counter() - reranking_started
         reranking_peak_allocated = tracker.max_memory_allocated()
         reranking_peak_reserved = tracker.max_memory_reserved()
 

@@ -880,6 +880,25 @@ batch throughput:
     effective batches / reranking second
 
 
+Performance benchmark:
+
+GPU: NVIDIA GeForce RTX 3070 Ti
+GPU power limit: 150 W
+Manual GPU pauses: none
+
+Source                 Retr p50  Rerank p50  Rerank p95  Total p50  Total p95    Pairs/s
+dense                      6.47      581.98      874.77     588.91     881.70      30.85
+rrf_standalone             8.68      543.40      888.48     553.03     898.72      30.88
+rrf_candidate              8.67      562.53      901.00     571.00     909.94      30.65
+
+VRAM:
+
+Source                Peak alloc GiB  Peak reserve GiB    Rerank +GiB   Batches/s
+dense                          3.507             4.348          0.348        3.08
+rrf_standalone                 3.507             4.348          0.348        3.09
+rrf_candidate                  3.507             4.348          0.348        3.06
+
+
 
 
 

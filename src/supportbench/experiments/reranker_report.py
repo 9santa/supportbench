@@ -1,15 +1,15 @@
 import json
-from pathlib import Path
 from collections.abc import Sequence
+from pathlib import Path
 
 from supportbench.evaluation.retrieval_evaluator import (
     RetrievalEvaluationResult,
 )
-from supportbench.experiments.reranker_comparison import (
-    RerankerComparisonResult,
-)
 from supportbench.experiments.reranker_benchmark import (
     PipelinePerformanceSummary,
+)
+from supportbench.experiments.reranker_comparison import (
+    RerankerComparisonResult,
 )
 
 

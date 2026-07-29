@@ -1,12 +1,10 @@
 from collections.abc import Sequence
 from dataclasses import replace
-from math import exp
 
 from supportbench.rag.models import (
     RAGContext,
     RetrievedDocument,
 )
-
 
 DOCUMENT_SEPARATOR = "\n\n"
 DOCUMENT_FOOTER = "\n[/DOCUMENT]"

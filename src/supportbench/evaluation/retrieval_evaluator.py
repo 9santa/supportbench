@@ -3,12 +3,10 @@ from dataclasses import dataclass
 
 from supportbench.data.models import QueryExample
 from supportbench.evaluation.retrieval_metrics import (
-    mean_reciprocal_rank,
     recall_at_k,
     reciprocal_rank,
 )
 from supportbench.retrieval.base import Retriever
-
 
 DEFAULT_RECALL_CUTOFFS = (1, 3, 5, 10, 20, 50)
 DEFAULT_MRR_CUTOFF = 10

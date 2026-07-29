@@ -24,10 +24,9 @@ from supportbench.retrieval.factory import (
     RetrieverFactory,
 )
 from supportbench.retrieval.hybrid import (
-    WeightedRRFHybrid,
     WeightedRetrieverSource,
+    WeightedRRFHybrid,
 )
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
