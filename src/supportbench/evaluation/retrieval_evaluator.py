@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from supportbench.data.models import QueryExample
@@ -10,6 +10,10 @@ from supportbench.evaluation.retrieval_metrics import (
 from supportbench.retrieval.base import Retriever
 
 
+DEFAULT_RECALL_CUTOFFS = (1, 3, 5, 10, 20, 50)
+DEFAULT_MRR_CUTOFF = 10
+
+
 @dataclass(frozen=True, slots=True)
 class QueryEvaluation:
     query_id: str
@@ -17,15 +21,52 @@ class QueryEvaluation:
     relevant_doc_ids: tuple[str, ...]
     retrieved_doc_ids: tuple[str, ...]
     scores: tuple[float, ...]
-    recall_at_1: float
-    recall_at_3: float
-    recall_at_5: float
-    recall_at_10: float
+    is_labeled: bool
+
+    recalls: tuple[tuple[int, float], ...]
     reciprocal_rank: float
+    mrr_cutoff: int
+
+    def recall_at(
+        self,
+        cutoff: int,
+    ) -> float:
+        return _metric_at(
+            self.recalls,
+            cutoff=cutoff,
+            metric_name="Recall",
+        )
+
+    @property
+    def recall_at_1(self) -> float:
+        return self.recall_at(1)
+
+    @property
+    def recall_at_3(self) -> float:
+        return self.recall_at(3)
+
+    @property
+    def recall_at_5(self) -> float:
+        return self.recall_at(5)
+
+    @property
+    def recall_at_10(self) -> float:
+        return self.recall_at(10)
+
+    @property
+    def recall_at_20(self) -> float:
+        return self.recall_at(20)
+
+    @property
+    def recall_at_50(self) -> float:
+        return self.recall_at(50)
 
     @property
     def first_relevant_rank(self) -> int | None:
-        relevant_doc_ids = self.relevant_doc_ids
+        if not self.is_labeled:
+            return None
+
+        relevant_doc_ids = set(self.relevant_doc_ids)
 
         for rank, doc_id in enumerate(self.retrieved_doc_ids, start=1):
             if doc_id in relevant_doc_ids:
@@ -37,90 +78,163 @@ class QueryEvaluation:
 @dataclass(frozen=True, slots=True)
 class RetrievalEvaluationResult:
     query_count: int
-    recall_at_1: float
-    recall_at_3: float
-    recall_at_5: float
-    recall_at_10: float
+    labeled_query_count: int
+    unlabeled_query_count: int
+
+    evaluation_top_k: int
+    recall_cutoffs: tuple[int, ...]
+    mrr_cutoff: int
+
+    recalls: tuple[tuple[int, float], ...]
     mrr: float
+
     queries: tuple[QueryEvaluation, ...]
+
+    def recall_at(
+        self,
+        cutoff: int,
+    ) -> float:
+        return _metric_at(
+            self.recalls,
+            cutoff=cutoff,
+            metric_name="Recall",
+        )
+
+    @property
+    def recall_at_1(self) -> float:
+        return self.recall_at(1)
+
+    @property
+    def recall_at_3(self) -> float:
+        return self.recall_at(3)
+
+    @property
+    def recall_at_5(self) -> float:
+        return self.recall_at(5)
+
+    @property
+    def recall_at_10(self) -> float:
+        return self.recall_at(10)
+
+    @property
+    def recall_at_20(self) -> float:
+        return self.recall_at(20)
+
+    @property
+    def recall_at_50(self) -> float:
+        return self.recall_at(50)
 
 
 def evaluate_retriever(
     retriever: Retriever,
-    queries: list[QueryExample],
+    queries: Sequence[QueryExample],
     *,
     top_k: int = 10,
+    recall_cutoffs: Sequence[int] = (DEFAULT_RECALL_CUTOFFS),
+    mrr_cutoff: int = DEFAULT_MRR_CUTOFF,
 ) -> RetrievalEvaluationResult:
-    """Evaluate a retriever."""
-    if not queries:
-        return RetrievalEvaluationResult(
-            query_count=0,
-            recall_at_1=0,
-            recall_at_3=0,
-            recall_at_5=0,
-            recall_at_10=0,
-            mrr=0.0,
-            queries=tuple(),
+    """
+    Evaluate a retriever.
+
+    All queries are searched and included in the
+    returned per-query results.
+
+    Aggregate recall and MRR are calculated only on labeled queries.
+    """
+    query_items = tuple(queries)
+    query_evaluations: list[QueryEvaluation] = []
+
+    for query in query_items:
+        relevant_doc_ids = set(query.relevant_doc_ids)
+        is_labeled = bool(relevant_doc_ids)
+
+        results = retriever.search(
+            query.query,
+            top_k=top_k,
         )
 
-    if top_k < 10:
-        raise ValueError("top_k must be at least 10 to compute Recall@10")
+        results = results[:top_k]
 
-    query_evals: list[QueryEvaluation] = []
+        retrieved_doc_ids = tuple(result.doc_id for result in results)
+        scores = tuple(result.score for result in results)
 
-    for query in queries:
-        relevant_doc_ds = set(query.relevant_doc_ids)
+        if is_labeled:
+            recalls = tuple(
+                (
+                    cutoff,
+                    recall_at_k(retrieved_doc_ids, relevant_doc_ids, k=cutoff),
+                )
+                for cutoff in recall_cutoffs
+            )
 
-        results = retriever.search(query.query, top_k=top_k)
+            query_reciprocal_rank = reciprocal_rank(
+                retrieved_doc_ids[:mrr_cutoff],
+                relevant_doc_ids,
+            )
+        else:
+            # Unlabeled queries remain in the output,
+            # but do not affect aggregate metrics.
+            recalls = tuple((cutoff, 0.0) for cutoff in recall_cutoffs)
+            query_reciprocal_rank = 0.0
 
-        retrieved_doc_ids = [result.doc_id for result in results]
-
-        scores = [result.score for result in results]
-
-        recall_1 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=1)
-        recall_3 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=3)
-        recall_5 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=5)
-        recall_10 = recall_at_k(retrieved_doc_ids, relevant_doc_ds, k=10)
-        r_rank = reciprocal_rank(retrieved_doc_ids, relevant_doc_ds)
-
-        query_evals.append(
+        query_evaluations.append(
             QueryEvaluation(
                 query_id=query.query_id,
                 query=query.query,
-                relevant_doc_ids=tuple(sorted(relevant_doc_ds)),
-                retrieved_doc_ids=tuple(retrieved_doc_ids),
-                scores=tuple(scores),
-                recall_at_1=recall_1,
-                recall_at_3=recall_3,
-                recall_at_5=recall_5,
-                recall_at_10=recall_10,
-                reciprocal_rank=r_rank,
+                relevant_doc_ids=tuple(sorted(relevant_doc_ids)),
+                retrieved_doc_ids=(retrieved_doc_ids),
+                scores=scores,
+                is_labeled=is_labeled,
+                recalls=recalls,
+                reciprocal_rank=(query_reciprocal_rank),
+                mrr_cutoff=mrr_cutoff,
             )
         )
 
-    evaluations = tuple(query_evals)
-    query_count = len(evaluations)
+    evaluations = tuple(query_evaluations)
 
-    if not evaluations:
-        return RetrievalEvaluationResult(
-            query_count=0,
-            recall_at_1=0,
-            recall_at_3=0,
-            recall_at_5=0,
-            recall_at_10=0,
-            mrr=0.0,
-            queries=tuple(),
+    labeled_evaluations = tuple(evaluation for evaluation in evaluations if evaluation.is_labeled)
+
+    aggregate_recalls = tuple(
+        (
+            cutoff,
+            _mean(evaluation.recall_at(cutoff) for evaluation in labeled_evaluations),
         )
+        for cutoff in recall_cutoffs
+    )
+
+    aggregate_mrr = _mean(evaluation.reciprocal_rank for evaluation in labeled_evaluations)
+
+    query_count = len(evaluations)
+    labeled_query_count = len(labeled_evaluations)
 
     return RetrievalEvaluationResult(
         query_count=query_count,
-        # Passing generator to _mean()
-        recall_at_1=_mean(item.recall_at_1 for item in evaluations),
-        recall_at_3=_mean(item.recall_at_3 for item in evaluations),
-        recall_at_5=_mean(item.recall_at_5 for item in evaluations),
-        recall_at_10=_mean(item.recall_at_10 for item in evaluations),
-        mrr=mean_reciprocal_rank([item.reciprocal_rank for item in evaluations]),
+        labeled_query_count=(labeled_query_count),
+        unlabeled_query_count=(query_count - labeled_query_count),
+        evaluation_top_k=top_k,
+        recall_cutoffs=tuple(recall_cutoffs),
+        mrr_cutoff=mrr_cutoff,
+        recalls=aggregate_recalls,
+        mrr=aggregate_mrr,
         queries=evaluations,
+    )
+
+
+def _metric_at(
+    values: tuple[tuple[int, float], ...],
+    *,
+    cutoff: int,
+    metric_name: str,
+) -> float:
+    for current_cutoff, value in values:
+        if current_cutoff == cutoff:
+            return value
+
+    available = ", ".join(str(current_cutoff) for current_cutoff, _ in values)
+
+    raise ValueError(
+        f"{metric_name}@{cutoff} was not evaluated; available cutoffs: {available}",
     )
 
 

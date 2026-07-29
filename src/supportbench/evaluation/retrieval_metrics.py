@@ -1,5 +1,8 @@
+from collections.abc import Sequence
+
+
 def recall_at_k(
-    retrieved_doc_ids: list[str],
+    retrieved_doc_ids: Sequence[str],
     relevant_doc_ids: set[str],
     k: int,
 ) -> float:
@@ -18,7 +21,7 @@ def recall_at_k(
 
 
 def reciprocal_rank(
-    retrieved_doc_ids: list[str],
+    retrieved_doc_ids: Sequence[str],
     relevant_doc_ids: set[str],
 ) -> float:
     """Return the reciprocal rank of the first relevant document."""

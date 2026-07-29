@@ -18,10 +18,17 @@ def test_exports_query_evaluations_as_jsonl(
 ) -> None:
     result = RetrievalEvaluationResult(
         query_count=1,
-        recall_at_1=1.0,
-        recall_at_3=1.0,
-        recall_at_5=1.0,
-        recall_at_10=1.0,
+        labeled_query_count=1,
+        unlabeled_query_count=0,
+        evaluation_top_k=10,
+        recall_cutoffs=(1, 3, 5, 10),
+        mrr_cutoff=10,
+        recalls=(
+            (1, 1.0),
+            (3, 1.0),
+            (5, 1.0),
+            (10, 1.0),
+        ),
         mrr=1.0,
         queries=(
             QueryEvaluation(
@@ -33,11 +40,15 @@ def test_exports_query_evaluations_as_jsonl(
                     "vpn_faq",
                 ),
                 scores=(4.82, 3.17),
-                recall_at_1=1.0,
-                recall_at_3=1.0,
-                recall_at_5=1.0,
-                recall_at_10=1.0,
+                is_labeled=True,
+                recalls=(
+                    (1, 1.0),
+                    (3, 1.0),
+                    (5, 1.0),
+                    (10, 1.0),
+                ),
                 reciprocal_rank=1.0,
+                mrr_cutoff=10,
             ),
         ),
     )
@@ -75,10 +86,17 @@ def test_export_creates_parent_directories(
 ) -> None:
     result = RetrievalEvaluationResult(
         query_count=0,
-        recall_at_1=0.0,
-        recall_at_3=0.0,
-        recall_at_5=0.0,
-        recall_at_10=0.0,
+        labeled_query_count=0,
+        unlabeled_query_count=0,
+        evaluation_top_k=10,
+        recall_cutoffs=(1, 3, 5, 10),
+        mrr_cutoff=10,
+        recalls=(
+            (1, 0.0),
+            (3, 0.0),
+            (5, 0.0),
+            (10, 0.0),
+        ),
         mrr=0.0,
         queries=(),
     )
@@ -98,10 +116,17 @@ def test_exports_bm25_experiment_summary(
 ) -> None:
     result = RetrievalEvaluationResult(
         query_count=2,
-        recall_at_1=0.5,
-        recall_at_3=0.75,
-        recall_at_5=1.0,
-        recall_at_10=1.0,
+        labeled_query_count=2,
+        unlabeled_query_count=0,
+        evaluation_top_k=5,
+        recall_cutoffs=(1, 3, 5, 10),
+        mrr_cutoff=10,
+        recalls=(
+            (1, 0.5),
+            (3, 0.75),
+            (5, 1.0),
+            (10, 1.0),
+        ),
         mrr=0.625,
         queries=(),
     )
