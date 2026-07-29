@@ -10,7 +10,6 @@ from supportbench.retrieval.base import (
     SearchResult,
 )
 
-
 type DocumentFormatter = Callable[
     [Document],
     str,

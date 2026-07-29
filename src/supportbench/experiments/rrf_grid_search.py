@@ -1,7 +1,6 @@
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from types import MappingProxyType
 from typing import Self
 
 from supportbench.data.models import QueryExample
@@ -16,15 +15,13 @@ from supportbench.experiments.rrf_grid_config import (
 )
 from supportbench.retrieval.base import (
     Retriever,
-    SearchResult,
+)
+from supportbench.retrieval.cached import (
+    cache_retriever_results,
 )
 from supportbench.retrieval.hybrid import (
     WeightedRetrieverSource,
     WeightedRRFHybrid,
-)
-from supportbench.retrieval.cached import (
-    CachedRetriever,
-    cache_retriever_results,
 )
 
 GRID_RECALL_CUTOFFS = (1, 3, 5, 10, 20, 50)

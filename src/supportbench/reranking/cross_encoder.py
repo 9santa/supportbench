@@ -1,15 +1,14 @@
 from collections.abc import Sequence
-from re import L
+
 import numpy as np
 import numpy.typing as npt
 from sentence_transformers import CrossEncoder
 
 from supportbench.reranking.base import (
     RerankCandidate,
-    RerankResult,
     Reranker,
+    RerankResult,
 )
-
 
 type FloatVector = npt.NDArray[np.float32]
 
