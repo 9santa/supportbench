@@ -1,14 +1,14 @@
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import Literal
 
 
-AnswerDecision: TypeAlias = Literal[
+type AnswerDecision = Literal[
     "answer",
     "abstain",
     "clarify",
 ]
 
-ChatRole: TypeAlias = Literal[
+type ChatRole = Literal[
     "system",
     "user",
 ]
@@ -21,7 +21,7 @@ class ChatMessage:
 
 
 @dataclass(frozen=True, slots=True)
-class GeneratedAnser:
+class GeneratedAnswer:
     decision: AnswerDecision
     answer: str
     citation_ids: tuple[str, ...]
