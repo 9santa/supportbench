@@ -1,3 +1,5 @@
+import pytest
+
 from supportbench.data.models import QueryExample
 from supportbench.evaluation.retrieval_evaluator import evaluate_retriever
 from supportbench.retrieval.base import SearchResult
@@ -19,6 +21,15 @@ class RecordingRetriever:
         ]
 
 
+class EmptyRetriever:
+    def search(
+        self,
+        query: str,
+        top_k: int = 5,
+    ) -> list[SearchResult]:
+        return []
+
+
 def test_evaluation_passes_top_k_to_retriever() -> None:
     retriever = RecordingRetriever()
     queries = [
@@ -35,3 +46,40 @@ def test_evaluation_passes_top_k_to_retriever() -> None:
     assert retriever.requested_top_k == 10
     assert len(result.queries[0].retrieved_doc_ids) == 10
     assert result.recall_at_10 == 1.0
+
+
+def test_rejects_recall_cutoff_above_top_k() -> None:
+    query = QueryExample(
+        query_id="q1",
+        query="example",
+        relevant_doc_ids=("doc1",),
+        split="dev",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="largest recall cutoff",
+    ):
+        evaluate_retriever(
+            EmptyRetriever(),
+            [query],
+            top_k=10,
+        )
+
+
+def test_accepts_top_k_covering_all_cutoffs() -> None:
+    query = QueryExample(
+        query_id="q1",
+        query="example",
+        relevant_doc_ids=("doc1",),
+        split="dev",
+    )
+
+    result = evaluate_retriever(
+        EmptyRetriever(),
+        [query],
+        top_k=50,
+    )
+
+    assert result.query_count == 1
+    assert result.labeled_query_count == 1
