@@ -88,9 +88,9 @@ def prepare_nvidia_techqa(
 
     _write_jsonl(output_dir / "queries.jsonl", (_query_to_dict(query) for query in queries))
 
-    _write_jsonl(output_dir / "anomalies.json", anomaly_report)
+    _write_json(output_dir / "anomalies.json", anomaly_report)
 
-    _write_jsonl(
+    _write_json(
         output_dir / "manifest.json",
         {
             "dataset": "nvidia/TechQA-RAG-Eval",
@@ -197,7 +197,11 @@ def _to_query(source_query: _SourceQuery) -> NvidiaTechQAQuery:
 def _split_from_query_id(query_id: str) -> DatasetSplit:
     if query_id.startswith("DEV_"):
         return "dev"
-    return "train"
+
+    if query_id.startswith("TRAIN_"):
+        return "train"
+
+    raise NvidiaTechQAError(f"query ID must start with 'TRAIN_' or 'DEV_': {query_id!r}")
 
 
 def _build_anomaly_report(source_queries: tuple[_SourceQuery, ...]) -> dict[str, Any]:
@@ -225,7 +229,7 @@ def _build_anomaly_report(source_queries: tuple[_SourceQuery, ...]) -> dict[str,
 
         duplicate_groups.append(item)
 
-        if len({query.is_impossible for query in group}) != len(group):
+        if len([query.is_impossible for query in group]) != len(group):
             conflicting_groups.append(item)
 
     answerable = [query for query in source_queries if not query.is_impossible]

@@ -66,7 +66,11 @@ def failures_at_k(
     *,
     k: int,
 ) -> tuple[QueryEvaluation, ...]:
-    return tuple(eval for eval in result.queries if not succeeds_at_k(eval, k=k))
+    return tuple(
+        evaluation
+        for evaluation in result.queries
+        if evaluation.is_labeled and not succeeds_at_k(evaluation, k=k)
+    )
 
 
 def compare_evaluation_results(
