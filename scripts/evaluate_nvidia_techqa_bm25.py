@@ -22,7 +22,6 @@ from supportbench.retrieval.inverted_index import (
     InvertedIndex,
 )
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"

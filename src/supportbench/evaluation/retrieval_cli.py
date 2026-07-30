@@ -5,10 +5,10 @@ from typing import cast
 
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.data.models import Document, QueryExample
-from supportbench.retrieval.factory import RetrieverConfig
 from supportbench.evaluation.retrieval_evaluator import (
     DEFAULT_RECALL_CUTOFFS,
 )
+from supportbench.retrieval.factory import RetrieverConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"

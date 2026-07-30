@@ -41,11 +41,11 @@ def test_evaluation_passes_top_k_to_retriever() -> None:
         )
     ]
 
-    result = evaluate_retriever(retriever, queries, top_k=10)
+    result = evaluate_retriever(retriever, queries, top_k=50)
 
-    assert retriever.requested_top_k == 10
-    assert len(result.queries[0].retrieved_doc_ids) == 10
-    assert result.recall_at_10 == 1.0
+    assert retriever.requested_top_k == 50
+    assert len(result.queries[0].retrieved_doc_ids) == 50
+    assert result.recall_at_50 == 1.0
 
 
 def test_rejects_recall_cutoff_above_top_k() -> None:
