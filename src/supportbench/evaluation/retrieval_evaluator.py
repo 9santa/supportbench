@@ -139,6 +139,12 @@ def evaluate_retriever(
 
     Aggregate recall and MRR are calculated only on labeled queries.
     """
+    validated_cutoffs = _validate_evalution_config(
+        top_k=top_k,
+        recall_cutoffs=recall_cutoffs,
+        mrr_cutoff=mrr_cutoff,
+    )
+
     query_items = tuple(queries)
     query_evaluations: list[QueryEvaluation] = []
 
@@ -162,7 +168,7 @@ def evaluate_retriever(
                     cutoff,
                     recall_at_k(retrieved_doc_ids, relevant_doc_ids, k=cutoff),
                 )
-                for cutoff in recall_cutoffs
+                for cutoff in validated_cutoffs
             )
 
             query_reciprocal_rank = reciprocal_rank(
@@ -172,7 +178,7 @@ def evaluate_retriever(
         else:
             # Unlabeled queries remain in the output,
             # but do not affect aggregate metrics.
-            recalls = tuple((cutoff, 0.0) for cutoff in recall_cutoffs)
+            recalls = tuple((cutoff, 0.0) for cutoff in validated_cutoffs)
             query_reciprocal_rank = 0.0
 
         query_evaluations.append(
@@ -211,7 +217,7 @@ def evaluate_retriever(
         labeled_query_count=(labeled_query_count),
         unlabeled_query_count=(query_count - labeled_query_count),
         evaluation_top_k=top_k,
-        recall_cutoffs=tuple(recall_cutoffs),
+        recall_cutoffs=tuple(validated_cutoffs),
         mrr_cutoff=mrr_cutoff,
         recalls=aggregate_recalls,
         mrr=aggregate_mrr,
@@ -245,3 +251,51 @@ def _mean(values: Iterable[float]) -> float:
         total += v
 
     return total / count if count else 0.0
+
+def _validate_evalution_config(
+    *,
+        top_k: int,
+        recall_cutoffs: Sequence[int],
+    mrr_cutoff: int,
+) -> tuple[int, ...]:
+    if top_k <= 0:
+        raise ValueError("top_k must be positive")
+
+    cutoffs = tuple(recall_cutoffs)
+
+    if not cutoffs:
+        raise ValueError(
+            "recall_cutoffs must not be empty"
+        )
+
+    if any(cutoff <= 0 for cutoff in cutoffs):
+        raise ValueError(
+            "recall cutoffs must be positive"
+        )
+
+    if len(cutoffs) != len(set(cutoffs)):
+        raise ValueError(
+            "recall cutoffs must not contain duplicates"
+        )
+
+    if cutoffs != tuple(sorted(cutoffs)):
+        raise ValueError(
+            "recall cutoffs must be sorted"
+        )
+
+    if cutoffs[-1] > top_k:
+        raise ValueError(
+            "largest recall cutoff must not exceed top_k"
+        )
+
+    if mrr_cutoff <= 0:
+        raise ValueError(
+            "mrr_cutoff must be positive"
+        )
+
+    if mrr_cutoff > top_k:
+        raise ValueError(
+            "mrr_cutoff must not exceed top_k"
+        )
+
+    return cutoffs

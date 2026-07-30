@@ -3,6 +3,7 @@ from pathlib import Path
 
 from supportbench.data.models import QueryExample
 from supportbench.evaluation.retrieval_evaluator import (
+    DEFAULT_RECALL_CUTOFFS,
     RetrievalEvaluationResult,
     evaluate_retriever,
 )
@@ -21,7 +22,7 @@ class BM25ExperimentConfig:
     k1: float
     b: float
     split: str = "dev"
-    top_k: int = 5
+    top_k: int = 50
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -36,8 +37,10 @@ class BM25ExperimentConfig:
         if not self.split.strip():
             raise ValueError("split must be non-empty")
 
-        if self.top_k < 5:
-            raise ValueError("top_k must be at least 5 to compute Recall@5")
+        min_top_k = max(DEFAULT_RECALL_CUTOFFS)
+
+        if self.top_k < min_top_k:
+            raise ValueError(f"top_k must be at least {min_top_k}")
 
 
 @dataclass(frozen=True, slots=True)

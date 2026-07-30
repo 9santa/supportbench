@@ -6,6 +6,9 @@ from typing import cast
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.data.models import Document, QueryExample
 from supportbench.retrieval.factory import RetrieverConfig
+from supportbench.evaluation.retrieval_evaluator import (
+    DEFAULT_RECALL_CUTOFFS,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
@@ -131,8 +134,10 @@ def parse_evaluation_arguments(
     top_k = cast(int, args.top_k)
     failure_k = cast(int, args.failure_k)
 
-    if top_k < 10:
-        parser.error("--top-k must be at least 10 to compute Recall@10")
+    min_top_k = max(DEFAULT_RECALL_CUTOFFS)
+
+    if top_k < min_top_k:
+        parser.error(f"--top-k must be at least {min_top_k} to compute Recall@{min_top_k}")
 
     if failure_k > top_k:
         parser.error("--failure-k must not be greater than --top-k")
