@@ -6,7 +6,6 @@ from supportbench.rag.generation.models import (
     ChatMessage,
 )
 
-
 ANSWER_SCHEMA = {
     "type": "object",
     "properties": {

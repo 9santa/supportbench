@@ -26,14 +26,13 @@ from supportbench.reranking.factory import (
     RerankingFactory,
 )
 from supportbench.retrieval.factory import (
-    RetrieverFactory,
     RetrieverConfig,
+    RetrieverFactory,
 )
 from supportbench.retrieval.hybrid import (
-    WeightedRRFHybrid,
     WeightedRetrieverSource,
+    WeightedRRFHybrid,
 )
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 

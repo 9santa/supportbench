@@ -14,7 +14,6 @@ from supportbench.rag.generation.prompt import (
     GroundedPromptBuilder,
 )
 
-
 __all__ = [
     "AnswerDecision",
     "ChatMessage",

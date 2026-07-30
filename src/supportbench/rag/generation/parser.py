@@ -6,7 +6,6 @@ from supportbench.rag.generation.models import (
     GeneratedAnswer,
 )
 
-
 REQUIRED_FIELDS = {
     "decision",
     "answer",

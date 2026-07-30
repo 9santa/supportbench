@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from supportbench.rag import retrieval_pipeline
 from supportbench.rag.citation_validator import (
     CitationValidationError,
     validate_generated_answer,
@@ -25,7 +24,6 @@ from supportbench.rag.models import RAGContext
 from supportbench.rag.retrieval_pipeline import (
     RetrievalPipeline,
 )
-
 
 EMPTY_CONTEXT_ABSTENTION = GeneratedAnswer(
     decision="abstain",
