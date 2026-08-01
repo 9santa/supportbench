@@ -26,5 +26,5 @@ concatenated_sources.txt
 artifacts/
 abc.txt
 
-# Large datasets
+# Large files
 data/

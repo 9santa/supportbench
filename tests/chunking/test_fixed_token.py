@@ -1,11 +1,10 @@
 import pytest
+from conftest import WhitespaceTokenCodec
 
 from supportbench.chunking.fixed_token import (
     FixedTokenChunker,
 )
 from supportbench.data.models import Document
-
-from conftest import WhitespaceTokenCodec
 
 
 def test_chunks_document_with_overlap() -> None:

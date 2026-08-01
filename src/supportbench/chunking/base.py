@@ -15,7 +15,7 @@ class TokenCodec(Protocol):
         """Encode text without adding special tokens."""
         ...
 
-    def decode(self, token_ids: Sequence[int]) -> str:
+    def decode(self, token_ids: Sequence[int]) -> str | list[str]:
         """Decode token IDs into text."""
         ...
 
@@ -42,7 +42,7 @@ class Chunker(Protocol):
         ...
 
 
-class HuggingFaceTokenCodec:
+class HuggingFaceTokenCodec(TokenCodec):
     def __init__(
         self,
         tokenizer: PreTrainedTokenizerBase,
@@ -65,6 +65,8 @@ class HuggingFaceTokenCodec:
         encoded = self._tokenizer.encode(
             text,
             add_special_tokens=False,
+            truncation=False,
+            verbose=False,
         )
 
         return cast(list[int], encoded)
