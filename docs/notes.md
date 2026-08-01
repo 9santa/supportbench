@@ -991,3 +991,127 @@ Raw response:
 3. TechQA имеет сравнительно немного размеченных QA-пар.
 4. Результаты нельзя автоматически переносить на любую
    корпоративную базу знаний без domain adaptation.
+
+
+
+Building BM25 index for 28,481 documents...
+Index built: 28,481 documents, 235,124 terms, avg length 537.0 tokens
+
+Split: dev
+Queries: 310 total, 160 labeled, 150 unlabeled
+Recall@1:  0.4188
+Recall@3:  0.5687
+Recall@5:  0.6125
+Recall@10: 0.6813
+Recall@20: 0.7375
+Recall@50: 0.8125
+MRR@10:    0.4991
+
+
+Dense Index
+Documents: 28,481
+Embedding dimension: 768
+Encoding time: 325.88s
+Index build time: 0.20s
+Index saved to: /home/cohle/machine_learning/supportbench/artifacts/indexes/nvidia_techqa/multilingual_e5_base
+
+
+Retriever: dense
+Documents: 28,481
+Queries: 310
+Split: dev
+
+Queries: 310 total, 160 labeled, 150 unlabeled
+Recall@1:  0.3688
+Recall@3:  0.5625
+Recall@5:  0.6000
+Recall@10: 0.6875
+Recall@20: 0.7438
+Recall@50: 0.8500
+MRR@10:    0.4784
+
+
+Retriever: dense
+Documents: 28,481
+Queries: 600
+Split: train
+
+Queries: 600 total, 450 labeled, 150 unlabeled
+Recall@1:  0.4067
+Recall@3:  0.5244
+Recall@5:  0.5622
+Recall@10: 0.6289
+Recall@20: 0.6956
+Recall@50: 0.7778
+MRR@10:    0.4766
+
+
+Retriever: hybrid
+Documents: 28,481
+Queries: 310
+Split: dev
+
+Queries: 310 total, 160 labeled, 150 unlabeled
+Recall@1:  0.4437
+Recall@3:  0.5938
+Recall@5:  0.6375
+Recall@10: 0.7312
+Recall@20: 0.8063
+Recall@50: 0.8875
+MRR@10:    0.5373
+
+
+
+## Grid search on hybrid retriever
+dense_weight:
+1.0, 1.5, 2.0, 3.0
+
+rrf_k:
+10, 20, 40, 60
+
+source candidate_k:
+100
+
+
+
+| dense_weight | rrf_k | Recall@1 | Recall@3 | Recall@5 | Recall@10 | Recall@20 | Recall@50 | MRR@10 |
+| -----------: | ----: | -------: | -------: | -------: | --------: | --------: | --------: | -----: |
+|          1.0 |    10 |   0.4578 |   0.5644 |   0.6111 |    0.6756 |    0.7511 |    0.8311 | 0.5251 |
+|          1.5 |    10 |   0.4600 |   0.5578 |   0.6111 |    0.6778 |    0.7444 |    0.8200 | 0.5249 |
+|          2.0 |    10 |   0.4533 |   0.5444 |   0.5956 |    0.6800 |    0.7378 |    0.8156 | 0.5169 |
+|          3.0 |    10 |   0.4400 |   0.5489 |   0.5800 |    0.6733 |    0.7244 |    0.8067 | 0.5071 |
+|          1.0 |    20 |   0.4556 |   0.5578 |   0.6044 |    0.6800 |    0.7489 |    0.8356 | 0.5228 |
+|          1.5 |    20 |   0.4600 |   0.5556 |   0.6067 |    0.6844 |    0.7311 |    0.8222 | 0.5250 |
+|          2.0 |    20 |   0.4533 |   0.5533 |   0.5933 |    0.6822 |    0.7289 |    0.8244 | 0.5199 |
+|          3.0 |    20 |   0.4422 |   0.5444 |   0.5822 |    0.6733 |    0.7244 |    0.7911 | 0.5084 |
+|          1.0 |    40 |   0.4533 |   0.5600 |   0.5978 |    0.6644 |    0.7511 |    0.8289 | 0.5202 |
+|          1.5 |    40 |   0.4622 |   0.5600 |   0.5978 |    0.6733 |    0.7311 |    0.8244 | 0.5246 |
+|          2.0 |    40 |   0.4533 |   0.5511 |   0.5933 |    0.6733 |    0.7289 |    0.7956 | 0.5195 |
+|          3.0 |    40 |   0.4489 |   0.5467 |   0.5844 |    0.6756 |    0.7267 |    0.7867 | 0.5136 |
+|          1.0 |    60 |   0.4511 |   0.5578 |   0.5978 |    0.6600 |    0.7422 |    0.8289 | 0.5164 |
+|          1.5 |    60 |   0.4622 |   0.5556 |   0.5933 |    0.6733 |    0.7311 |    0.8133 | 0.5237 |
+|          2.0 |    60 |   0.4533 |   0.5511 |   0.5889 |    0.6733 |    0.7333 |    0.7889 | 0.5195 |
+|          3.0 |    60 |   0.4489 |   0.5489 |   0.5889 |    0.6711 |    0.7267 |    0.7911 | 0.5153 |
+
+
+## Запуск лучшей конфигурации на dev
+  --retriever hybrid \
+  --split dev \
+  --bm25-weight 1.0 \
+  --dense-weight 1.0 \
+  --candidate-k 100 \
+  --rrf-k 20
+
+Retriever: hybrid
+Documents: 28,481
+Queries: 310
+Split: dev
+
+Queries: 310 total, 160 labeled, 150 unlabeled
+Recall@1:  0.4625
+Recall@3:  0.5938
+Recall@5:  0.6625
+Recall@10: 0.7125
+Recall@20: 0.8125
+Recall@50: 0.8938
+MRR@10:    0.5452

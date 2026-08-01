@@ -25,7 +25,7 @@ def export_query_evaluations(
 
 
 def _query_evaluation_to_dict(evaluation: QueryEvaluation) -> dict[str, Any]:
-    return {
+    record: dict[str, Any] = {
         "query_id": evaluation.query_id,
         "query": evaluation.query,
         "relevant_doc_ids": list(evaluation.relevant_doc_ids),
@@ -33,14 +33,14 @@ def _query_evaluation_to_dict(evaluation: QueryEvaluation) -> dict[str, Any]:
         "scores": list(evaluation.scores),
         "is_labeled": evaluation.is_labeled,
         "gold_rank": (evaluation.first_relevant_rank),
-        "recall_at_1": evaluation.recall_at_1,
-        "recall_at_3": evaluation.recall_at_3,
-        "recall_at_5": evaluation.recall_at_5,
-        "recall_at_10": evaluation.recall_at_10,
-        "recall_at_20": evaluation.recall_at_20,
-        "recall_at_50": evaluation.recall_at_50,
         "reciprocal_rank": (evaluation.reciprocal_rank),
+        "mrr_cutoff": evaluation.mrr_cutoff,
     }
+
+    for cutoff, value in evaluation.recalls:
+        record[f"recall_at_{cutoff}"] = value
+
+    return record
 
 
 @dataclass(frozen=True, slots=True)

@@ -47,7 +47,7 @@ class SentenceTransformerDenceEncoder(DenseEncoder):
             device=device,
         )
 
-        dimension = self._model.get_sentence_embedding_dimension()
+        dimension = self._model.get_embedding_dimension()
 
         if dimension is None or dimension <= 0:
             raise ValueError("model must have a positive sentence embedding dimension")
