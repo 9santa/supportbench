@@ -2,6 +2,7 @@ import pytest
 
 from supportbench.evaluation.parent_document import (
     ParentDocumentRetriever,
+    UniqueParentDocumentRetriever,
 )
 from supportbench.retrieval.base import (
     SearchResult,
@@ -75,3 +76,20 @@ def test_rejects_unknown_chunk_id() -> None:
             "example query",
             top_k=2,
         )
+
+
+def test_unique_parent_retriever_uses_deeper_chunk_pool() -> None:
+    retriever = UniqueParentDocumentRetriever(
+        StubChunkRetriever(),
+        parent_by_chunk_id={
+            "D1::ft4o1::chunk_0000": "D1",
+            "D1::ft4o1::chunk_0001": "D1",
+            "D2::ft4o1::chunk_0000": "D2",
+        },
+        chunk_candidate_k=3,
+    )
+
+    results = retriever.search("example query", top_k=2)
+
+    assert [result.doc_id for result in results] == ["D1", "D2"]
+    assert [result.rank for result in results] == [1, 2]

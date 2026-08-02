@@ -1,6 +1,6 @@
+import heapq
 from collections import defaultdict
 from math import log
-import heapq
 
 from supportbench.retrieval.base import SearchResult
 from supportbench.retrieval.inverted_index import InvertedIndex
@@ -60,7 +60,7 @@ class BM25Retriever:
                 )
 
         # O(N log top_k)
-        top_items = heapq.nlargest(
+        top_items = heapq.nsmallest(
             top_k,
             scores.items(),
             key=lambda item: (-item[1], item[0]),
