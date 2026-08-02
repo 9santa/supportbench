@@ -19,6 +19,8 @@ def test_parses_custom_retriever_configuration() -> None:
 
     namespace = parser.parse_args(
         [
+            "--top-k",
+            "50",
             "--dense-index",
             "custom-index",
             "--dense-model",
@@ -45,7 +47,7 @@ def test_parses_custom_retriever_configuration() -> None:
     evaluation = parse_evaluation_arguments(parser, namespace)
     config = parse_retriever_config(parser, namespace)
 
-    assert evaluation.top_k == 10
+    assert evaluation.top_k == 50
     assert config.dense_index_path == Path("custom-index")
     assert config.dense_model_name == "custom-model"
     assert config.dense_device == "cpu"

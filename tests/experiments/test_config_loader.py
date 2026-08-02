@@ -20,7 +20,7 @@ b:
     k1: 1.5
     b: 0.75
     split: dev
-    top_k: 5
+    top_k: 50
 
 k1:
   - name: k1_0_5
@@ -45,6 +45,5 @@ k1:
     ]
     assert all(config.k1 == 1.5 for config in configs)
     assert all(config.split == "dev" for config in configs)
-    assert all(config.top_k == 5 for config in configs)
-
+    assert all(config.top_k == 50 for config in configs)
 

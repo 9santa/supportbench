@@ -205,8 +205,18 @@ def test_counts_additional_relevant_documents_when_both_retrievers_hit() -> None
     )
 
     comparison = compare_with_dense(
-        hybrid=evaluate_retriever(hybrid, [query], top_k=10),
-        dense=evaluate_retriever(dense, [query], top_k=10),
+        hybrid=evaluate_retriever(
+            hybrid,
+            [query],
+            top_k=10,
+            recall_cutoffs=(1, 3, 5, 10),
+        ),
+        dense=evaluate_retriever(
+            dense,
+            [query],
+            top_k=10,
+            recall_cutoffs=(1, 3, 5, 10),
+        ),
     )
     relevant_at_10 = comparison.relevant_documents_at_10
 
