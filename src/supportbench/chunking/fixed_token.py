@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 from supportbench.chunking.base import (
     TokenCodec,
     build_chunk_id,
@@ -38,6 +40,15 @@ class FixedTokenChunker:
     @property
     def chunking_key(self) -> str:
         return f"ft{self._chunk_size}o{self._overlap}"
+
+    @property
+    def configuration(self) -> Mapping[str, object]:
+        return {
+            "strategy": "fixed_token",
+            "version": 1,
+            "chunk_size": self._chunk_size,
+            "overlap": self._overlap,
+        }
 
     def chunk(
         self,

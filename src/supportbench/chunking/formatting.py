@@ -1,4 +1,19 @@
+from collections.abc import Sequence
+
 from supportbench.chunking.models import Chunk
+
+
+def format_chunk_header(
+    *,
+    document_title: str,
+    section_path: Sequence[str],
+) -> str:
+    parts = [f"Title: {document_title}"]
+
+    if section_path:
+        parts.append("Section: " + " > ".join(section_path))
+
+    return "\n".join(parts)
 
 
 def format_chunk_for_embedding(chunk: Chunk) -> str:

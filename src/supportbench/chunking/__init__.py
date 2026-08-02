@@ -3,6 +3,8 @@ from supportbench.chunking.base import (
     HuggingFaceTokenCodec,
     TokenCodec,
     build_chunk_id,
+    OffsetTokenCodec,
+    TokenOffset,
 )
 from supportbench.chunking.build import (
     ChunkCorpusBuildResult,
@@ -10,6 +12,9 @@ from supportbench.chunking.build import (
 )
 from supportbench.chunking.fixed_token import (
     FixedTokenChunker,
+)
+from supportbench.chunking.heading_aware import (
+    HeadingAwareChunker,
 )
 from supportbench.chunking.formatting import (
     format_chunk_for_display,
@@ -40,4 +45,7 @@ __all__ = [
     "format_chunk_for_embedding",
     "ChunkDatasetValidationError",
     "load_chunk_parent_ids",
+    "HeadingAwareChunker",
+    "OffsetTokenCodec",
+    "TokenOffset",
 ]

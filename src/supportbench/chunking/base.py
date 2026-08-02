@@ -1,4 +1,5 @@
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping
+from dataclasses import dataclass
 from typing import Protocol, Self, cast
 
 from transformers import (
@@ -10,6 +11,20 @@ from supportbench.chunking.models import Chunk
 from supportbench.data.models import Document
 
 
+@dataclass(frozen=True, slots=True)
+class TokenOffset:
+    token_id: int
+    start_char: int
+    end_char: int
+
+    def __post_init__(self) -> None:
+        if self.start_char < 0:
+            raise ValueError("start_char must be non-negative")
+
+        if self.end_char < self.start_char:
+            raise ValueError("end_char must not be smaller than start_char")
+
+
 class TokenCodec(Protocol):
     def encode(self, text: str) -> list[int]:
         """Encode text without adding special tokens."""
@@ -17,6 +32,15 @@ class TokenCodec(Protocol):
 
     def decode(self, token_ids: Sequence[int]) -> str | list[str]:
         """Decode token IDs into text."""
+        ...
+
+
+class OffsetTokenCodec(TokenCodec, Protocol):
+    def encode_with_offsets(
+        self,
+        text: str,
+    ) -> list[TokenOffset]:
+        """Encode text and preserve character offsets."""
         ...
 
 
@@ -33,6 +57,9 @@ class Chunker(Protocol):
         So the same document can be chunked in different ways without chunk_id collisions.
         """
         ...
+
+    @property
+    def configuration(self) -> Mapping[str, object]: ...
 
     def chunk(
         self,
@@ -70,6 +97,42 @@ class HuggingFaceTokenCodec(TokenCodec):
         )
 
         return cast(list[int], encoded)
+
+    def encode_with_offsets(self, text: str) -> list[TokenOffset]:
+        if not self._tokenizer.is_fast:
+            raise ValueError("character offsets require a fast Hugging Face tokenizer")
+
+        encoded = self._tokenizer(
+            text,
+            add_special_tokens=False,
+            truncation=False,
+            return_attention_mask=False,
+            return_token_type_ids=False,
+            return_offsets_mapping=True,
+            verbose=False,
+        )
+
+        token_ids = cast(list[int], encoded["input_ids"])
+        raw_offsets = cast(list[tuple[int, int]], encoded["offset_mapping"])
+
+        if len(token_ids) != len(raw_offsets):
+            raise ValueError("token IDs and offset mappings have different lengths")
+
+        return [
+            TokenOffset(
+                token_id=token_id,
+                start_char=int(start_char),
+                end_char=int(end_char),
+            )
+            for token_id, (
+                start_char,
+                end_char,
+            ) in zip(
+                token_ids,
+                raw_offsets,
+                strict=True,
+            )
+        ]
 
     def decode(self, token_ids: Sequence[int]) -> str | list[str]:
         return self._tokenizer.decode(

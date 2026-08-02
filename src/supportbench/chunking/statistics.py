@@ -32,6 +32,11 @@ class ChunkingStatistics:
 
     indexable_empty_chunks: int
 
+    chunks_with_section_path: int
+    chunks_with_section_path_rate: float
+    unique_section_paths: int
+    max_section_depth: int
+
 
 def build_chunking_statistics(
     *,
@@ -41,6 +46,7 @@ def build_chunking_statistics(
     max_input_tokens: int,
     special_token_reserve: int,
     indexable_empty_chunks: int,
+    section_paths: list[tuple[str, ...]],
 ) -> ChunkingStatistics:
     if max_input_tokens <= 0:
         raise ValueError("max_input_tokens must be positive")
@@ -67,6 +73,15 @@ def build_chunking_statistics(
 
     formatted_over_budget_chunks = sum(
         count > usable_input_budget for count in formatted_token_counts
+    )
+
+    chunks_with_section_path = sum(bool(path) for path in section_paths)
+
+    unique_section_paths = len({path for path in section_paths if path})
+
+    max_section_depth = max(
+        (len(path) for path in section_paths),
+        default=0,
     )
 
     return ChunkingStatistics(
@@ -112,6 +127,13 @@ def build_chunking_statistics(
             total_chunks,
         ),
         indexable_empty_chunks=(indexable_empty_chunks),
+        chunks_with_section_path=(chunks_with_section_path),
+        chunks_with_section_path_rate=_rate(
+            chunks_with_section_path,
+            total_chunks,
+        ),
+        unique_section_paths=(unique_section_paths),
+        max_section_depth=max_section_depth,
     )
 
 

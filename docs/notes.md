@@ -1145,3 +1145,22 @@ Index build time: 0.28s
 
 quality baseline сейчас - ft256o32
 но ft384o64 сохраняет почти такое же качество, при этом содержит на 30% меньше chunks
+
+
+
+
+TOO MUCH
+Loaded 28,481 documents
+Building ha384o64m512r2v1...
+Chunks: 342,624
+Mean chunks/document: 12.03
+Median chunks/document: 9.00
+P95 chunks/document: 27
+Mean body tokens/chunk: 72.04
+P95 body tokens/chunk: 335
+Chunks under 50 tokens: 213,524 (62.32%)
+Chunks with section path: 327,161 (95.49%)
+Unique section paths: 60,409
+Maximum section depth: 4
+Formatted chunks over budget: 0 (0.00%)
+Output: /home/cohle/machine_learning/supportbench/data/nvidia_techqa/chunks/ha384o64m512r2v1

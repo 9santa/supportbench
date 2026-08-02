@@ -73,6 +73,8 @@ def build_chunk_corpus(
     indexable_empty_chunks = 0
     seen_chunk_ids: set[str] = set()
 
+    section_paths: list[tuple[str, ...]] = []
+
     with (
         chunks_path.open(
             mode="w",
@@ -104,6 +106,8 @@ def build_chunk_corpus(
                 if not tokenize(f"{chunk.document_title} {chunk.text}"):
                     indexable_empty_chunks += 1
 
+                section_paths.append(chunk.section_path)
+
                 _write_jsonl_record(
                     chunks_file,
                     _chunk_to_record(
@@ -128,6 +132,7 @@ def build_chunk_corpus(
         max_input_tokens=max_input_tokens,
         special_token_reserve=(special_token_reserve),
         indexable_empty_chunks=(indexable_empty_chunks),
+        section_paths=section_paths,
     )
 
     _write_json(
@@ -143,6 +148,7 @@ def build_chunk_corpus(
         },
         "chunking": {
             "chunking_key": (chunker.chunking_key),
+            "parameters": dict(chunker.configuration),
             "tokenizer": tokenizer_name,
             "add_special_tokens": False,
             "max_input_tokens": (max_input_tokens),
