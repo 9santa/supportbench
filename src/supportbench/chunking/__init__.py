@@ -20,6 +20,10 @@ from supportbench.chunking.statistics import (
     ChunkingStatistics,
     build_chunking_statistics,
 )
+from supportbench.chunking.loaders import (
+    ChunkDatasetValidationError,
+    load_chunk_parent_ids,
+)
 
 __all__ = [
     "Chunk",
@@ -34,4 +38,6 @@ __all__ = [
     "build_chunking_statistics",
     "format_chunk_for_display",
     "format_chunk_for_embedding",
+    "ChunkDatasetValidationError",
+    "load_chunk_parent_ids",
 ]
