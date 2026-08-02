@@ -24,6 +24,7 @@ from supportbench.chunking.heading_aware import (
 from supportbench.chunking.loaders import (
     ChunkDatasetValidationError,
     load_chunk_parent_ids,
+    load_chunks,
 )
 from supportbench.chunking.models import Chunk
 from supportbench.chunking.statistics import (
@@ -46,6 +47,7 @@ __all__ = [
     "format_chunk_for_embedding",
     "format_chunk_title_for_retrieval",
     "ChunkDatasetValidationError",
+    "load_chunks",
     "load_chunk_parent_ids",
     "HeadingAwareChunker",
     "OffsetTokenCodec",
