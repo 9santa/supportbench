@@ -1,5 +1,6 @@
 from collections import defaultdict
 from math import log
+import heapq
 
 from supportbench.retrieval.base import SearchResult
 from supportbench.retrieval.inverted_index import InvertedIndex
@@ -58,7 +59,9 @@ class BM25Retriever:
                     frequency=frequency, document_length=document_length
                 )
 
-        ordered_scores = sorted(
+        # O(N log top_k)
+        top_items = heapq.nlargest(
+            top_k,
             scores.items(),
             key=lambda item: (-item[1], item[0]),
         )
@@ -69,7 +72,7 @@ class BM25Retriever:
                 score=score,
                 rank=rank,
             )
-            for rank, (doc_id, score) in enumerate(ordered_scores[:top_k], start=1)
+            for rank, (doc_id, score) in enumerate(top_items, start=1)
             if score > 0.0
         ]
 
