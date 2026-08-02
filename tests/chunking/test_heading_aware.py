@@ -83,19 +83,17 @@ def test_preserves_sections_and_offsets() -> None:
 
     chunks = chunker.chunk(document)
 
-    assert len(chunks) == 3
+    assert len(chunks) == 2
 
     assert chunks[0].section_path == ()
     assert chunks[0].text == ("Introductory text.")
 
     assert chunks[1].section_path == ("Troubleshooting",)
-    assert chunks[1].text == ("Stop the deployment manager.")
-
-    assert chunks[2].section_path == (
-        "Troubleshooting",
-        "Error ABC123",
+    assert chunks[1].text == (
+        "Stop the deployment manager.\n\n"
+        "Error ABC123:\n\n"
+        "Remove the cached files."
     )
-    assert chunks[2].text == ("Remove the cached files.")
 
     for chunk in chunks:
         assert chunk.start_char is not None

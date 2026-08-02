@@ -20,7 +20,7 @@ class FakeSentenceTransformer:
         self._output = output
         self.calls: list[dict[str, Any]] = []
 
-    def get_sentence_embedding_dimension(self) -> int:
+    def get_embedding_dimension(self) -> int:
         return self._dimension
 
     def encode(
@@ -120,9 +120,17 @@ def test_document_prefix_is_added(monkeypatch: pytest.MonkeyPatch) -> None:
         ]
     )
 
-    assert model.calls[0]["sentences"] == [
-        "passage: Настройка VPN",
-        "passage: Восстановление GitLab",
+    assert model.calls == [
+        {
+            "sentences": [
+                "passage: Настройка VPN",
+                "passage: Восстановление GitLab",
+            ],
+            "batch_size": 16,
+            "show_progress_bar": False,
+            "convert_to_numpy": True,
+            "normalize_embeddings": True,
+        }
     ]
 
 

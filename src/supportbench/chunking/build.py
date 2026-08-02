@@ -11,6 +11,7 @@ from supportbench.chunking.base import (
 )
 from supportbench.chunking.formatting import (
     format_chunk_for_embedding,
+    format_chunk_title_for_retrieval,
 )
 from supportbench.chunking.models import Chunk
 from supportbench.chunking.statistics import (
@@ -159,7 +160,7 @@ def build_chunk_corpus(
         "formatting": {
             "chunk_text_contains_title": False,
             "embedding_format": ("title_section_blankline_text"),
-            "runtime_document_title": ("source document title"),
+            "runtime_document_title": ("source document title plus section path"),
             "runtime_document_text": ("chunk body only"),
         },
         "outputs": {
@@ -219,10 +220,16 @@ def _chunk_to_runtime_document_record(
     """
     return {
         "doc_id": chunk.chunk_id,
-        "title": chunk.document_title,
+        # Existing BM25 and Dense retrievers read title,
+        # so section metadata must be included here.
+        "title": (format_chunk_title_for_retrieval(chunk)),
+        # Original body remains clean.
         "text": chunk.text,
         "category": category,
+        # Extra provenance fields are ignored by
+        # the legacy document loader.
         "parent_document_id": (chunk.document_id),
+        "source_document_title": (chunk.document_title),
         "ordinal": chunk.ordinal,
         "section_path": list(chunk.section_path),
         "start_char": chunk.start_char,

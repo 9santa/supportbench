@@ -1144,7 +1144,7 @@ Index build time: 0.28s
 
 
 quality baseline сейчас - ft256o32
-но ft384o64 сохраняет почти такое же качество, при этом содержит на 30% меньше chunks
+но ft384o64 сохраняет почти такое же качество, при этом содержит на 30% меньше chunks (cost-performance effective)
 
 
 
@@ -1164,3 +1164,71 @@ Unique section paths: 60,409
 Maximum section depth: 4
 Formatted chunks over budget: 0 (0.00%)
 Output: /home/cohle/machine_learning/supportbench/data/nvidia_techqa/chunks/ha384o64m512r2v1
+
+
+
+heading aware chunker v2 is much better
+Loaded 28,481 documents
+Building ha384o64m512r2v2...
+Chunks: 165,623
+Mean chunks/document: 5.82
+Median chunks/document: 6.00
+P95 chunks/document: 10
+Mean body tokens/chunk: 169.76
+P95 body tokens/chunk: 384
+Chunks under 50 tokens: 45,811 (27.66%)
+Chunks with section path: 121,514 (73.37%)
+Unique section paths: 2,600
+Maximum section depth: 3
+Formatted chunks over budget: 0 (0.00%)
+
+
+Общие параметры: split=train, queries=600, из них 450 labeled и 150 unlabeled
+
+| Chunk config     | Retriever | Documents | BM25 weight | Dense weight | Candidate k | RRF k | Recall@1 | Recall@3 | Recall@5 | Recall@10 | Recall@20 | Recall@50 | MRR@10 |
+| ---------------- | --------- | --------: | ----------: | -----------: | ----------: | ----: | -------: | -------: | -------: | --------: | --------: | --------: | -----: |
+| ha384o64m512r2v2 | bm25      |   165,623 |           — |            — |           — |     — |   0.4222 |   0.5000 |   0.5511 |    0.6067 |    0.6622 |    0.7289 | 0.4765 |
+| ha384o64m512r2v2 | dense     |   165,623 |           — |            — |           — |     — |   0.4200 |   0.5489 |   0.5889 |    0.6667 |    0.7289 |    0.7911 | 0.4958 |
+| ha384o64m512r2v2 | hybrid    |   165,623 |         1.0 |          1.0 |         100 |    20 |   0.4689 |   0.5822 |   0.6133 |    0.6733 |    0.7556 |    0.8044 | 0.5344 |
+
+
+
+
+
+
+
+
+
+| Chunk config     | Candidate pool | Indexed chunks | Candidate coverage | Before R@1 | Before R@3 | Before R@5 | Before R@10 | Before MRR | After R@1 | After R@3 | After R@5 | After R@10 | After MRR |    ΔR@1 |    ΔR@3 |    ΔR@5 |   ΔR@10 |    ΔMRR |
+| ---------------- | -------------: | -------------: | -----------------: | ---------: | ---------: | ---------: | ----------: | ---------: | --------: | --------: | --------: | ---------: | --------: | ------: | ------: | ------: | ------: | ------: |
+| ft256o32         |             20 |        135,235 |             0.7556 |     0.4467 |     0.5733 |     0.6178 |      0.6911 |     0.5219 |    0.5000 |    0.6022 |    0.6533 |     0.7178 |    0.5667 | +0.0533 | +0.0289 | +0.0356 | +0.0267 | +0.0448 |
+| ft256o32         |             50 |        135,235 |             0.8156 |     0.4467 |     0.5733 |     0.6178 |      0.6911 |     0.5219 |    0.4778 |    0.5933 |    0.6422 |     0.7067 |    0.5486 | +0.0311 | +0.0200 | +0.0244 | +0.0156 | +0.0267 |
+| ha384o64m512r2v2 |             20 |        165,623 |             0.7556 |     0.4689 |     0.5822 |     0.6133 |      0.6733 |     0.5344 |    0.4844 |    0.6022 |    0.6578 |     0.7156 |    0.5567 | +0.0156 | +0.0200 | +0.0444 | +0.0422 | +0.0223 |
+| ha384o64m512r2v2 |             50 |        165,623 |             0.8044 |     0.4689 |     0.5822 |     0.6133 |      0.6733 |     0.5344 |    0.4667 |    0.5911 |    0.6467 |     0.7000 |    0.5402 | -0.0022 | +0.0089 | +0.0333 | +0.0267 | +0.0058 |
+
+
+ft384o64:
+efficiency baseline
+
+heading-aware v2:
+structural chunking baseline
+
+pool 50:
+higher candidate coverage but worse reranking
+
+
+On dev split
+Candidate coverage: 0.7812
+Before reranking:
+  R@1 : 0.4625
+  R@3 : 0.6188
+  R@5 : 0.6625
+  R@10: 0.7188
+  R@20: 0.7812
+  MRR:  0.5508
+After reranking:
+  R@1 : 0.4688
+  R@3 : 0.6125
+  R@5 : 0.6875
+  R@10: 0.7438
+  MRR:  0.5590
