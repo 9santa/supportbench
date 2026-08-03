@@ -5,6 +5,7 @@ from itertools import product
 from pathlib import Path
 from typing import Any, cast
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.chunking.loaders import load_chunk_parent_ids
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.evaluation.retrieval_evaluator import (
@@ -19,10 +20,9 @@ from supportbench.retrieval.parent_hybrid import (
     ParentWeightedRRFHybrid,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_CHUNKS_ROOT = PROJECT_ROOT / "data" / "nvidia_techqa" / "chunks"
-DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa"
+DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes"
 DEFAULT_QUERIES = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 DEFAULT_OUTPUT = (
     PROJECT_ROOT

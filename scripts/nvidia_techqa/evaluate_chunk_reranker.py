@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.chunking.loaders import (
     load_chunk_parent_ids,
 )
@@ -32,16 +33,14 @@ from supportbench.retrieval.factory import (
     RetrieverFactory,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 
 DEFAULT_CHUNKS_ROOT = PROJECT_ROOT / "data" / "nvidia_techqa" / "chunks"
 
-DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa"
+DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes"
 
 DEFAULT_OUTPUT_ROOT = (
-    PROJECT_ROOT / "artifacts" / "evaluations" / "nvidia_techqa" / "chunk_reranker"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "evaluations" / "chunk_reranker"
 )
 
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"

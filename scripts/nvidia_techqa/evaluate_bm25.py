@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from typing import cast
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.data.loaders import (
     load_documents,
     load_queries,
@@ -22,14 +23,12 @@ from supportbench.retrieval.inverted_index import (
     InvertedIndex,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"
 
 DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 
 DEFAULT_OUTPUT_DIR = (
-    PROJECT_ROOT / "artifacts" / "evaluations" / "nvidia_techqa" / "bm25_document_baseline"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "evaluations" / "bm25_document_baseline"
 )
 
 

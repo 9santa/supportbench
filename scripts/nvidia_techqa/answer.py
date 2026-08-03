@@ -3,14 +3,14 @@ import math
 import sys
 from dataclasses import asdict
 
-from scripts.build_nvidia_techqa_context import (
-    build_context_pipeline,
-    build_parser,
+from scripts.nvidia_techqa._context_cli import (
+    add_context_arguments,
     parent_context_payload,
+    parse_context_config,
     save_json,
-    validate_arguments,
     validate_output_path,
 )
+from supportbench.applications.nvidia_techqa import build_nvidia_techqa_context_pipeline
 from supportbench.rag.citation_validator import CitationValidationError
 from supportbench.rag.generation.ollama import OllamaClientError, OllamaLLMClient
 from supportbench.rag.generation.parser import GeneratedAnswerParseError
@@ -21,10 +21,11 @@ from supportbench.rag.parent_pipeline import ParentContextRun, ParentGroundedRAG
 DEFAULT_LLM_MODEL = "gemma3:4b"
 
 
-def parse_args() -> argparse.Namespace:
-    parser = build_parser(
+def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
+    parser = argparse.ArgumentParser(
         description="Answer a query using the chunk-aware NVIDIA TechQA RAG pipeline."
     )
+    add_context_arguments(parser)
     parser.add_argument("--llm-model", default=DEFAULT_LLM_MODEL)
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--llm-timeout-seconds", type=float, default=120.0)
@@ -32,7 +33,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--show-context", action="store_true")
     parser.add_argument("--show-raw-response", action="store_true")
     args = parser.parse_args()
-    validate_arguments(parser, args)
     validate_output_path(parser, args)
 
     if not args.llm_model.strip():
@@ -47,14 +47,15 @@ def parse_args() -> argparse.Namespace:
     if not math.isfinite(args.temperature) or args.temperature < 0.0:
         parser.error("--temperature must be finite and non-negative")
 
-    return args
+    return args, parser
 
 
 def main() -> None:
-    args = parse_args()
+    args, parser = parse_args()
+    config = parse_context_config(parser, args)
 
     try:
-        context_pipeline = build_context_pipeline(args)
+        context_pipeline = build_nvidia_techqa_context_pipeline(config)
         pipeline = ParentGroundedRAGPipeline(
             context_pipeline=context_pipeline,
             answer_generator=GroundedAnswerGenerator(
@@ -93,7 +94,7 @@ def main() -> None:
     else:
         print("- none")
 
-    print(f"Context tokens: {run.context.token_count:,} / {args.max_context_tokens:,}")
+    print(f"Context tokens: {run.context.token_count:,} / {config.max_context_tokens:,}")
 
     if args.show_context:
         print()
@@ -111,7 +112,11 @@ def main() -> None:
             retrieved_chunks=run.retrieved_chunks,
             context=run.context,
         )
-        payload = parent_context_payload(args, context_run)
+        payload = parent_context_payload(
+            query=args.query,
+            config=config,
+            run=context_run,
+        )
         payload["generation"] = {
             "model": args.llm_model,
             "ollama_url": args.ollama_url,

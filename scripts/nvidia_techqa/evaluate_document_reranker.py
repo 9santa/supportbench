@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.data.loaders import (
     load_documents,
     load_queries,
@@ -26,19 +27,16 @@ from supportbench.retrieval.factory import (
     RetrieverFactory,
 )
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"
 
 DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 
 DEFAULT_DENSE_INDEX_PATH = (
-    PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa" / "multilingual_e5_base"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes" / "multilingual_e5_base"
 )
 
 DEFAULT_OUTPUT_DIR = (
-    PROJECT_ROOT / "artifacts" / "evaluations" / "nvidia_techqa" / "reranker_document_baseline"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "evaluations" / "reranker_document_baseline"
 )
 
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"

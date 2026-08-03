@@ -4,6 +4,7 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.chunking.loaders import load_chunk_parent_ids
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.evaluation.parent_document import (
@@ -18,14 +19,12 @@ from supportbench.experiments.evaluation_export import export_query_evaluations
 from supportbench.retrieval.cached import cache_retriever_results
 from supportbench.retrieval.factory import RetrieverConfig, RetrieverFactory
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_CHUNKS_ROOT = PROJECT_ROOT / "data" / "nvidia_techqa" / "chunks"
-DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa"
+DEFAULT_INDEX_ROOT = PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes"
 DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 DEFAULT_OUTPUT_ROOT = (
-    PROJECT_ROOT / "artifacts" / "evaluations" / "nvidia_techqa" / "candidate_recall"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "evaluations" / "candidate_recall"
 )
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_CUTOFFS = (20, 50, 100, 200)

@@ -2,6 +2,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.chunking import (
     FixedTokenChunker,
     HuggingFaceTokenCodec,
@@ -10,9 +11,6 @@ from supportbench.chunking import (
 from supportbench.data.loaders import (
     load_documents,
 )
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"
 

@@ -5,6 +5,7 @@ from itertools import product
 from pathlib import Path
 from time import perf_counter
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.chunking.loaders import load_chunk_parent_ids
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.data.models import QueryExample
@@ -27,7 +28,6 @@ from supportbench.retrieval.parent_hybrid import (
 )
 from supportbench.retrieval.restricted import CandidateSetRestrictedRetriever
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 PARENT_CANDIDATE_DEPTHS = (20, 30, 50)
 CHUNKS_PER_PARENT_VALUES = (1, 2, 4)
@@ -70,7 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--index-root",
         type=Path,
-        default=PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa",
+        default=PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes",
     )
     parser.add_argument(
         "--queries",

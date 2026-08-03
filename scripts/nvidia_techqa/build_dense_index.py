@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+from scripts._paths import PROJECT_ROOT
 from supportbench.data.loaders import load_documents
 from supportbench.retrieval.dense_build import (
     build_dense_index,
@@ -9,13 +10,10 @@ from supportbench.retrieval.dense_encoder import (
     SentenceTransformerDenceEncoder,
 )
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"
 
 DEFAULT_INDEX_PATH = (
-    PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa" / "multilingual_e5_base"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes" / "multilingual_e5_base"
 )
 
 DEFAULT_MODEL_NAME = "intfloat/multilingual-e5-base"

@@ -2,9 +2,16 @@ import argparse
 import json
 from pathlib import Path
 
+from scripts._paths import PROJECT_ROOT
+from supportbench.chunking.loaders import (
+    load_chunk_parent_ids,
+)
 from supportbench.data.loaders import (
     load_documents,
     load_queries,
+)
+from supportbench.evaluation.parent_document import (
+    ParentDocumentRetriever,
 )
 from supportbench.evaluation.retrieval_evaluator import (
     evaluate_retriever,
@@ -16,25 +23,16 @@ from supportbench.retrieval.factory import (
     RetrieverConfig,
     RetrieverFactory,
 )
-from supportbench.chunking.loaders import (
-    load_chunk_parent_ids,
-)
-from supportbench.evaluation.parent_document import (
-    ParentDocumentRetriever,
-)
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "documents.jsonl"
 
 DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "nvidia_techqa" / "normalized" / "queries.jsonl"
 
 DEFAULT_INDEX_PATH = (
-    PROJECT_ROOT / "artifacts" / "indexes" / "nvidia_techqa" / "multilingual_e5_base"
+    PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes" / "multilingual_e5_base"
 )
 
-DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "artifacts" / "evaluations" / "nvidia_techqa"
+DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "evaluations"
 
 DEFAULT_MODEL_NAME = "intfloat/multilingual-e5-base"
 
