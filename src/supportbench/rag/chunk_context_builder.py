@@ -45,9 +45,7 @@ class RepresentativeChunkContextBuilder:
             raise ValueError("minimum_token_overlap must be positive")
 
         if maximum_token_overlap < minimum_token_overlap:
-            raise ValueError(
-                "maximum_token_overlap must be at least minimum_token_overlap"
-            )
+            raise ValueError("maximum_token_overlap must be at least minimum_token_overlap")
 
         self._token_codec = token_codec
         self._max_tokens = max_tokens
@@ -70,9 +68,7 @@ class RepresentativeChunkContextBuilder:
         parent_groups = self._validate_and_group(chunk_items)
         selected_groups = parent_groups[: self._max_parents]
         prepared = [
-            chunk
-            for group in selected_groups
-            for chunk in self._deduplicate_parent_chunks(group)
+            chunk for group in selected_groups for chunk in self._deduplicate_parent_chunks(group)
         ]
         packed: list[_PreparedChunk] = []
         budget_truncated = False
@@ -198,9 +194,7 @@ class RepresentativeChunkContextBuilder:
             raise ValueError("chunk offsets must either both be set or both be absent")
 
         if chunk.start_char is not None and (
-            chunk.start_char < 0
-            or chunk.end_char is None
-            or chunk.end_char <= chunk.start_char
+            chunk.start_char < 0 or chunk.end_char is None or chunk.end_char <= chunk.start_char
         ):
             raise ValueError("chunk offsets are invalid")
 
@@ -281,34 +275,34 @@ class RepresentativeChunkContextBuilder:
         packed: list[_PreparedChunk],
         chunk: _PreparedChunk,
     ) -> _PreparedChunk | None:
-        candidate_token_count = self._token_count(_format_context([*packed, chunk]))
-        overflow = candidate_token_count - self._max_tokens
-        marker_token_count = self._token_count(TRUNCATION_MARKER)
-        retained_token_count = len(chunk.token_ids) - overflow - marker_token_count
+        low = 1
+        high = len(chunk.token_ids)
+        best: _PreparedChunk | None = None
 
-        if retained_token_count <= 0:
-            return None
+        while low <= high:
+            mid = low + (high - low) // 2
+            token_ids = chunk.token_ids[:mid]
+            text = self._decode(token_ids).strip()
 
-        token_ids = chunk.token_ids[:retained_token_count]
-        text = self._decode(token_ids).strip()
+            if not text:
+                low = mid + 1
+                continue
 
-        if not text:
-            return None
-
-        candidate = replace(
-            chunk,
-            text=text,
-            token_ids=token_ids,
-            included_end_char=None,
-            truncated=True,
-        )
-
-        if self._token_count(_format_context([*packed, candidate])) > self._max_tokens:
-            raise RuntimeError(
-                "token codec violated deterministic context truncation assumptions"
+            candidate = replace(
+                chunk,
+                text=text,
+                token_ids=token_ids,
+                included_end_char=None,
+                truncated=True,
             )
 
-        return candidate
+            if self._token_count(_format_context([*packed, candidate])) <= self._max_tokens:
+                best = candidate
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        return best
 
     def _token_count(self, text: str) -> int:
         return len(self._token_codec.encode(text)) if text else 0
