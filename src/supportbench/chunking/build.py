@@ -72,6 +72,7 @@ def build_chunk_corpus(
     formatted_token_counts: list[int] = []
 
     indexable_empty_chunks = 0
+    chunks_with_character_offsets = 0
     seen_chunk_ids: set[str] = set()
 
     section_paths: list[tuple[str, ...]] = []
@@ -96,6 +97,9 @@ def build_chunk_corpus(
                     raise ValueError(f"duplicate chunk_id generated: {chunk.chunk_id!r}")
 
                 seen_chunk_ids.add(chunk.chunk_id)
+
+                if chunk.start_char is not None and chunk.end_char is not None:
+                    chunks_with_character_offsets += 1
 
                 formatted_text = format_chunk_for_embedding(chunk)
 
@@ -141,6 +145,13 @@ def build_chunk_corpus(
         asdict(statistics),
     )
 
+    if 0 < chunks_with_character_offsets < len(seen_chunk_ids):
+        raise ValueError("chunker produced inconsistent character offset availability")
+
+    character_offsets_available = (
+        bool(seen_chunk_ids) and chunks_with_character_offsets == len(seen_chunk_ids)
+    )
+
     manifest = {
         "source": {
             "documents_path": str(source_documents_path),
@@ -155,7 +166,14 @@ def build_chunk_corpus(
             "max_input_tokens": (max_input_tokens),
             "special_token_reserve": (special_token_reserve),
             "chunk_id_format": ("{document_id}::{chunking_key}::chunk_{ordinal:04d}"),
-            "character_offsets": ("not_available_for_fixed_token"),
+            "character_offsets": {
+                "available": character_offsets_available,
+                "semantics": (
+                    "half_open_source_character_span"
+                    if character_offsets_available
+                    else None
+                ),
+            },
         },
         "formatting": {
             "chunk_text_contains_title": False,

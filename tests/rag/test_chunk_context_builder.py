@@ -96,6 +96,8 @@ def test_removes_character_offset_overlap() -> None:
 
     assert context.formatted_text.count("gamma") == 1
     assert "delta" in context.formatted_text
+    assert "source_span: 11:22" in context.formatted_text
+    assert "included_span: 17:22" in context.formatted_text
     assert context.provenance[1].included_start_char == 17
 
 
@@ -117,19 +119,22 @@ def test_removes_token_overlap_without_character_offsets() -> None:
 
 def test_context_never_exceeds_token_budget() -> None:
     codec = WhitespaceTokenCodec()
+    text = " ".join(f"token_{i}" for i in range(100))
     context = RepresentativeChunkContextBuilder(
         token_codec=codec,
         max_tokens=200,
     ).build(
-        [_chunk("chunk_a", text=" ".join(f"token_{i}" for i in range(100)))],
-        max_tokens=24,
+        [_chunk("chunk_a", text=text, start_char=0, end_char=len(text))],
+        max_tokens=26,
     )
 
     assert context.documents
     assert context.token_count == len(codec.encode(context.formatted_text))
-    assert context.token_count <= 24
+    assert context.token_count <= 26
     assert context.truncated is True
     assert context.provenance[0].truncated is True
+    assert f"source_span: 0:{len(text)}" in context.formatted_text
+    assert "included_span: 0:unknown" in context.formatted_text
     assert "[TRUNCATED]" in context.formatted_text
 
 

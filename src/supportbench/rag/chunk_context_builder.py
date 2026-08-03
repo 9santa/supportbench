@@ -379,22 +379,28 @@ def _format_parent(chunks: list[_PreparedChunk]) -> str:
 def _format_chunk(chunk: _PreparedChunk) -> str:
     source = chunk.source
     section = " > ".join(source.section_path) if source.section_path else "<root>"
-    offsets = (
-        f"{source.start_char}:{source.end_char}"
-        if source.start_char is not None and source.end_char is not None
-        else "unknown"
-    )
     marker = TRUNCATION_MARKER if chunk.truncated else ""
     return (
         "[CHUNK]\n"
         f"chunk_id: {source.chunk_id}\n"
         f"section: {section}\n"
         f"ordinal: {source.ordinal}\n"
-        f"source_chars: {offsets}\n"
+        f"source_span: {_format_span(source.start_char, source.end_char)}\n"
+        "included_span: "
+        f"{_format_span(chunk.included_start_char, chunk.included_end_char)}\n"
         "content:\n"
         f"{chunk.text}{marker}\n"
         "[/CHUNK]"
     )
+
+
+def _format_span(start_char: int | None, end_char: int | None) -> str:
+    if start_char is None and end_char is None:
+        return "unknown"
+
+    start = str(start_char) if start_char is not None else "unknown"
+    end = str(end_char) if end_char is not None else "unknown"
+    return f"{start}:{end}"
 
 
 def _build_documents(chunks: Sequence[_PreparedChunk]) -> tuple[RetrievedDocument, ...]:

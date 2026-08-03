@@ -13,8 +13,8 @@ and fused parents. No global cache is involved: the object belongs to one query 
 after context construction. The JSON CLI output includes these rankings for diagnostics.
 
 The context cites parent document IDs. Every included source also retains its chunk ID, document
-title, section path, ordinal, and source character offsets. Retrieval scores are deliberately not
-shown to the LLM.
+title, section path, ordinal, original source span, and the span actually included after overlap
+removal. Retrieval scores are deliberately not shown to the LLM.
 
 ## Overlap removal
 
@@ -26,18 +26,18 @@ coincidental repetitions.
 
 ## Token budget
 
-The budget includes all `[DOCUMENT]` and `[CHUNK]` metadata, content, closing markers, and the
-`[TRUNCATED]` marker. If the next full chunk does not fit, the builder uses the largest token
-prefix that does. Lower-ranked parents are then omitted. `RAGContext.token_count` is computed
-from the final formatted text using the configured Hugging Face tokenizer. Set
-`--context-tokenizer` to the generation model's tokenizer before enforcing its production context
-limit. Until a generation model is selected, the CLI defaults to the E5 tokenizer.
+The knowledge-context cap includes all `[DOCUMENT]` and `[CHUNK]` metadata, content, closing
+markers, and the `[TRUNCATED]` marker. The query-specific budget additionally reserves room for
+the system prompt, query, Gemma/Ollama chat template, and generated answer. If the next full chunk
+does not fit, the builder uses the largest token prefix that does. Lower-ranked parents are then
+omitted. Both knowledge context and the complete prompt are counted with the generation model's
+tokenizer.
 
 ## Build a context
 
 ```bash
 env -u all_proxy HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-  python -m scripts.build_nvidia_techqa_context \
+  python -m scripts.nvidia_techqa.build_context \
   "Which Socket Gateway should I use with Netcool OMNIbus?" \
   --top-parents 5 \
   --max-context-tokens 4096 \
