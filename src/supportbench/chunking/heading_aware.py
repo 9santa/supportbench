@@ -12,7 +12,6 @@ from supportbench.chunking.formatting import (
 from supportbench.chunking.models import Chunk
 from supportbench.data.models import Document
 
-
 _MARKDOWN_HEADING = re.compile(
     r"^(?P<marks>#{1,6})\s+"
     r"(?P<title>.+?)"

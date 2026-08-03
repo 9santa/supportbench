@@ -70,9 +70,7 @@ class FixedTokenChunker:
 
             chunk_token_ids = token_ids[start:end]
 
-            chunk_text = self._token_codec.decode(chunk_token_ids)
-            if isinstance(chunk_text, str):
-                chunk_text = chunk_text.strip()
+            chunk_text = self._token_codec.decode(chunk_token_ids).strip()
 
             if not chunk_text:
                 raise ValueError(

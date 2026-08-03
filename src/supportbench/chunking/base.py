@@ -1,4 +1,4 @@
-from collections.abc import Sequence, Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Protocol, Self, cast
 
@@ -30,7 +30,7 @@ class TokenCodec(Protocol):
         """Encode text without adding special tokens."""
         ...
 
-    def decode(self, token_ids: Sequence[int]) -> str | list[str]:
+    def decode(self, token_ids: Sequence[int]) -> str:
         """Decode token IDs into text."""
         ...
 
@@ -134,11 +134,14 @@ class HuggingFaceTokenCodec(TokenCodec):
             )
         ]
 
-    def decode(self, token_ids: Sequence[int]) -> str | list[str]:
-        return self._tokenizer.decode(
-            list(token_ids),
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False,
+    def decode(self, token_ids: Sequence[int]) -> str:
+        return cast(
+            str,
+            self._tokenizer.decode(
+                list(token_ids),
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            ),
         )
 
 
