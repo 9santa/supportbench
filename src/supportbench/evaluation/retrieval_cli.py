@@ -11,9 +11,16 @@ from supportbench.evaluation.retrieval_evaluator import (
 from supportbench.retrieval.factory import RetrieverConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "raw" / "documents.jsonl"
-DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "benchmark" / "queries_dev.jsonl"
-DEFAULT_DENSE_INDEX_PATH = PROJECT_ROOT / "artifacts" / "dense" / "multilingual-e5-base"
+DEFAULT_DOCUMENTS_PATH = PROJECT_ROOT / "data" / "synthetic" / "v1" / "documents.jsonl"
+DEFAULT_QUERIES_PATH = PROJECT_ROOT / "data" / "synthetic" / "v1" / "queries_dev.jsonl"
+DEFAULT_DENSE_INDEX_PATH = (
+    PROJECT_ROOT
+    / "artifacts"
+    / "synthetic"
+    / "v1"
+    / "dense"
+    / "multilingual-e5-base"
+)
 DEFAULT_DENSE_MODEL_NAME = "intfloat/multilingual-e5-base"
 
 
