@@ -11,8 +11,10 @@ class WhitespaceTokenCodec:
     def __init__(self) -> None:
         self._token_ids: dict[str, int] = {}
         self._tokens: dict[int, str] = {}
+        self.encode_calls = 0
 
     def encode(self, text: str) -> list[int]:
+        self.encode_calls += 1
         result: list[int] = []
 
         for token in re.findall(r"\S+", text):
@@ -126,6 +128,31 @@ def test_context_never_exceeds_token_budget() -> None:
     assert context.truncated is True
     assert context.provenance[0].truncated is True
     assert "[TRUNCATED]" in context.formatted_text
+
+
+def test_budget_truncation_tokenization_work_is_constant() -> None:
+    encode_call_counts: list[int] = []
+
+    for source_token_count in (100, 10_000):
+        codec = WhitespaceTokenCodec()
+        context = RepresentativeChunkContextBuilder(
+            token_codec=codec,
+            max_tokens=24,
+        ).build(
+            [
+                _chunk(
+                    "chunk_a",
+                    text=" ".join(
+                        f"token_{index}" for index in range(source_token_count)
+                    ),
+                )
+            ]
+        )
+
+        assert context.truncated is True
+        encode_call_counts.append(codec.encode_calls)
+
+    assert encode_call_counts[0] == encode_call_counts[1]
 
 
 def test_parent_limit_keeps_highest_ranked_parents() -> None:

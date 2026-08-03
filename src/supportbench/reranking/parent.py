@@ -101,6 +101,4 @@ def _aggregate_scores(
     if len(scores) == 1 or second_evidence_weight == 0.0:
         return best_score
 
-    return (best_score + second_evidence_weight * scores[1]) / (
-        1.0 + second_evidence_weight
-    )
+    return (best_score + second_evidence_weight * scores[1]) / (1.0 + second_evidence_weight)

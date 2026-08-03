@@ -281,34 +281,34 @@ class RepresentativeChunkContextBuilder:
         packed: list[_PreparedChunk],
         chunk: _PreparedChunk,
     ) -> _PreparedChunk | None:
-        low = 1
-        high = len(chunk.token_ids)
-        best: _PreparedChunk | None = None
+        candidate_token_count = self._token_count(_format_context([*packed, chunk]))
+        overflow = candidate_token_count - self._max_tokens
+        marker_token_count = self._token_count(TRUNCATION_MARKER)
+        retained_token_count = len(chunk.token_ids) - overflow - marker_token_count
 
-        while low <= high:
-            midpoint = (low + high) // 2
-            token_ids = chunk.token_ids[:midpoint]
-            text = self._decode(token_ids).strip()
+        if retained_token_count <= 0:
+            return None
 
-            if not text:
-                low = midpoint + 1
-                continue
+        token_ids = chunk.token_ids[:retained_token_count]
+        text = self._decode(token_ids).strip()
 
-            candidate = replace(
-                chunk,
-                text=text,
-                token_ids=token_ids,
-                included_end_char=None,
-                truncated=True,
+        if not text:
+            return None
+
+        candidate = replace(
+            chunk,
+            text=text,
+            token_ids=token_ids,
+            included_end_char=None,
+            truncated=True,
+        )
+
+        if self._token_count(_format_context([*packed, candidate])) > self._max_tokens:
+            raise RuntimeError(
+                "token codec violated deterministic context truncation assumptions"
             )
 
-            if self._token_count(_format_context([*packed, candidate])) <= self._max_tokens:
-                best = candidate
-                low = midpoint + 1
-            else:
-                high = midpoint - 1
-
-        return best
+        return candidate
 
     def _token_count(self, text: str) -> int:
         return len(self._token_codec.encode(text)) if text else 0
