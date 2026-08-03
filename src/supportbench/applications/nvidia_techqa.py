@@ -2,12 +2,18 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
+from transformers import AutoTokenizer
+
 from supportbench.chunking.base import HuggingFaceTokenCodec
 from supportbench.chunking.loaders import load_chunks
 from supportbench.data.loaders import load_documents
 from supportbench.rag.chunk_context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.chunk_retrieval_pipeline import RepresentativeChunkRetrievalPipeline
 from supportbench.rag.document_store import InMemoryDocumentStore
+from supportbench.rag.generation.prompt import (
+    GroundedPromptBuilder,
+    PromptBudgetCalculator,
+)
 from supportbench.rag.parent_pipeline import ParentContextPipeline
 from supportbench.rag.parent_retrieval import ParentRetrievalOrchestrator
 from supportbench.reranking.cross_encoder import SentenceTransformerCrossEncoderReranker
@@ -18,6 +24,7 @@ from supportbench.retrieval.parent_hybrid import ParentAggregation, ParentWeight
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
+DEFAULT_GENERATION_TOKENIZER = "vllmd/gemma-3-4b-it-w8a8"
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,7 +34,7 @@ class NvidiaTechQAContextConfig:
     chunk_config: str = DEFAULT_CHUNK_CONFIG
     dense_model_name: str = DEFAULT_DENSE_MODEL
     reranker_model_name: str = DEFAULT_RERANKER_MODEL
-    context_tokenizer_name: str = DEFAULT_DENSE_MODEL
+    context_tokenizer_name: str = DEFAULT_GENERATION_TOKENIZER
     dense_device: str = "cuda"
     reranker_device: str = "cuda"
     dense_batch_size: int = 16
@@ -37,6 +44,8 @@ class NvidiaTechQAContextConfig:
     chunks_per_parent: int = 2
     top_parents: int = 5
     max_context_tokens: int = 4_096
+    model_context_window: int = 8_192
+    reserved_output_tokens: int = 512
     candidate_prior_weight: float = 1.25
     fusion_rrf_k: int = 10
     minimum_overlap_tokens: int = 8
@@ -77,6 +86,8 @@ class NvidiaTechQAContextConfig:
             "chunks_per_parent": self.chunks_per_parent,
             "top_parents": self.top_parents,
             "max_context_tokens": self.max_context_tokens,
+            "model_context_window": self.model_context_window,
+            "reserved_output_tokens": self.reserved_output_tokens,
             "fusion_rrf_k": self.fusion_rrf_k,
             "minimum_overlap_tokens": self.minimum_overlap_tokens,
             "maximum_overlap_tokens": self.maximum_overlap_tokens,
@@ -94,6 +105,10 @@ class NvidiaTechQAContextConfig:
         if self.maximum_overlap_tokens < self.minimum_overlap_tokens:
             raise ValueError(
                 "maximum_overlap_tokens must be at least minimum_overlap_tokens"
+            )
+        if self.reserved_output_tokens >= self.model_context_window:
+            raise ValueError(
+                "reserved_output_tokens must be smaller than model_context_window"
             )
 
         non_negative_weights = {
@@ -170,8 +185,13 @@ def build_nvidia_techqa_context_pipeline(
         chunk_store=chunk_store,
         chunks_by_id=chunks_by_id,
     )
+    context_tokenizer = AutoTokenizer.from_pretrained(
+        config.context_tokenizer_name,
+        local_files_only=True,
+    )
+    prompt_builder = GroundedPromptBuilder()
     context_builder = RepresentativeChunkContextBuilder(
-        token_codec=HuggingFaceTokenCodec.from_pretrained(config.context_tokenizer_name),
+        token_codec=HuggingFaceTokenCodec(context_tokenizer),
         max_tokens=config.max_context_tokens,
         max_parents=config.top_parents,
         minimum_token_overlap=config.minimum_overlap_tokens,
@@ -182,5 +202,12 @@ def build_nvidia_techqa_context_pipeline(
         retrieval_orchestrator=retrieval_orchestrator,
         chunk_pipeline=chunk_pipeline,
         context_builder=context_builder,
+        prompt_budget_calculator=PromptBudgetCalculator(
+            tokenizer=context_tokenizer,
+            prompt_builder=prompt_builder,
+            model_context_window=config.model_context_window,
+            reserved_output_tokens=config.reserved_output_tokens,
+            max_context_tokens=config.max_context_tokens,
+        ),
         top_parents=config.top_parents,
     )

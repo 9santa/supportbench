@@ -48,6 +48,8 @@ class OllamaLLMClient:
         base_url: str = "http://localhost:11434",
         timeout_seconds: float = 120.0,
         temperature: float = 0.0,
+        context_window: int | None = None,
+        max_output_tokens: int | None = None,
     ) -> None:
         if not model_name.strip():
             raise ValueError("model_name must be non-empty")
@@ -58,15 +60,40 @@ class OllamaLLMClient:
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
 
+        if context_window is not None and context_window <= 0:
+            raise ValueError("context_window must be positive")
+
+        if max_output_tokens is not None and max_output_tokens <= 0:
+            raise ValueError("max_output_tokens must be positive")
+
+        if (
+            context_window is not None
+            and max_output_tokens is not None
+            and max_output_tokens >= context_window
+        ):
+            raise ValueError("max_output_tokens must be smaller than context_window")
+
         self._model_name = model_name
         self._base_url = base_url.rstrip("/")
         self._timeout_seconds = timeout_seconds
         self._temperature = temperature
+        self._context_window = context_window
+        self._max_output_tokens = max_output_tokens
 
     def generate(
         self,
         messages: tuple[ChatMessage, ...],
     ) -> str:
+        options: dict[str, float | int] = {
+            "temperature": self._temperature,
+        }
+
+        if self._context_window is not None:
+            options["num_ctx"] = self._context_window
+
+        if self._max_output_tokens is not None:
+            options["num_predict"] = self._max_output_tokens
+
         payload = {
             "model": self._model_name,
             "messages": [
@@ -78,9 +105,7 @@ class OllamaLLMClient:
             ],
             "stream": False,
             "format": ANSWER_SCHEMA,
-            "options": {
-                "temperature": (self._temperature),
-            },
+            "options": options,
         }
 
         request = Request(

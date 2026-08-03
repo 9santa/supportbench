@@ -31,7 +31,17 @@ def main() -> None:
     print(f"Representative chunks: {len(run.retrieved_chunks)}")
     print(f"Context parents: {len(context.documents)}")
     print(f"Context chunks: {len(context.provenance)}")
-    print(f"Context tokens: {context.token_count:,} / {config.max_context_tokens:,}")
+    context_budget = (
+        run.prompt_budget.available_context_tokens
+        if run.prompt_budget is not None
+        else config.max_context_tokens
+    )
+    print(f"Context tokens: {context.token_count:,} / {context_budget:,}")
+    print(
+        "Full prompt tokens: "
+        f"{run.prompt_token_count + config.reserved_output_tokens:,} / "
+        f"{config.model_context_window:,} including output reserve"
+    )
     print(f"Truncated: {str(context.truncated).lower()}")
     print()
     print(context.formatted_text)

@@ -1,3 +1,8 @@
+from dataclasses import dataclass
+from typing import cast
+
+from transformers import PreTrainedTokenizerBase
+
 from supportbench.rag.generation.models import (
     ChatMessage,
 )
@@ -52,6 +57,14 @@ SYSTEM_PROMPT = """\
 """
 
 
+@dataclass(frozen=True, slots=True)
+class PromptBudget:
+    model_context_window: int
+    reserved_output_tokens: int
+    fixed_prompt_tokens: int
+    available_context_tokens: int
+
+
 class GroundedPromptBuilder:
     def build(
         self,
@@ -83,3 +96,75 @@ class GroundedPromptBuilder:
                 content=user_message,
             ),
         )
+
+
+class PromptBudgetCalculator:
+    def __init__(
+        self,
+        *,
+        tokenizer: PreTrainedTokenizerBase,
+        prompt_builder: GroundedPromptBuilder,
+        model_context_window: int,
+        reserved_output_tokens: int,
+        max_context_tokens: int,
+    ) -> None:
+        if model_context_window <= 0:
+            raise ValueError("model_context_window must be positive")
+
+        if reserved_output_tokens <= 0:
+            raise ValueError("reserved_output_tokens must be positive")
+
+        if reserved_output_tokens >= model_context_window:
+            raise ValueError(
+                "reserved_output_tokens must be smaller than model_context_window"
+            )
+
+        if max_context_tokens <= 0:
+            raise ValueError("max_context_tokens must be positive")
+
+        self._tokenizer = tokenizer
+        self._prompt_builder = prompt_builder
+        self._model_context_window = model_context_window
+        self._reserved_output_tokens = reserved_output_tokens
+        self._max_context_tokens = max_context_tokens
+
+    def calculate(self, query: str) -> PromptBudget:
+        fixed_prompt_tokens = self.count_prompt(
+            query=query,
+            context=RAGContext(documents=(), formatted_text="", truncated=False),
+        )
+        available_context_tokens = min(
+            self._max_context_tokens,
+            self._model_context_window
+            - self._reserved_output_tokens
+            - fixed_prompt_tokens,
+        )
+
+        if available_context_tokens <= 0:
+            raise ValueError(
+                "system prompt and query leave no room for knowledge context"
+            )
+
+        return PromptBudget(
+            model_context_window=self._model_context_window,
+            reserved_output_tokens=self._reserved_output_tokens,
+            fixed_prompt_tokens=fixed_prompt_tokens,
+            available_context_tokens=available_context_tokens,
+        )
+
+    def count_prompt(self, *, query: str, context: RAGContext) -> int:
+        messages = self._prompt_builder.build(query=query, context=context)
+        # Ollama's gemma3 template keeps system and user messages as separate user turns.
+        rendered = "<bos>" + "".join(
+            f"<start_of_turn>user\n{message.content}<end_of_turn>\n"
+            for message in messages
+        )
+        rendered += "<start_of_turn>model\n"
+
+        token_ids = self._tokenizer.encode(
+            rendered,
+            add_special_tokens=False,
+            truncation=False,
+            verbose=False,
+        )
+        return len(cast(list[int], token_ids))

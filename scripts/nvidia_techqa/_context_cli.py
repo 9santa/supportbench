@@ -7,6 +7,7 @@ from scripts._paths import PROJECT_ROOT
 from supportbench.applications.nvidia_techqa import (
     DEFAULT_CHUNK_CONFIG,
     DEFAULT_DENSE_MODEL,
+    DEFAULT_GENERATION_TOKENIZER,
     DEFAULT_RERANKER_MODEL,
     NvidiaTechQAContextConfig,
 )
@@ -30,8 +31,8 @@ def add_context_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--reranker-model", default=DEFAULT_RERANKER_MODEL)
     parser.add_argument(
         "--context-tokenizer",
-        default=DEFAULT_DENSE_MODEL,
-        help="Hugging Face tokenizer used to enforce the context token budget",
+        default=DEFAULT_GENERATION_TOKENIZER,
+        help="Hugging Face tokenizer matching the generation model",
     )
     parser.add_argument("--dense-device", default="cuda")
     parser.add_argument("--reranker-device", default="cuda")
@@ -42,6 +43,8 @@ def add_context_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--chunks-per-parent", type=int, default=2)
     parser.add_argument("--top-parents", type=int, default=5)
     parser.add_argument("--max-context-tokens", type=int, default=4_096)
+    parser.add_argument("--model-context-window", type=int, default=8_192)
+    parser.add_argument("--reserved-output-tokens", type=int, default=512)
     parser.add_argument("--candidate-prior-weight", type=float, default=1.25)
     parser.add_argument("--fusion-rrf-k", type=int, default=10)
     parser.add_argument("--minimum-overlap-tokens", type=int, default=8)
@@ -74,6 +77,8 @@ def parse_context_config(
             chunks_per_parent=args.chunks_per_parent,
             top_parents=args.top_parents,
             max_context_tokens=args.max_context_tokens,
+            model_context_window=args.model_context_window,
+            reserved_output_tokens=args.reserved_output_tokens,
             candidate_prior_weight=args.candidate_prior_weight,
             fusion_rrf_k=args.fusion_rrf_k,
             minimum_overlap_tokens=args.minimum_overlap_tokens,
@@ -120,6 +125,10 @@ def parent_context_payload(
         },
         "max_context_tokens": config.max_context_tokens,
         "context_tokenizer": config.context_tokenizer_name,
+        "prompt_budget": (
+            asdict(run.prompt_budget) if run.prompt_budget is not None else None
+        ),
+        "prompt_token_count": run.prompt_token_count,
         "context": asdict(run.context),
     }
 

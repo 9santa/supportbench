@@ -4,6 +4,7 @@ from typing import Protocol
 from supportbench.rag.chunk_context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.chunk_retrieval_pipeline import RepresentativeChunkRetrievalPipeline
 from supportbench.rag.generation.models import ChatMessage, GeneratedAnswer
+from supportbench.rag.generation.prompt import PromptBudget, PromptBudgetCalculator
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import RAGContext, RetrievedChunk
 from supportbench.rag.parent_retrieval import ParentRetrievalOrchestrator, ParentRetrievalRun
@@ -14,6 +15,8 @@ class ParentContextRun:
     retrieval: ParentRetrievalRun
     retrieved_chunks: tuple[RetrievedChunk, ...]
     context: RAGContext
+    prompt_budget: PromptBudget | None = None
+    prompt_token_count: int = 0
 
 
 class ParentContextPipeline:
@@ -23,6 +26,7 @@ class ParentContextPipeline:
         retrieval_orchestrator: ParentRetrievalOrchestrator,
         chunk_pipeline: RepresentativeChunkRetrievalPipeline,
         context_builder: RepresentativeChunkContextBuilder,
+        prompt_budget_calculator: PromptBudgetCalculator,
         top_parents: int,
     ) -> None:
         if top_parents <= 0:
@@ -31,6 +35,7 @@ class ParentContextPipeline:
         self._retrieval_orchestrator = retrieval_orchestrator
         self._chunk_pipeline = chunk_pipeline
         self._context_builder = context_builder
+        self._prompt_budget_calculator = prompt_budget_calculator
         self._top_parents = top_parents
 
     def run(self, query: str) -> ParentContextRun:
@@ -39,6 +44,7 @@ class ParentContextPipeline:
         if not normalized_query:
             raise ValueError("query must be non-empty")
 
+        prompt_budget = self._prompt_budget_calculator.calculate(normalized_query)
         retrieval = self._retrieval_orchestrator.run(normalized_query)
         retrieved_chunks = tuple(
             self._chunk_pipeline.retrieve(
@@ -46,12 +52,48 @@ class ParentContextPipeline:
                 top_k=self._top_parents,
             )
         )
-        context = self._context_builder.build(retrieved_chunks)
+        context_token_budget = prompt_budget.available_context_tokens
+        context = self._context_builder.build(
+            retrieved_chunks,
+            max_tokens=context_token_budget,
+        )
+        prompt_token_count = self._prompt_budget_calculator.count_prompt(
+            query=normalized_query,
+            context=context,
+        )
+        overflow = (
+            prompt_token_count
+            + prompt_budget.reserved_output_tokens
+            - prompt_budget.model_context_window
+        )
+
+        if overflow > 0:
+            context_token_budget -= overflow
+
+            if context_token_budget <= 0:
+                raise ValueError("full prompt leaves no room for knowledge context")
+
+            context = self._context_builder.build(
+                retrieved_chunks,
+                max_tokens=context_token_budget,
+            )
+            prompt_token_count = self._prompt_budget_calculator.count_prompt(
+                query=normalized_query,
+                context=context,
+            )
+
+        if (
+            prompt_token_count + prompt_budget.reserved_output_tokens
+            > prompt_budget.model_context_window
+        ):
+            raise RuntimeError("full prompt exceeded the model context window")
 
         return ParentContextRun(
             retrieval=retrieval,
             retrieved_chunks=retrieved_chunks,
             context=context,
+            prompt_budget=prompt_budget,
+            prompt_token_count=prompt_token_count,
         )
 
 
@@ -67,6 +109,8 @@ class ParentGroundedRAGRun:
     messages: tuple[ChatMessage, ...]
     raw_response: str | None
     answer: GeneratedAnswer
+    prompt_budget: PromptBudget | None = None
+    prompt_token_count: int = 0
 
 
 class ParentGroundedRAGPipeline:
@@ -96,4 +140,6 @@ class ParentGroundedRAGPipeline:
             messages=generation.messages,
             raw_response=generation.raw_response,
             answer=generation.answer,
+            prompt_budget=context_run.prompt_budget,
+            prompt_token_count=context_run.prompt_token_count,
         )

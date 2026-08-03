@@ -119,8 +119,11 @@ def test_context_never_exceeds_token_budget() -> None:
     codec = WhitespaceTokenCodec()
     context = RepresentativeChunkContextBuilder(
         token_codec=codec,
+        max_tokens=200,
+    ).build(
+        [_chunk("chunk_a", text=" ".join(f"token_{i}" for i in range(100)))],
         max_tokens=24,
-    ).build([_chunk("chunk_a", text=" ".join(f"token_{i}" for i in range(100)))])
+    )
 
     assert context.documents
     assert context.token_count == len(codec.encode(context.formatted_text))

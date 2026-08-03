@@ -65,6 +65,8 @@ def main() -> None:
                     base_url=args.ollama_url,
                     timeout_seconds=args.llm_timeout_seconds,
                     temperature=args.temperature,
+                    context_window=config.model_context_window,
+                    max_output_tokens=config.reserved_output_tokens,
                 ),
             ),
         )
@@ -94,7 +96,17 @@ def main() -> None:
     else:
         print("- none")
 
-    print(f"Context tokens: {run.context.token_count:,} / {config.max_context_tokens:,}")
+    context_budget = (
+        run.prompt_budget.available_context_tokens
+        if run.prompt_budget is not None
+        else config.max_context_tokens
+    )
+    print(f"Context tokens: {run.context.token_count:,} / {context_budget:,}")
+    print(
+        "Full prompt tokens: "
+        f"{run.prompt_token_count + config.reserved_output_tokens:,} / "
+        f"{config.model_context_window:,} including output reserve"
+    )
 
     if args.show_context:
         print()
@@ -111,6 +123,8 @@ def main() -> None:
             retrieval=run.retrieval,
             retrieved_chunks=run.retrieved_chunks,
             context=run.context,
+            prompt_budget=run.prompt_budget,
+            prompt_token_count=run.prompt_token_count,
         )
         payload = parent_context_payload(
             query=args.query,
@@ -121,6 +135,8 @@ def main() -> None:
             "model": args.llm_model,
             "ollama_url": args.ollama_url,
             "temperature": args.temperature,
+            "model_context_window": config.model_context_window,
+            "reserved_output_tokens": config.reserved_output_tokens,
             "messages": [asdict(message) for message in run.messages],
             "raw_response": run.raw_response,
             "answer": asdict(run.answer),

@@ -53,7 +53,17 @@ class RepresentativeChunkContextBuilder:
         self._minimum_token_overlap = minimum_token_overlap
         self._maximum_token_overlap = maximum_token_overlap
 
-    def build(self, chunks: Sequence[RetrievedChunk]) -> RAGContext:
+    def build(
+        self,
+        chunks: Sequence[RetrievedChunk],
+        *,
+        max_tokens: int | None = None,
+    ) -> RAGContext:
+        token_budget = self._max_tokens if max_tokens is None else max_tokens
+
+        if token_budget <= 0:
+            raise ValueError("max_tokens must be positive")
+
         chunk_items = tuple(chunks)
 
         if not chunk_items:
@@ -76,11 +86,15 @@ class RepresentativeChunkContextBuilder:
         for chunk in prepared:
             candidate = [*packed, chunk]
 
-            if self._token_count(_format_context(candidate)) <= self._max_tokens:
+            if self._token_count(_format_context(candidate)) <= token_budget:
                 packed.append(chunk)
                 continue
 
-            truncated_chunk = self._truncate_chunk_to_budget(packed, chunk)
+            truncated_chunk = self._truncate_chunk_to_budget(
+                packed,
+                chunk,
+                max_tokens=token_budget,
+            )
 
             if truncated_chunk is not None:
                 packed.append(truncated_chunk)
@@ -91,7 +105,7 @@ class RepresentativeChunkContextBuilder:
         formatted_text = _format_context(packed)
         token_count = self._token_count(formatted_text)
 
-        if token_count > self._max_tokens:
+        if token_count > token_budget:
             raise RuntimeError("context builder exceeded the token budget")
 
         return RAGContext(
@@ -274,6 +288,8 @@ class RepresentativeChunkContextBuilder:
         self,
         packed: list[_PreparedChunk],
         chunk: _PreparedChunk,
+        *,
+        max_tokens: int,
     ) -> _PreparedChunk | None:
         low = 1
         high = len(chunk.token_ids)
@@ -296,7 +312,7 @@ class RepresentativeChunkContextBuilder:
                 truncated=True,
             )
 
-            if self._token_count(_format_context([*packed, candidate])) <= self._max_tokens:
+            if self._token_count(_format_context([*packed, candidate])) <= max_tokens:
                 best = candidate
                 low = mid + 1
             else:

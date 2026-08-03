@@ -25,6 +25,9 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
     assert config.chunks_per_parent == 2
     assert config.candidate_prior_weight == 1.25
     assert config.second_evidence_weight == 0.0
+    assert config.context_tokenizer_name != config.dense_model_name
+    assert config.model_context_window == 8_192
+    assert config.reserved_output_tokens == 512
 
 
 @pytest.mark.parametrize(
@@ -37,6 +40,10 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
         ),
         ({"candidate_prior_weight": float("nan")}, "must be finite and non-negative"),
         ({"chunk_config": "../chunks"}, "must be a non-empty path segment"),
+        (
+            {"reserved_output_tokens": 8_192},
+            "reserved_output_tokens must be smaller than model_context_window",
+        ),
     ],
 )
 def test_rejects_invalid_online_retrieval_profile(
