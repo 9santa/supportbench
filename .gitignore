@@ -27,4 +27,7 @@ artifacts/
 abc.txt
 
 # Large files
-data/
+/data/
+
+
+docs/
