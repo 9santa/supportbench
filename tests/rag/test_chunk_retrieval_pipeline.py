@@ -4,29 +4,8 @@ from supportbench.rag.chunk_retrieval_pipeline import (
     RepresentativeChunkRetrievalPipeline,
 )
 from supportbench.rag.document_store import InMemoryDocumentStore
+from supportbench.rag.parent_retrieval import ParentRetrievalRun
 from supportbench.retrieval.base import SearchResult
-from supportbench.retrieval.parent_hybrid import ParentSearchResult
-
-
-class StubParentRetriever:
-    def search(self, query: str, top_k: int = 5) -> list[SearchResult]:
-        return [
-            SearchResult("parent_b", 0.9, 1),
-            SearchResult("parent_a", 0.8, 2),
-        ][:top_k]
-
-
-class StubRepresentativeRetriever:
-    def search_with_chunks(
-        self,
-        query: str,
-        *,
-        top_k: int,
-    ) -> list[ParentSearchResult]:
-        return [
-            ParentSearchResult("parent_a", 1.0, 1, ("a_1",)),
-            ParentSearchResult("parent_b", 0.9, 2, ("b_2", "b_1")),
-        ][:top_k]
 
 
 def _chunk(chunk_id: str, parent_id: str, ordinal: int) -> Chunk:
@@ -54,14 +33,29 @@ def test_materializes_representatives_in_final_parent_order() -> None:
         for chunk in chunks.values()
     ]
     pipeline = RepresentativeChunkRetrievalPipeline(
-        parent_retriever=StubParentRetriever(),
-        representative_retriever=StubRepresentativeRetriever(),
-        representative_candidate_k=2,
         chunk_store=InMemoryDocumentStore(documents),
         chunks_by_id=chunks,
     )
+    run = ParentRetrievalRun(
+        candidate_parents=(
+            SearchResult("parent_a", 1.0, 1),
+            SearchResult("parent_b", 0.9, 2),
+        ),
+        representative_chunks_by_parent={
+            "parent_a": ("a_1",),
+            "parent_b": ("b_2", "b_1"),
+        },
+        reranked_parents=(
+            SearchResult("parent_b", 0.9, 1),
+            SearchResult("parent_a", 0.8, 2),
+        ),
+        fused_parents=(
+            SearchResult("parent_b", 0.7, 1),
+            SearchResult("parent_a", 0.6, 2),
+        ),
+    )
 
-    retrieved = pipeline.retrieve("query", top_k=2)
+    retrieved = pipeline.retrieve(run, top_k=2)
 
     assert [chunk.chunk_id for chunk in retrieved] == ["b_2", "b_1", "a_1"]
     assert [chunk.parent_rank for chunk in retrieved] == [1, 1, 2]

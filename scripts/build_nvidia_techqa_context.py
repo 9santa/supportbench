@@ -7,20 +7,17 @@ from pathlib import Path
 from supportbench.chunking.base import HuggingFaceTokenCodec
 from supportbench.chunking.loaders import load_chunks
 from supportbench.data.loaders import load_documents
-from supportbench.evaluation.parent_document import UniqueParentDocumentRetriever
 from supportbench.rag.chunk_context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.chunk_retrieval_pipeline import (
     RepresentativeChunkRetrievalPipeline,
 )
 from supportbench.rag.document_store import InMemoryDocumentStore
-from supportbench.reranking.factory import CrossEncoderConfig, RerankingFactory
-from supportbench.reranking.parent import ParentEvidenceRerankingRetriever
+from supportbench.rag.parent_pipeline import ParentContextPipeline, ParentContextRun
+from supportbench.rag.parent_retrieval import ParentRetrievalOrchestrator
+from supportbench.reranking.cross_encoder import SentenceTransformerCrossEncoderReranker
 from supportbench.retrieval.factory import RetrieverConfig, RetrieverFactory
-from supportbench.retrieval.hybrid import WeightedRetrieverSource, WeightedRRFHybrid
-from supportbench.retrieval.parent_hybrid import (
-    ParentCandidateChunkRetriever,
-    ParentWeightedRRFHybrid,
-)
+from supportbench.retrieval.hybrid import WeightedRetrieverSource
+from supportbench.retrieval.parent_hybrid import ParentWeightedRRFHybrid
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
@@ -28,9 +25,12 @@ DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(
+    *,
+    description: str = "Build a token-budgeted RAG context from fused parent retrieval.",
+) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Build a token-budgeted RAG context from fused parent retrieval."
+        description=description,
     )
     parser.add_argument("query")
     parser.add_argument("--chunk-config", default=DEFAULT_CHUNK_CONFIG)
@@ -72,17 +72,42 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    _validate_arguments(parser, args)
-    if args.output is not None and args.output.exists() and not args.overwrite:
-        parser.error(f"output already exists: {args.output}; pass --overwrite to replace it")
+    validate_arguments(parser, args)
+    validate_output_path(parser, args)
 
+    try:
+        pipeline = build_context_pipeline(args)
+        run = pipeline.run(args.query)
+    except ValueError as error:
+        parser.error(str(error))
+
+    context = run.context
+
+    print(f"Query: {args.query}")
+    print("Pipeline: parent WRRF -> independent cross-encoder -> fusion")
+    print(f"Retrieved parents: {len({chunk.parent_doc_id for chunk in run.retrieved_chunks})}")
+    print(f"Representative chunks: {len(run.retrieved_chunks)}")
+    print(f"Context parents: {len(context.documents)}")
+    print(f"Context chunks: {len(context.provenance)}")
+    print(f"Context tokens: {context.token_count:,} / {args.max_context_tokens:,}")
+    print(f"Truncated: {str(context.truncated).lower()}")
+    print()
+    print(context.formatted_text)
+
+    if args.output is not None:
+        save_json(args.output, parent_context_payload(args, run))
+        print()
+        print(f"Saved: {args.output}")
+
+
+def build_context_pipeline(args: argparse.Namespace) -> ParentContextPipeline:
     chunk_directory = args.chunks_root / args.chunk_config
     runtime_documents = load_documents(chunk_directory / "documents.jsonl")
     chunks_by_id = load_chunks(chunk_directory / "chunks.jsonl")
     runtime_ids = {document.doc_id for document in runtime_documents}
 
     if runtime_ids != set(chunks_by_id):
-        parser.error("documents.jsonl and chunks.jsonl contain different chunk IDs")
+        raise ValueError("documents.jsonl and chunks.jsonl contain different chunk IDs")
 
     factory = RetrieverFactory(
         runtime_documents,
@@ -108,106 +133,83 @@ def main() -> None:
         aggregation="capped_top_2_sum",
         representative_chunks_per_parent=args.chunks_per_parent,
     )
-    chunk_candidates = ParentCandidateChunkRetriever(
-        parent_wrrf,
+    parent_by_chunk_id = {chunk_id: chunk.document_id for chunk_id, chunk in chunks_by_id.items()}
+    chunk_store = InMemoryDocumentStore(runtime_documents)
+    reranker = SentenceTransformerCrossEncoderReranker(
+        args.reranker_model,
+        device=args.reranker_device,
+        batch_size=args.reranker_batch_size,
+        max_length=512,
+    )
+    retrieval_orchestrator = ParentRetrievalOrchestrator(
+        parent_retriever=parent_wrrf,
+        reranker=reranker,
+        chunk_store=chunk_store,
+        parent_by_chunk_id=parent_by_chunk_id,
         parent_candidate_k=args.parent_candidate_k,
         chunks_per_parent=args.chunks_per_parent,
-    )
-    parent_by_chunk_id = {
-        chunk_id: chunk.document_id for chunk_id, chunk in chunks_by_id.items()
-    }
-    candidate_parents = UniqueParentDocumentRetriever(
-        chunk_candidates,
-        parent_by_chunk_id=parent_by_chunk_id,
-        chunk_candidate_k=chunk_candidates.candidate_k,
-    )
-    chunk_reranker = RerankingFactory(
-        runtime_documents,
-        config=CrossEncoderConfig(
-            model_name=args.reranker_model,
-            device=args.reranker_device,
-            batch_size=args.reranker_batch_size,
-            max_length=512,
-        ),
-    ).create(
-        candidate_retriever=chunk_candidates,
-        candidate_k=chunk_candidates.candidate_k,
-    )
-    cross_encoder_parents = ParentEvidenceRerankingRetriever(
-        chunk_reranker,
-        parent_by_chunk_id=parent_by_chunk_id,
-        chunk_candidate_k=chunk_candidates.candidate_k,
+        candidate_prior_weight=args.candidate_prior_weight,
+        fusion_rrf_k=args.fusion_rrf_k,
         second_evidence_weight=0.0,
     )
-    fused_parents = WeightedRRFHybrid(
-        sources=(
-            WeightedRetrieverSource(
-                "candidate",
-                candidate_parents,
-                args.candidate_prior_weight,
-            ),
-            WeightedRetrieverSource("cross_encoder", cross_encoder_parents, 1.0),
-        ),
-        candidate_k=args.parent_candidate_k,
-        rrf_k=args.fusion_rrf_k,
-    )
-    retrieval_pipeline = RepresentativeChunkRetrievalPipeline(
-        parent_retriever=fused_parents,
-        representative_retriever=parent_wrrf,
-        representative_candidate_k=args.parent_candidate_k,
-        chunk_store=InMemoryDocumentStore(runtime_documents),
+    chunk_pipeline = RepresentativeChunkRetrievalPipeline(
+        chunk_store=chunk_store,
         chunks_by_id=chunks_by_id,
     )
-    retrieved_chunks = retrieval_pipeline.retrieve(
-        args.query,
-        top_k=args.top_parents,
-    )
     token_codec = HuggingFaceTokenCodec.from_pretrained(args.context_tokenizer)
-    context = RepresentativeChunkContextBuilder(
+    context_builder = RepresentativeChunkContextBuilder(
         token_codec=token_codec,
         max_tokens=args.max_context_tokens,
         max_parents=args.top_parents,
         minimum_token_overlap=args.minimum_overlap_tokens,
         maximum_token_overlap=args.maximum_overlap_tokens,
-    ).build(retrieved_chunks)
+    )
 
-    print(f"Query: {args.query}")
-    print("Pipeline: parent WRRF -> independent cross-encoder -> fusion")
-    print(f"Retrieved parents: {len({chunk.parent_doc_id for chunk in retrieved_chunks})}")
-    print(f"Representative chunks: {len(retrieved_chunks)}")
-    print(f"Context parents: {len(context.documents)}")
-    print(f"Context chunks: {len(context.provenance)}")
-    print(f"Context tokens: {context.token_count:,} / {args.max_context_tokens:,}")
-    print(f"Truncated: {str(context.truncated).lower()}")
-    print()
-    print(context.formatted_text)
-
-    if args.output is not None:
-        payload = {
-            "query": args.query,
-            "chunk_config": args.chunk_config,
-            "retrieval": {
-                "source_candidate_k": args.source_candidate_k,
-                "parent_candidate_k": args.parent_candidate_k,
-                "chunks_per_parent": args.chunks_per_parent,
-                "top_parents": args.top_parents,
-                "candidate_prior_weight": args.candidate_prior_weight,
-                "fusion_rrf_k": args.fusion_rrf_k,
-            },
-            "max_context_tokens": args.max_context_tokens,
-            "context_tokenizer": args.context_tokenizer,
-            "context": asdict(context),
-        }
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        print()
-        print(f"Saved: {args.output}")
+    return ParentContextPipeline(
+        retrieval_orchestrator=retrieval_orchestrator,
+        chunk_pipeline=chunk_pipeline,
+        context_builder=context_builder,
+        top_parents=args.top_parents,
+    )
 
 
-def _validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+def parent_context_payload(
+    args: argparse.Namespace,
+    run: ParentContextRun,
+) -> dict[str, object]:
+    retrieval = run.retrieval
+    return {
+        "query": args.query,
+        "chunk_config": args.chunk_config,
+        "retrieval": {
+            "source_candidate_k": args.source_candidate_k,
+            "parent_candidate_k": args.parent_candidate_k,
+            "chunks_per_parent": args.chunks_per_parent,
+            "top_parents": args.top_parents,
+            "candidate_prior_weight": args.candidate_prior_weight,
+            "fusion_rrf_k": args.fusion_rrf_k,
+        },
+        "retrieval_run": {
+            "candidate_parents": [asdict(result) for result in retrieval.candidate_parents],
+            "representative_chunks_by_parent": dict(retrieval.representative_chunks_by_parent),
+            "reranked_parents": [asdict(result) for result in retrieval.reranked_parents],
+            "fused_parents": [asdict(result) for result in retrieval.fused_parents],
+        },
+        "max_context_tokens": args.max_context_tokens,
+        "context_tokenizer": args.context_tokenizer,
+        "context": asdict(run.context),
+    }
+
+
+def save_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     if not args.query.strip():
         parser.error("query must be non-empty")
 
@@ -241,15 +243,15 @@ def _validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespac
         parser.error("--source-candidate-k must be at least --parent-candidate-k")
 
     if args.maximum_overlap_tokens < args.minimum_overlap_tokens:
-        parser.error(
-            "--maximum-overlap-tokens must be at least --minimum-overlap-tokens"
-        )
+        parser.error("--maximum-overlap-tokens must be at least --minimum-overlap-tokens")
 
-    if (
-        not math.isfinite(args.candidate_prior_weight)
-        or args.candidate_prior_weight < 0.0
-    ):
+    if not math.isfinite(args.candidate_prior_weight) or args.candidate_prior_weight < 0.0:
         parser.error("--candidate-prior-weight must be finite and non-negative")
+
+
+def validate_output_path(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    if args.output is not None and args.output.exists() and not args.overwrite:
+        parser.error(f"output already exists: {args.output}; pass --overwrite to replace it")
 
 
 if __name__ == "__main__":

@@ -1,22 +1,12 @@
 import math
 from collections.abc import Mapping, Sequence
 from numbers import Real
-from typing import Protocol
 
 from supportbench.chunking.models import Chunk
 from supportbench.rag.document_store import DocumentStore
 from supportbench.rag.models import RetrievedChunk
-from supportbench.retrieval.base import Retriever, SearchResult
-from supportbench.retrieval.parent_hybrid import ParentSearchResult
-
-
-class RepresentativeParentRetriever(Protocol):
-    def search_with_chunks(
-        self,
-        query: str,
-        *,
-        top_k: int,
-    ) -> list[ParentSearchResult]: ...
+from supportbench.rag.parent_retrieval import ParentRetrievalRun
+from supportbench.retrieval.base import SearchResult
 
 
 class RepresentativeChunkRetrievalPipeline:
@@ -25,49 +15,34 @@ class RepresentativeChunkRetrievalPipeline:
     def __init__(
         self,
         *,
-        parent_retriever: Retriever,
-        representative_retriever: RepresentativeParentRetriever,
-        representative_candidate_k: int,
         chunk_store: DocumentStore,
         chunks_by_id: Mapping[str, Chunk],
     ) -> None:
-        if representative_candidate_k <= 0:
-            raise ValueError("representative_candidate_k must be positive")
-
         if not chunks_by_id:
             raise ValueError("chunks_by_id must not be empty")
 
-        self._parent_retriever = parent_retriever
-        self._representative_retriever = representative_retriever
-        self._representative_candidate_k = representative_candidate_k
         self._chunk_store = chunk_store
         self._chunks_by_id = dict(chunks_by_id)
 
-    def retrieve(self, query: str, *, top_k: int = 5) -> list[RetrievedChunk]:
+    def retrieve(
+        self,
+        run: ParentRetrievalRun,
+        *,
+        top_k: int = 5,
+    ) -> list[RetrievedChunk]:
         if top_k <= 0:
             raise ValueError("top_k must be positive")
 
-        if top_k > self._representative_candidate_k:
-            raise ValueError("top_k must not exceed representative_candidate_k")
-
-        if not query.strip():
+        if not run.fused_parents:
             return []
 
-        representative_results = self._representative_retriever.search_with_chunks(
-            query,
-            top_k=self._representative_candidate_k,
-        )
-        representatives_by_parent = {
-            result.parent_id: result.representative_chunk_ids
-            for result in representative_results
-        }
-        parent_results = self._parent_retriever.search(query, top_k=top_k)
+        parent_results = run.fused_parents[:top_k]
         self._validate_parent_results(parent_results)
         retrieved_chunks: list[RetrievedChunk] = []
         seen_chunk_ids: set[str] = set()
 
         for parent_result in parent_results:
-            chunk_ids = representatives_by_parent.get(parent_result.doc_id)
+            chunk_ids = run.representative_chunks_by_parent.get(parent_result.doc_id)
 
             if chunk_ids is None:
                 raise ValueError(

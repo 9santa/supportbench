@@ -1,9 +1,5 @@
 from dataclasses import dataclass
 
-from supportbench.rag.citation_validator import (
-    CitationValidationError,
-    validate_generated_answer,
-)
 from supportbench.rag.context_builder import (
     ContextBuilder,
 )
@@ -14,21 +10,13 @@ from supportbench.rag.generation.models import (
     ChatMessage,
     GeneratedAnswer,
 )
-from supportbench.rag.generation.parser import (
-    parse_generated_answer,
-)
 from supportbench.rag.generation.prompt import (
     GroundedPromptBuilder,
 )
+from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import RAGContext
 from supportbench.rag.retrieval_pipeline import (
     RetrievalPipeline,
-)
-
-EMPTY_CONTEXT_ABSTENTION = GeneratedAnswer(
-    decision="abstain",
-    answer=("В базе знаний не найдено документов, достаточных для ответа."),
-    citation_ids=(),
 )
 
 
@@ -55,8 +43,10 @@ class GroundedRAGPipeline:
 
         self._retrieval_pipeline = retrieval_pipeline
         self._context_builder = context_builder
-        self._prompt_builder = prompt_builder
-        self._llm_client = llm_client
+        self._answer_generator = GroundedAnswerGenerator(
+            prompt_builder=prompt_builder,
+            llm_client=llm_client,
+        )
         self._retrieval_top_k = retrieval_top_k
 
     def answer(
@@ -85,41 +75,14 @@ class GroundedRAGPipeline:
             retrieved_documents,
         )
 
-        if not context.documents:
-            return GroundedRAGRun(
-                context=context,
-                messages=(),
-                raw_response=None,
-                answer=EMPTY_CONTEXT_ABSTENTION,
-            )
-
-        messages = self._prompt_builder.build(
+        generation = self._answer_generator.run(
             query=normalized_query,
             context=context,
         )
 
-        raw_response = self._llm_client.generate(
-            messages,
-        )
-
-        generated_answer = parse_generated_answer(
-            raw_response,
-        )
-
-        try:
-            validate_generated_answer(
-                generated_answer,
-                context,
-            )
-        except CitationValidationError as error:
-            raise CitationValidationError(
-                str(error),
-                raw_response=raw_response,
-            ) from error
-
         return GroundedRAGRun(
             context=context,
-            messages=messages,
-            raw_response=raw_response,
-            answer=generated_answer,
+            messages=generation.messages,
+            raw_response=generation.raw_response,
+            answer=generation.answer,
         )

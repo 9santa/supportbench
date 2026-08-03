@@ -21,6 +21,16 @@ from supportbench.rag.models import (
     RetrievedChunk,
     RetrievedDocument,
 )
+from supportbench.rag.parent_pipeline import (
+    ParentContextPipeline,
+    ParentContextRun,
+    ParentGroundedRAGPipeline,
+    ParentGroundedRAGRun,
+)
+from supportbench.rag.parent_retrieval import (
+    ParentRetrievalOrchestrator,
+    ParentRetrievalRun,
+)
 from supportbench.rag.pipeline import (
     GroundedRAGPipeline,
     GroundedRAGRun,
@@ -39,6 +49,12 @@ __all__ = [
     "ChunkProvenance",
     "RetrievedChunk",
     "RetrievedDocument",
+    "ParentRetrievalOrchestrator",
+    "ParentRetrievalRun",
+    "ParentContextPipeline",
+    "ParentContextRun",
+    "ParentGroundedRAGPipeline",
+    "ParentGroundedRAGRun",
     "RetrievalPipeline",
 ]
 

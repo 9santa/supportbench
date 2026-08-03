@@ -1,6 +1,6 @@
 import math
 from collections import defaultdict
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from supportbench.retrieval.base import Retriever, SearchResult
 
@@ -41,35 +41,66 @@ class ParentEvidenceRerankingRetriever(Retriever):
             query,
             top_k=self._chunk_candidate_k,
         )
-        scores_by_parent: defaultdict[str, list[float]] = defaultdict(list)
+        return rank_parents_from_chunk_scores(
+            tuple((result.doc_id, result.score) for result in chunk_results),
+            parent_by_chunk_id=self._parent_by_chunk_id,
+            top_k=top_k,
+            second_evidence_weight=self._second_evidence_weight,
+        )
 
-        for result in chunk_results:
-            parent_id = self._parent_by_chunk_id.get(result.doc_id)
 
-            if parent_id is None:
-                raise ValueError(
-                    f"chunk reranker returned an unknown chunk ID: {result.doc_id!r}"
-                )
+def rank_parents_from_chunk_scores(
+    chunk_scores: Sequence[tuple[str, float]],
+    *,
+    parent_by_chunk_id: Mapping[str, str],
+    top_k: int,
+    second_evidence_weight: float = 0.0,
+) -> list[SearchResult]:
+    if top_k <= 0:
+        raise ValueError("top_k must be positive")
 
-            scores_by_parent[parent_id].append(result.score)
+    if not math.isfinite(second_evidence_weight) or not 0.0 <= second_evidence_weight <= 1.0:
+        raise ValueError("second_evidence_weight must be between 0 and 1")
 
-        parent_scores = [
-            (parent_id, self._aggregate_scores(scores))
-            for parent_id, scores in scores_by_parent.items()
-        ]
-        parent_scores.sort(key=lambda item: (-item[1], item[0]))
+    scores_by_parent: defaultdict[str, list[float]] = defaultdict(list)
 
-        return [
-            SearchResult(doc_id=parent_id, score=score, rank=rank)
-            for rank, (parent_id, score) in enumerate(parent_scores[:top_k], start=1)
-        ]
+    for chunk_id, score in chunk_scores:
+        parent_id = parent_by_chunk_id.get(chunk_id)
 
-    def _aggregate_scores(self, scores: list[float]) -> float:
-        scores.sort(reverse=True)
-        best_score = scores[0]
+        if parent_id is None:
+            raise ValueError(f"chunk reranker returned an unknown chunk ID: {chunk_id!r}")
 
-        if len(scores) == 1 or self._second_evidence_weight == 0.0:
-            return best_score
+        if not math.isfinite(score):
+            raise ValueError("chunk reranker returned a non-finite score")
 
-        weight = self._second_evidence_weight
-        return (best_score + weight * scores[1]) / (1.0 + weight)
+        scores_by_parent[parent_id].append(score)
+
+    parent_scores = [
+        (
+            parent_id,
+            _aggregate_scores(scores, second_evidence_weight=second_evidence_weight),
+        )
+        for parent_id, scores in scores_by_parent.items()
+    ]
+    parent_scores.sort(key=lambda item: (-item[1], item[0]))
+
+    return [
+        SearchResult(doc_id=parent_id, score=score, rank=rank)
+        for rank, (parent_id, score) in enumerate(parent_scores[:top_k], start=1)
+    ]
+
+
+def _aggregate_scores(
+    scores: list[float],
+    *,
+    second_evidence_weight: float,
+) -> float:
+    scores.sort(reverse=True)
+    best_score = scores[0]
+
+    if len(scores) == 1 or second_evidence_weight == 0.0:
+        return best_score
+
+    return (best_score + second_evidence_weight * scores[1]) / (
+        1.0 + second_evidence_weight
+    )
