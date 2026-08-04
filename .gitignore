@@ -10,7 +10,6 @@ venv/
 
 # Env
 .env
-.env.*
 
 # Other caches
 .pytest_cache/
