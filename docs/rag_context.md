@@ -12,6 +12,26 @@ The NVIDIA TechQA context path uses the frozen retrieval baseline:
 and fused parents. No global cache is involved: the object belongs to one query and is discarded
 after context construction. The JSON CLI output includes these rankings for diagnostics.
 
+## Current architecture
+
+The current implementation keeps `Pipeline` for the complete query-to-answer path only:
+
+```text
+RAGPipeline
+  -> ContextPreparationService.prepare(query)
+     -> ParentRetrievalService.retrieve(query)
+     -> RepresentativeChunkResolver.resolve(retrieval_run)
+     -> RepresentativeChunkContextBuilder.build(chunks)
+  -> GroundedAnswerGenerator.generate(query, context)
+  -> RAGRun
+```
+
+The composition root is `supportbench.applications.nvidia_techqa`. Use
+`build_nvidia_techqa_context_service(...)` for context-only diagnostics and
+`build_nvidia_techqa_rag(...)` for the complete online path. Historical RAG implementations keep
+their original names under `supportbench.experiments` so their experiment entry points remain
+reproducible.
+
 The context cites parent document IDs. Every included source also retains its chunk ID, document
 title, section path, ordinal, original source span, and the span actually included after overlap
 removal. Retrieval scores are deliberately not shown to the LLM.
@@ -50,13 +70,13 @@ pass `--overwrite` explicitly to replace one.
 
 ## Generate an answer
 
-The online generation command uses the same query-scoped retrieval and context pipeline, then
+The online generation command uses the same query-scoped retrieval and context service, then
 sends the context to Ollama. The model must return the strict `answer`/`abstain`/`clarify` JSON
 schema. Answer citations are validated against parent document IDs present in the packed context.
 
 ```bash
 env -u all_proxy HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-  python -m scripts.answer_nvidia_techqa \
+  python -m scripts.nvidia_techqa.answer \
   "Which Socket Gateway should I use with Netcool OMNIbus?" \
   --llm-model gemma3:4b \
   --top-parents 5 \

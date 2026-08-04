@@ -1,7 +1,7 @@
 import re
 from collections.abc import Sequence
 
-from supportbench.rag.chunk_context_builder import (
+from supportbench.rag.context_builder import (
     RepresentativeChunkContextBuilder,
 )
 from supportbench.rag.models import RetrievedChunk

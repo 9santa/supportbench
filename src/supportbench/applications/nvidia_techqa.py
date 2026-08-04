@@ -7,15 +7,20 @@ from transformers import AutoTokenizer
 from supportbench.chunking.base import HuggingFaceTokenCodec
 from supportbench.chunking.loaders import load_chunks
 from supportbench.data.loaders import load_documents
-from supportbench.rag.chunk_context_builder import RepresentativeChunkContextBuilder
-from supportbench.rag.chunk_retrieval_pipeline import RepresentativeChunkRetrievalPipeline
+from supportbench.rag.context import (
+    ContextPreparationService,
+    RepresentativeChunkResolver,
+)
+from supportbench.rag.context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.document_store import InMemoryDocumentStore
+from supportbench.rag.generation.client import LLMClient
 from supportbench.rag.generation.prompt import (
     GroundedPromptBuilder,
     PromptBudgetCalculator,
 )
-from supportbench.rag.parent_pipeline import ParentContextPipeline
-from supportbench.rag.parent_retrieval import ParentRetrievalOrchestrator
+from supportbench.rag.generation.service import GroundedAnswerGenerator
+from supportbench.rag.pipeline import RAGPipeline
+from supportbench.rag.retrieval import ParentRetrievalService
 from supportbench.reranking.cross_encoder import SentenceTransformerCrossEncoderReranker
 from supportbench.retrieval.factory import RetrieverConfig, RetrieverFactory
 from supportbench.retrieval.hybrid import WeightedRetrieverSource
@@ -127,9 +132,9 @@ class NvidiaTechQAContextConfig:
             raise ValueError("second_evidence_weight must be between 0 and 1")
 
 
-def build_nvidia_techqa_context_pipeline(
+def build_nvidia_techqa_context_service(
     config: NvidiaTechQAContextConfig,
-) -> ParentContextPipeline:
+) -> ContextPreparationService:
     chunk_directory = config.chunks_root / config.chunk_config
     runtime_documents = load_documents(chunk_directory / "documents.jsonl")
     chunks_by_id = load_chunks(chunk_directory / "chunks.jsonl")
@@ -170,7 +175,7 @@ def build_nvidia_techqa_context_pipeline(
         batch_size=config.reranker_batch_size,
         max_length=config.reranker_max_length,
     )
-    retrieval_orchestrator = ParentRetrievalOrchestrator(
+    retrieval_service = ParentRetrievalService(
         parent_retriever=parent_wrrf,
         reranker=reranker,
         chunk_store=chunk_store,
@@ -181,7 +186,7 @@ def build_nvidia_techqa_context_pipeline(
         fusion_rrf_k=config.fusion_rrf_k,
         second_evidence_weight=config.second_evidence_weight,
     )
-    chunk_pipeline = RepresentativeChunkRetrievalPipeline(
+    chunk_resolver = RepresentativeChunkResolver(
         chunk_store=chunk_store,
         chunks_by_id=chunks_by_id,
     )
@@ -198,9 +203,9 @@ def build_nvidia_techqa_context_pipeline(
         maximum_token_overlap=config.maximum_overlap_tokens,
     )
 
-    return ParentContextPipeline(
-        retrieval_orchestrator=retrieval_orchestrator,
-        chunk_pipeline=chunk_pipeline,
+    return ContextPreparationService(
+        retrieval_service=retrieval_service,
+        chunk_resolver=chunk_resolver,
         context_builder=context_builder,
         prompt_budget_calculator=PromptBudgetCalculator(
             tokenizer=context_tokenizer,
@@ -210,4 +215,18 @@ def build_nvidia_techqa_context_pipeline(
             max_context_tokens=config.max_context_tokens,
         ),
         top_parents=config.top_parents,
+    )
+
+
+def build_nvidia_techqa_rag(
+    config: NvidiaTechQAContextConfig,
+    *,
+    llm_client: LLMClient,
+) -> RAGPipeline:
+    return RAGPipeline(
+        context_service=build_nvidia_techqa_context_service(config),
+        answer_generator=GroundedAnswerGenerator(
+            prompt_builder=GroundedPromptBuilder(),
+            llm_client=llm_client,
+        ),
     )

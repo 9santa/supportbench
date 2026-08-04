@@ -1,19 +1,17 @@
+from supportbench.rag.context import ContextPreparationRun, ContextPreparationService
 from supportbench.rag.generation.models import ChatMessage
 from supportbench.rag.generation.prompt import GroundedPromptBuilder
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import RAGContext, RetrievedDocument
-from supportbench.rag.parent_pipeline import (
-    ParentContextRun,
-    ParentGroundedRAGPipeline,
-)
-from supportbench.rag.parent_retrieval import ParentRetrievalRun
+from supportbench.rag.pipeline import RAGPipeline
+from supportbench.rag.retrieval import ParentRetrievalRun
 
 
-class StaticContextPipeline:
-    def __init__(self, run: ParentContextRun) -> None:
+class StaticContextService(ContextPreparationService):
+    def __init__(self, run: ContextPreparationRun) -> None:
         self._run = run
 
-    def run(self, query: str) -> ParentContextRun:
+    def prepare(self, query: str) -> ContextPreparationRun:
         return self._run
 
 
@@ -43,13 +41,13 @@ def test_preserves_parent_retrieval_diagnostics_through_generation() -> None:
         formatted_text="[DOCUMENT]\ndoc_id: parent_a\ncontent:\nUse A.\n[/DOCUMENT]",
         truncated=False,
     )
-    context_run = ParentContextRun(
+    context_run = ContextPreparationRun(
         retrieval=retrieval,
         retrieved_chunks=(),
         context=context,
     )
-    pipeline = ParentGroundedRAGPipeline(
-        context_pipeline=StaticContextPipeline(context_run),
+    pipeline = RAGPipeline(
+        context_service=StaticContextService(context_run),
         answer_generator=GroundedAnswerGenerator(
             prompt_builder=GroundedPromptBuilder(),
             llm_client=StubLLMClient(),

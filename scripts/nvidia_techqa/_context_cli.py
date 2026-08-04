@@ -11,7 +11,7 @@ from supportbench.applications.nvidia_techqa import (
     DEFAULT_RERANKER_MODEL,
     NvidiaTechQAContextConfig,
 )
-from supportbench.rag.parent_pipeline import ParentContextRun
+from supportbench.rag.context import ContextPreparationRun
 
 
 def add_context_arguments(parser: argparse.ArgumentParser) -> None:
@@ -97,7 +97,7 @@ def parent_context_payload(
     *,
     query: str,
     config: NvidiaTechQAContextConfig,
-    run: ParentContextRun,
+    run: ContextPreparationRun,
 ) -> dict[str, object]:
     retrieval = run.retrieval
     return {

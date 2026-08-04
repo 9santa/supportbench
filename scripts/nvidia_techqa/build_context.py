@@ -7,7 +7,7 @@ from scripts.nvidia_techqa._context_cli import (
     save_json,
     validate_output_path,
 )
-from supportbench.applications.nvidia_techqa import build_nvidia_techqa_context_pipeline
+from supportbench.applications.nvidia_techqa import build_nvidia_techqa_context_service
 
 
 def main() -> None:
@@ -20,13 +20,13 @@ def main() -> None:
     validate_output_path(parser, args)
 
     try:
-        run = build_nvidia_techqa_context_pipeline(config).run(args.query)
+        run = build_nvidia_techqa_context_service(config).prepare(args.query)
     except ValueError as error:
         parser.error(str(error))
 
     context = run.context
     print(f"Query: {args.query}")
-    print("Pipeline: parent WRRF -> independent cross-encoder -> fusion")
+    print("Retrieval: parent WRRF -> independent cross-encoder -> fusion")
     print(f"Retrieved parents: {len({chunk.parent_doc_id for chunk in run.retrieved_chunks})}")
     print(f"Representative chunks: {len(run.retrieved_chunks)}")
     print(f"Context parents: {len(context.documents)}")

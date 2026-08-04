@@ -30,7 +30,7 @@ class ParentRetrievalRun:
     fused_parents: tuple[SearchResult, ...]
 
 
-class ParentRetrievalOrchestrator:
+class ParentRetrievalService:
     """Execute the online parent retrieval path once for a single query."""
 
     def __init__(
@@ -74,7 +74,7 @@ class ParentRetrievalOrchestrator:
         self._fusion_rrf_k = fusion_rrf_k
         self._second_evidence_weight = second_evidence_weight
 
-    def run(self, query: str) -> ParentRetrievalRun:
+    def retrieve(self, query: str) -> ParentRetrievalRun:
         if not query.strip():
             return _empty_run()
 

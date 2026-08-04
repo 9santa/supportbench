@@ -1,6 +1,6 @@
 import pytest
 
-from supportbench.rag.citation_validator import CitationValidationError
+from supportbench.rag.citations import CitationValidationError
 from supportbench.rag.generation.models import ChatMessage
 from supportbench.rag.generation.prompt import GroundedPromptBuilder
 from supportbench.rag.generation.service import GroundedAnswerGenerator
@@ -49,7 +49,7 @@ def test_generates_and_validates_grounded_answer() -> None:
         '{"decision":"answer","answer":"Restart it.","citation_ids":["parent_a"]}'
     )
 
-    run = _generator(client).run(query="What should I do?", context=_context())
+    run = _generator(client).generate(query="What should I do?", context=_context())
 
     assert client.calls == 1
     assert run.answer.citation_ids == ("parent_a",)
@@ -62,7 +62,7 @@ def test_empty_context_abstains_without_calling_llm() -> None:
     client = StubLLMClient("not used")
     context = RAGContext(documents=(), formatted_text="", truncated=False)
 
-    run = _generator(client).run(query="question", context=context)
+    run = _generator(client).generate(query="question", context=context)
 
     assert client.calls == 0
     assert run.answer.decision == "abstain"
@@ -78,6 +78,6 @@ def test_invalid_citation_preserves_raw_response() -> None:
     client = StubLLMClient(raw_response)
 
     with pytest.raises(CitationValidationError) as caught:
-        _generator(client).run(query="question", context=_context())
+        _generator(client).generate(query="question", context=_context())
 
     assert caught.value.raw_response == raw_response

@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 from supportbench.data.models import Document
 from supportbench.rag.document_store import InMemoryDocumentStore
-from supportbench.rag.parent_retrieval import ParentRetrievalOrchestrator
+from supportbench.rag.retrieval import ParentRetrievalService
 from supportbench.reranking.base import RerankCandidate, RerankResult
 from supportbench.retrieval.parent_hybrid import ParentSearchResult
 
@@ -57,15 +57,15 @@ class RecordingReranker:
         return results[:top_k]
 
 
-def _orchestrator(
+def _service(
     parent_retriever: CountingParentRetriever,
     reranker: RecordingReranker,
-) -> ParentRetrievalOrchestrator:
+) -> ParentRetrievalService:
     documents = [
         Document(chunk_id, f"Title {chunk_id}", f"Text {chunk_id}", "support")
         for chunk_id in ("a_1", "a_2", "b_1", "b_2")
     ]
-    return ParentRetrievalOrchestrator(
+    return ParentRetrievalService(
         parent_retriever=parent_retriever,
         reranker=reranker,
         chunk_store=InMemoryDocumentStore(documents),
@@ -86,7 +86,7 @@ def test_executes_first_stage_and_reranker_once_per_query() -> None:
     parent_retriever = CountingParentRetriever()
     reranker = RecordingReranker()
 
-    run = _orchestrator(parent_retriever, reranker).run("query")
+    run = _service(parent_retriever, reranker).retrieve("query")
 
     assert parent_retriever.calls == 1
     assert reranker.calls == 1
@@ -109,7 +109,7 @@ def test_empty_query_does_not_execute_retrieval() -> None:
     parent_retriever = CountingParentRetriever()
     reranker = RecordingReranker()
 
-    run = _orchestrator(parent_retriever, reranker).run("  ")
+    run = _service(parent_retriever, reranker).retrieve("  ")
 
     assert parent_retriever.calls == 0
     assert reranker.calls == 0

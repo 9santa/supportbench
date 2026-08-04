@@ -10,13 +10,11 @@ from scripts.nvidia_techqa._context_cli import (
     save_json,
     validate_output_path,
 )
-from supportbench.applications.nvidia_techqa import build_nvidia_techqa_context_pipeline
-from supportbench.rag.citation_validator import CitationValidationError
+from supportbench.applications.nvidia_techqa import build_nvidia_techqa_rag
+from supportbench.rag.citations import CitationValidationError
+from supportbench.rag.context import ContextPreparationRun
 from supportbench.rag.generation.ollama import OllamaClientError, OllamaLLMClient
 from supportbench.rag.generation.parser import GeneratedAnswerParseError
-from supportbench.rag.generation.prompt import GroundedPromptBuilder
-from supportbench.rag.generation.service import GroundedAnswerGenerator
-from supportbench.rag.parent_pipeline import ParentContextRun, ParentGroundedRAGPipeline
 
 DEFAULT_LLM_MODEL = "gemma3:4b"
 
@@ -55,22 +53,18 @@ def main() -> None:
     config = parse_context_config(parser, args)
 
     try:
-        context_pipeline = build_nvidia_techqa_context_pipeline(config)
-        pipeline = ParentGroundedRAGPipeline(
-            context_pipeline=context_pipeline,
-            answer_generator=GroundedAnswerGenerator(
-                prompt_builder=GroundedPromptBuilder(),
-                llm_client=OllamaLLMClient(
-                    model_name=args.llm_model,
-                    base_url=args.ollama_url,
-                    timeout_seconds=args.llm_timeout_seconds,
-                    temperature=args.temperature,
-                    context_window=config.model_context_window,
-                    max_output_tokens=config.reserved_output_tokens,
-                ),
+        rag = build_nvidia_techqa_rag(
+            config,
+            llm_client=OllamaLLMClient(
+                model_name=args.llm_model,
+                base_url=args.ollama_url,
+                timeout_seconds=args.llm_timeout_seconds,
+                temperature=args.temperature,
+                context_window=config.model_context_window,
+                max_output_tokens=config.reserved_output_tokens,
             ),
         )
-        run = pipeline.run(args.query)
+        run = rag.run(args.query)
     except GeneratedAnswerParseError as error:
         _print_generation_error("Generation contract error", error, args)
         raise SystemExit(2) from error
@@ -119,7 +113,7 @@ def main() -> None:
         print(run.raw_response if run.raw_response is not None else "<LLM was not called>")
 
     if args.output is not None:
-        context_run = ParentContextRun(
+        context_run = ContextPreparationRun(
             retrieval=run.retrieval,
             retrieved_chunks=run.retrieved_chunks,
             context=run.context,

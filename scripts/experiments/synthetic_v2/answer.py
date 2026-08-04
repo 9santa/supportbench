@@ -7,7 +7,7 @@ from supportbench.data.loaders import load_documents
 from supportbench.experiments.synthetic_v2.rag.context_builder import ContextBuilder
 from supportbench.experiments.synthetic_v2.rag.pipeline import GroundedRAGPipeline
 from supportbench.experiments.synthetic_v2.rag.retrieval_pipeline import RetrievalPipeline
-from supportbench.rag.citation_validator import (
+from supportbench.rag.citations import (
     CitationValidationError,
 )
 from supportbench.rag.document_store import (

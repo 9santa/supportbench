@@ -1,15 +1,27 @@
 import math
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from numbers import Real
 
 from supportbench.chunking.models import Chunk
+from supportbench.rag.context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.document_store import DocumentStore
-from supportbench.rag.models import RetrievedChunk
-from supportbench.rag.parent_retrieval import ParentRetrievalRun
+from supportbench.rag.generation.prompt import PromptBudget, PromptBudgetCalculator
+from supportbench.rag.models import RAGContext, RetrievedChunk
+from supportbench.rag.retrieval import ParentRetrievalRun, ParentRetrievalService
 from supportbench.retrieval.base import SearchResult
 
 
-class RepresentativeChunkRetrievalPipeline:
+@dataclass(frozen=True, slots=True)
+class ContextPreparationRun:
+    retrieval: ParentRetrievalRun
+    retrieved_chunks: tuple[RetrievedChunk, ...]
+    context: RAGContext
+    prompt_budget: PromptBudget | None = None
+    prompt_token_count: int = 0
+
+
+class RepresentativeChunkResolver:
     """Resolve final parent ranks to the chunks that supplied retrieval evidence."""
 
     def __init__(
@@ -24,7 +36,7 @@ class RepresentativeChunkRetrievalPipeline:
         self._chunk_store = chunk_store
         self._chunks_by_id = dict(chunks_by_id)
 
-    def retrieve(
+    def resolve(
         self,
         run: ParentRetrievalRun,
         *,
@@ -118,3 +130,83 @@ class RepresentativeChunkRetrievalPipeline:
                 raise ValueError("parent score must be finite")
 
             seen_parent_ids.add(result.doc_id)
+
+
+class ContextPreparationService:
+    """Retrieve evidence and construct a generation-ready context for one query."""
+
+    def __init__(
+        self,
+        *,
+        retrieval_service: ParentRetrievalService,
+        chunk_resolver: RepresentativeChunkResolver,
+        context_builder: RepresentativeChunkContextBuilder,
+        prompt_budget_calculator: PromptBudgetCalculator,
+        top_parents: int,
+    ) -> None:
+        if top_parents <= 0:
+            raise ValueError("top_parents must be positive")
+
+        self._retrieval_service = retrieval_service
+        self._chunk_resolver = chunk_resolver
+        self._context_builder = context_builder
+        self._prompt_budget_calculator = prompt_budget_calculator
+        self._top_parents = top_parents
+
+    def prepare(self, query: str) -> ContextPreparationRun:
+        normalized_query = query.strip()
+
+        if not normalized_query:
+            raise ValueError("query must be non-empty")
+
+        prompt_budget = self._prompt_budget_calculator.calculate(normalized_query)
+        retrieval = self._retrieval_service.retrieve(normalized_query)
+        retrieved_chunks = tuple(
+            self._chunk_resolver.resolve(
+                retrieval,
+                top_k=self._top_parents,
+            )
+        )
+        context_token_budget = prompt_budget.available_context_tokens
+        context = self._context_builder.build(
+            retrieved_chunks,
+            max_tokens=context_token_budget,
+        )
+        prompt_token_count = self._prompt_budget_calculator.count_prompt(
+            query=normalized_query,
+            context=context,
+        )
+        overflow = (
+            prompt_token_count
+            + prompt_budget.reserved_output_tokens
+            - prompt_budget.model_context_window
+        )
+
+        if overflow > 0:
+            context_token_budget -= overflow
+
+            if context_token_budget <= 0:
+                raise ValueError("full prompt leaves no room for knowledge context")
+
+            context = self._context_builder.build(
+                retrieved_chunks,
+                max_tokens=context_token_budget,
+            )
+            prompt_token_count = self._prompt_budget_calculator.count_prompt(
+                query=normalized_query,
+                context=context,
+            )
+
+        if (
+            prompt_token_count + prompt_budget.reserved_output_tokens
+            > prompt_budget.model_context_window
+        ):
+            raise RuntimeError("full prompt exceeded the model context window")
+
+        return ContextPreparationRun(
+            retrieval=retrieval,
+            retrieved_chunks=retrieved_chunks,
+            context=context,
+            prompt_budget=prompt_budget,
+            prompt_token_count=prompt_token_count,
+        )

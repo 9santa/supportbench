@@ -1,10 +1,8 @@
 from supportbench.chunking.models import Chunk
 from supportbench.data.models import Document
-from supportbench.rag.chunk_retrieval_pipeline import (
-    RepresentativeChunkRetrievalPipeline,
-)
+from supportbench.rag.context import RepresentativeChunkResolver
 from supportbench.rag.document_store import InMemoryDocumentStore
-from supportbench.rag.parent_retrieval import ParentRetrievalRun
+from supportbench.rag.retrieval import ParentRetrievalRun
 from supportbench.retrieval.base import SearchResult
 
 
@@ -32,7 +30,7 @@ def test_materializes_representatives_in_final_parent_order() -> None:
         Document(chunk.chunk_id, "Runtime title", chunk.text, "support")
         for chunk in chunks.values()
     ]
-    pipeline = RepresentativeChunkRetrievalPipeline(
+    resolver = RepresentativeChunkResolver(
         chunk_store=InMemoryDocumentStore(documents),
         chunks_by_id=chunks,
     )
@@ -55,7 +53,7 @@ def test_materializes_representatives_in_final_parent_order() -> None:
         ),
     )
 
-    retrieved = pipeline.retrieve(run, top_k=2)
+    retrieved = resolver.resolve(run, top_k=2)
 
     assert [chunk.chunk_id for chunk in retrieved] == ["b_2", "b_1", "a_1"]
     assert [chunk.parent_rank for chunk in retrieved] == [1, 1, 2]

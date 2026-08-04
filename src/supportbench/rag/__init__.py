@@ -1,13 +1,13 @@
-from supportbench.rag.chunk_context_builder import (
-    RepresentativeChunkContextBuilder,
-)
-from supportbench.rag.chunk_retrieval_pipeline import (
-    RepresentativeChunkRetrievalPipeline,
-)
-from supportbench.rag.citation_validator import (
+from supportbench.rag.citations import (
     CitationValidationError,
     validate_generated_answer,
 )
+from supportbench.rag.context import (
+    ContextPreparationRun,
+    ContextPreparationService,
+    RepresentativeChunkResolver,
+)
+from supportbench.rag.context_builder import RepresentativeChunkContextBuilder
 from supportbench.rag.document_store import (
     DocumentStore,
     InMemoryDocumentStore,
@@ -18,32 +18,27 @@ from supportbench.rag.models import (
     RetrievedChunk,
     RetrievedDocument,
 )
-from supportbench.rag.parent_pipeline import (
-    ParentContextPipeline,
-    ParentContextRun,
-    ParentGroundedRAGPipeline,
-    ParentGroundedRAGRun,
-)
-from supportbench.rag.parent_retrieval import (
-    ParentRetrievalOrchestrator,
+from supportbench.rag.pipeline import RAGPipeline, RAGRun
+from supportbench.rag.retrieval import (
     ParentRetrievalRun,
+    ParentRetrievalService,
 )
 
 __all__ = [
     "RepresentativeChunkContextBuilder",
-    "RepresentativeChunkRetrievalPipeline",
+    "RepresentativeChunkResolver",
     "DocumentStore",
     "InMemoryDocumentStore",
     "RAGContext",
     "ChunkProvenance",
     "RetrievedChunk",
     "RetrievedDocument",
-    "ParentRetrievalOrchestrator",
+    "ParentRetrievalService",
     "ParentRetrievalRun",
-    "ParentContextPipeline",
-    "ParentContextRun",
-    "ParentGroundedRAGPipeline",
-    "ParentGroundedRAGRun",
+    "ContextPreparationService",
+    "ContextPreparationRun",
+    "RAGPipeline",
+    "RAGRun",
 ]
 
 __all__ += [

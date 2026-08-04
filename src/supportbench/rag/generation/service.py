@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from supportbench.rag.citation_validator import (
+from supportbench.rag.citations import (
     CitationValidationError,
     validate_generated_answer,
 )
@@ -36,7 +36,7 @@ class GroundedAnswerGenerator:
         self._prompt_builder = prompt_builder
         self._llm_client = llm_client
 
-    def run(
+    def generate(
         self,
         *,
         query: str,
@@ -74,3 +74,12 @@ class GroundedAnswerGenerator:
             raw_response=raw_response,
             answer=generated_answer,
         )
+
+    def run(
+        self,
+        *,
+        query: str,
+        context: RAGContext,
+    ) -> GroundedGenerationRun:
+        """Retain the historical synthetic_v2 generation entry point."""
+        return self.generate(query=query, context=context)
