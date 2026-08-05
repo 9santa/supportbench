@@ -21,12 +21,11 @@ venv/
 .DS_Store
 concatenated_sources.txt
 
-# Artifacts storage
-artifacts/
-abc.txt
-
 # Large files
+artifacts/
 /data/
+/indexes/
 
 
+abc.txt
 docs/
