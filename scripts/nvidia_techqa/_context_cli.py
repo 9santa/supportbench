@@ -14,8 +14,7 @@ from supportbench.applications.nvidia_techqa import (
 from supportbench.rag.context import ContextPreparationRun
 
 
-def add_context_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("query")
+def add_context_config_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--chunk-config", default=DEFAULT_CHUNK_CONFIG)
     parser.add_argument(
         "--chunks-root",
@@ -49,17 +48,20 @@ def add_context_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--fusion-rrf-k", type=int, default=10)
     parser.add_argument("--minimum-overlap-tokens", type=int, default=8)
     parser.add_argument("--maximum-overlap-tokens", type=int, default=256)
+
+
+def add_context_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("query")
+    add_context_config_arguments(parser)
+
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--overwrite", action="store_true")
 
 
-def parse_context_config(
+def context_config_from_args(
     parser: argparse.ArgumentParser,
     args: argparse.Namespace,
 ) -> NvidiaTechQAContextConfig:
-    if not args.query.strip():
-        parser.error("query must be non-empty")
-
     try:
         return NvidiaTechQAContextConfig(
             chunks_root=args.chunks_root,
@@ -86,6 +88,16 @@ def parse_context_config(
         )
     except ValueError as error:
         parser.error(str(error))
+
+
+def parse_context_config(
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+) -> NvidiaTechQAContextConfig:
+    if not args.query.strip():
+        parser.error("query must be non-empty")
+
+    return context_config_from_args(parser, args)
 
 
 def validate_output_path(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
@@ -117,17 +129,13 @@ def parent_context_payload(
         },
         "retrieval_run": {
             "candidate_parents": [asdict(result) for result in retrieval.candidate_parents],
-            "representative_chunks_by_parent": dict(
-                retrieval.representative_chunks_by_parent
-            ),
+            "representative_chunks_by_parent": dict(retrieval.representative_chunks_by_parent),
             "reranked_parents": [asdict(result) for result in retrieval.reranked_parents],
             "fused_parents": [asdict(result) for result in retrieval.fused_parents],
         },
         "max_context_tokens": config.max_context_tokens,
         "context_tokenizer": config.context_tokenizer_name,
-        "prompt_budget": (
-            asdict(run.prompt_budget) if run.prompt_budget is not None else None
-        ),
+        "prompt_budget": (asdict(run.prompt_budget) if run.prompt_budget is not None else None),
         "prompt_token_count": run.prompt_token_count,
         "context": asdict(run.context),
     }
