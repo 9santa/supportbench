@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from supportbench.rag.context import ContextPreparationService
-from supportbench.rag.generation.models import ChatMessage, GeneratedAnswer
+from supportbench.rag.generation.models import ChatMessage, GeneratedAnswer, LLMResponse
 from supportbench.rag.generation.prompt import PromptBudget
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import RAGContext, RetrievedChunk
@@ -16,6 +16,8 @@ class RAGRun:
     messages: tuple[ChatMessage, ...]
     raw_response: str | None
     answer: GeneratedAnswer
+    raw_citation_ids: tuple[str, ...] = ()
+    llm_response: LLMResponse | None = None
     prompt_budget: PromptBudget | None = None
     prompt_token_count: int = 0
 
@@ -49,6 +51,8 @@ class RAGPipeline:
             messages=generation.messages,
             raw_response=generation.raw_response,
             answer=generation.answer,
+            raw_citation_ids=generation.raw_citation_ids,
+            llm_response=generation.llm_response,
             prompt_budget=context_run.prompt_budget,
             prompt_token_count=context_run.prompt_token_count,
         )

@@ -1,5 +1,5 @@
 from supportbench.rag.context import ContextPreparationRun, ContextPreparationService
-from supportbench.rag.generation.models import ChatMessage
+from supportbench.rag.generation.models import ChatMessage, LLMResponse
 from supportbench.rag.generation.prompt import GroundedPromptBuilder
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import RAGContext, RetrievedDocument
@@ -16,8 +16,13 @@ class StaticContextService(ContextPreparationService):
 
 
 class StubLLMClient:
-    def generate(self, messages: tuple[ChatMessage, ...]) -> str:
-        return '{"decision":"answer","answer":"Use A.","citation_ids":["parent_a"]}'
+    def generate(self, messages: tuple[ChatMessage, ...]) -> LLMResponse:
+        return LLMResponse(
+            content=(
+                '{"decision":"answer","answer":"Use A.","citation_ids":["parent_a"]}'
+            ),
+            done_reason="stop",
+        )
 
 
 def test_preserves_parent_retrieval_diagnostics_through_generation() -> None:

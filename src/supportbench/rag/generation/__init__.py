@@ -5,6 +5,7 @@ from supportbench.rag.generation.models import (
     AnswerDecision,
     ChatMessage,
     GeneratedAnswer,
+    LLMResponse,
 )
 from supportbench.rag.generation.parser import (
     GeneratedAnswerParseError,
@@ -21,5 +22,6 @@ __all__ = [
     "GeneratedAnswerParseError",
     "GroundedPromptBuilder",
     "LLMClient",
+    "LLMResponse",
     "parse_generated_answer",
 ]

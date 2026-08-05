@@ -15,6 +15,7 @@ from supportbench.rag.citations import CitationValidationError
 from supportbench.rag.context import ContextPreparationRun
 from supportbench.rag.generation.ollama import OllamaClientError, OllamaLLMClient
 from supportbench.rag.generation.parser import GeneratedAnswerParseError
+from supportbench.rag.generation.service import GenerationTruncatedError
 
 DEFAULT_LLM_MODEL = "gemma3:4b"
 
@@ -65,6 +66,9 @@ def main() -> None:
             ),
         )
         run = rag.run(args.query)
+    except GenerationTruncatedError as error:
+        _print_generation_error("Generation truncated", error, args)
+        raise SystemExit(2) from error
     except GeneratedAnswerParseError as error:
         _print_generation_error("Generation contract error", error, args)
         raise SystemExit(2) from error
@@ -133,6 +137,16 @@ def main() -> None:
             "reserved_output_tokens": config.reserved_output_tokens,
             "messages": [asdict(message) for message in run.messages],
             "raw_response": run.raw_response,
+            "raw_citation_ids": list(run.raw_citation_ids),
+            "ollama": (
+                {
+                    "done_reason": run.llm_response.done_reason,
+                    "prompt_eval_count": run.llm_response.prompt_eval_count,
+                    "eval_count": run.llm_response.eval_count,
+                }
+                if run.llm_response is not None
+                else None
+            ),
             "answer": asdict(run.answer),
         }
         save_json(args.output, payload)
@@ -142,7 +156,7 @@ def main() -> None:
 
 def _print_generation_error(
     label: str,
-    error: GeneratedAnswerParseError | CitationValidationError,
+    error: GeneratedAnswerParseError | CitationValidationError | GenerationTruncatedError,
     args: argparse.Namespace,
 ) -> None:
     print(f"{label}: {error}", file=sys.stderr)

@@ -4,6 +4,7 @@ from typing import cast
 from supportbench.rag.generation.models import (
     AnswerDecision,
     GeneratedAnswer,
+    LLMResponse,
 )
 
 REQUIRED_FIELDS = {
@@ -27,9 +28,11 @@ class GeneratedAnswerParseError(ValueError):
         message: str,
         *,
         raw_response: str,
+        llm_response: LLMResponse | None = None,
     ) -> None:
         super().__init__(message)
         self.raw_response = raw_response
+        self.llm_response = llm_response
 
 
 def parse_generated_answer(

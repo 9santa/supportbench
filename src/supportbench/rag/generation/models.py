@@ -20,6 +20,18 @@ class ChatMessage:
 
 
 @dataclass(frozen=True, slots=True)
+class LLMResponse:
+    content: str
+    done_reason: str | None = None
+    prompt_eval_count: int | None = None
+    eval_count: int | None = None
+
+    @property
+    def truncated(self) -> bool:
+        return self.done_reason == "length"
+
+
+@dataclass(frozen=True, slots=True)
 class GeneratedAnswer:
     decision: AnswerDecision
     answer: str

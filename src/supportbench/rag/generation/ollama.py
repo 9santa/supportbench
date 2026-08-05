@@ -4,6 +4,7 @@ from urllib.request import Request, urlopen
 
 from supportbench.rag.generation.models import (
     ChatMessage,
+    LLMResponse,
 )
 
 ANSWER_SCHEMA = {
@@ -83,7 +84,7 @@ class OllamaLLMClient:
     def generate(
         self,
         messages: tuple[ChatMessage, ...],
-    ) -> str:
+    ) -> LLMResponse:
         options: dict[str, float | int] = {
             "temperature": self._temperature,
         }
@@ -136,4 +137,35 @@ class OllamaLLMClient:
         if not isinstance(content, str):
             raise OllamaClientError("Ollama response does not contain textual message content")
 
-        return content
+        done_reason = response_data.get("done_reason")
+
+        if done_reason is not None and not isinstance(done_reason, str):
+            raise OllamaClientError("Ollama returned an invalid done_reason")
+
+        return LLMResponse(
+            content=content,
+            done_reason=done_reason,
+            prompt_eval_count=_optional_non_negative_int(
+                response_data,
+                "prompt_eval_count",
+            ),
+            eval_count=_optional_non_negative_int(
+                response_data,
+                "eval_count",
+            ),
+        )
+
+
+def _optional_non_negative_int(
+    response_data: dict[str, object],
+    key: str,
+) -> int | None:
+    value = response_data.get(key)
+
+    if value is None:
+        return None
+
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise OllamaClientError(f"Ollama returned an invalid {key}")
+
+    return value
