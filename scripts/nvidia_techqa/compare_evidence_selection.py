@@ -1,7 +1,6 @@
 import argparse
 import json
 import time
-from collections.abc import Iterable
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -11,6 +10,15 @@ from scripts.experiments.tracking import add_tracking_arguments, resolve_tracker
 from scripts.nvidia_techqa._context_cli import (
     add_context_config_arguments,
     context_config_from_args,
+)
+from scripts.nvidia_techqa._evaluation_io import (
+    append_jsonl,
+    jsonable,
+    load_completed_query_ids,
+    load_jsonl,
+    prepare_output,
+    write_json,
+    write_jsonl,
 )
 from supportbench.applications.nvidia_techqa import build_nvidia_techqa_context_service
 from supportbench.benchmark.loaders import load_benchmark_queries
@@ -111,7 +119,7 @@ def main() -> None:
         "limit": args.limit,
         "baseline_evidence_selection": BASELINE_SELECTION,
         "candidate_evidence_selection": CANDIDATE_SELECTION,
-        "context": _jsonable(asdict(config)),
+        "context": jsonable(asdict(config)),
         "fingerprints": {
             "queries_sha256": sha256_file(args.queries),
             "chunks_sha256": sha256_file(chunks_path),
@@ -119,7 +127,7 @@ def main() -> None:
             "dense_index_manifest_sha256": sha256_file(index_manifest_path),
         },
     }
-    _prepare_output(
+    prepare_output(
         parser=parser,
         config_path=config_path,
         results_path=results_path,
@@ -141,7 +149,7 @@ def main() -> None:
     if args.limit is not None:
         queries = queries[: args.limit]
 
-    completed_query_ids = _load_completed_query_ids(results_path) if args.resume else set()
+    completed_query_ids = load_completed_query_ids(results_path) if args.resume else set()
     pending_queries = [
         query for query in queries if query.query_id not in completed_query_ids
     ]
@@ -177,7 +185,7 @@ def main() -> None:
                     query=query,
                     context_service=context_service,
                 )
-                _append_jsonl(results_path, result)
+                append_jsonl(results_path, result)
                 baseline_reference = result.get("baseline", {}).get(
                     "reference_answer_in_context"
                 )
@@ -193,7 +201,7 @@ def main() -> None:
         except KeyboardInterrupt:
             interrupted = True
         finally:
-            results = _load_jsonl(results_path)
+            results = load_jsonl(results_path)
             summary = summarize_context_comparison(results)
             summary.update(
                 {
@@ -207,8 +215,8 @@ def main() -> None:
                     "candidate_evidence_selection": CANDIDATE_SELECTION,
                 }
             )
-            _write_json(summary_path, summary)
-            _write_jsonl(
+            write_json(summary_path, summary)
+            write_jsonl(
                 failures_path,
                 (result for result in results if result.get("status") != "success"),
             )
@@ -322,73 +330,6 @@ def _context_result(
             run.context.formatted_text,
         ),
     }
-
-
-def _prepare_output(
-    *,
-    parser: argparse.ArgumentParser,
-    config_path: Path,
-    results_path: Path,
-    config_payload: dict[str, Any],
-    resume: bool,
-) -> None:
-    if results_path.exists() and not resume:
-        parser.error(f"results already exist: {results_path}; use --resume or a new name")
-
-    if config_path.exists():
-        existing = json.loads(config_path.read_text(encoding="utf-8"))
-
-        if existing != config_payload:
-            parser.error("existing evaluation config does not match this run")
-    else:
-        _write_json(config_path, config_payload)
-
-
-def _load_completed_query_ids(path: Path) -> set[str]:
-    return {
-        str(result["query_id"])
-        for result in _load_jsonl(path)
-        if result.get("query_id") is not None
-    }
-
-
-def _load_jsonl(path: Path) -> list[dict[str, Any]]:
-    if not path.exists():
-        return []
-
-    with path.open(encoding="utf-8") as source:
-        return [json.loads(line) for line in source if line.strip()]
-
-
-def _append_jsonl(path: Path, payload: object) -> None:
-    with path.open("a", encoding="utf-8") as output:
-        output.write(json.dumps(payload, ensure_ascii=False) + "\n")
-
-
-def _write_jsonl(path: Path, payloads: Iterable[object]) -> None:
-    with path.open("w", encoding="utf-8") as output:
-        for payload in payloads:
-            output.write(json.dumps(payload, ensure_ascii=False) + "\n")
-
-
-def _write_json(path: Path, payload: object) -> None:
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
-def _jsonable(value: Any) -> Any:
-    if isinstance(value, Path):
-        return str(value)
-
-    if isinstance(value, dict):
-        return {key: _jsonable(item) for key, item in value.items()}
-
-    if isinstance(value, (list, tuple)):
-        return [_jsonable(item) for item in value]
-
-    return value
 
 
 if __name__ == "__main__":

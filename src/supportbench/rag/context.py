@@ -325,9 +325,33 @@ class ContextPreparationService:
                 evidence_selection=evidence_selection,
             )
         )
-        context_token_budget = prompt_budget.available_context_tokens
+        return self.prepare_from_chunks(
+            normalized_query,
+            retrieved_chunks=retrieved_chunks,
+            retrieval=retrieval_run,
+            prompt_budget=prompt_budget,
+        )
+
+    def prepare_from_chunks(
+        self,
+        query: str,
+        *,
+        retrieved_chunks: Sequence[RetrievedChunk],
+        retrieval: ParentRetrievalRun,
+        prompt_budget: PromptBudget | None = None,
+    ) -> ContextPreparationRun:
+        normalized_query = query.strip()
+
+        if not normalized_query:
+            raise ValueError("query must be non-empty")
+
+        chunks = tuple(retrieved_chunks)
+        resolved_prompt_budget = prompt_budget or self._prompt_budget_calculator.calculate(
+            normalized_query
+        )
+        context_token_budget = resolved_prompt_budget.available_context_tokens
         context = self._context_builder.build(
-            retrieved_chunks,
+            chunks,
             max_tokens=context_token_budget,
         )
         prompt_token_count = self._prompt_budget_calculator.count_prompt(
@@ -336,8 +360,8 @@ class ContextPreparationService:
         )
         overflow = (
             prompt_token_count
-            + prompt_budget.reserved_output_tokens
-            - prompt_budget.model_context_window
+            + resolved_prompt_budget.reserved_output_tokens
+            - resolved_prompt_budget.model_context_window
         )
 
         if overflow > 0:
@@ -347,7 +371,7 @@ class ContextPreparationService:
                 raise ValueError("full prompt leaves no room for knowledge context")
 
             context = self._context_builder.build(
-                retrieved_chunks,
+                chunks,
                 max_tokens=context_token_budget,
             )
             prompt_token_count = self._prompt_budget_calculator.count_prompt(
@@ -356,15 +380,15 @@ class ContextPreparationService:
             )
 
         if (
-            prompt_token_count + prompt_budget.reserved_output_tokens
-            > prompt_budget.model_context_window
+            prompt_token_count + resolved_prompt_budget.reserved_output_tokens
+            > resolved_prompt_budget.model_context_window
         ):
             raise RuntimeError("full prompt exceeded the model context window")
 
         return ContextPreparationRun(
-            retrieval=retrieval_run,
-            retrieved_chunks=retrieved_chunks,
+            retrieval=retrieval,
+            retrieved_chunks=chunks,
             context=context,
-            prompt_budget=prompt_budget,
+            prompt_budget=resolved_prompt_budget,
             prompt_token_count=prompt_token_count,
         )

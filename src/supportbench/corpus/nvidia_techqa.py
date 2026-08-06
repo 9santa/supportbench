@@ -37,6 +37,15 @@ class NvidiaTechQAQuery:
 
 
 @dataclass(frozen=True, slots=True)
+class NvidiaTechQAOracleContext:
+    document_id: str
+    title: str
+    text: str
+    source_filename: str
+    source_text: str
+
+
+@dataclass(frozen=True, slots=True)
 class PreparationSummary:
     document_count: int
     query_count: int
@@ -106,6 +115,32 @@ def prepare_nvidia_techqa(
     )
 
     return summary
+
+
+def load_nvidia_techqa_oracle_contexts(
+    dataset_zip: Path,
+) -> dict[str, tuple[NvidiaTechQAOracleContext, ...]]:
+    source_queries = _load_source_queries(dataset_zip)
+
+    return {
+        query.query_id: tuple(
+            _to_oracle_context(context)
+            for context in query.contexts
+        )
+        for query in source_queries
+    }
+
+
+def _to_oracle_context(context: _SourceContext) -> NvidiaTechQAOracleContext:
+    document = _parse_document(context.filename, context.text)
+
+    return NvidiaTechQAOracleContext(
+        document_id=document.doc_id,
+        title=document.title,
+        text=document.text,
+        source_filename=context.filename,
+        source_text=context.text,
+    )
 
 
 def _load_source_queries(dataset_zip: Path) -> tuple[_SourceQuery, ...]:
