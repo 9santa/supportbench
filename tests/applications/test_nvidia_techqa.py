@@ -23,6 +23,7 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
     assert config.parent_aggregation == "capped_top_2_sum"
     assert config.parent_candidate_k == 20
     assert config.chunks_per_parent == 2
+    assert config.evidence_selection == "within_parent_rerank"
     assert config.candidate_prior_weight == 1.25
     assert config.second_evidence_weight == 0.0
     assert config.context_tokenizer_name != config.dense_model_name
@@ -40,6 +41,7 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
         ),
         ({"candidate_prior_weight": float("nan")}, "must be finite and non-negative"),
         ({"chunk_config": "../chunks"}, "must be a non-empty path segment"),
+        ({"evidence_selection": "unknown"}, "unknown evidence selection"),
         (
             {"reserved_output_tokens": 8_192},
             "reserved_output_tokens must be smaller than model_context_window",

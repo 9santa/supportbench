@@ -9,6 +9,7 @@ from supportbench.chunking.loaders import load_chunks
 from supportbench.data.loaders import load_documents
 from supportbench.rag.context import (
     ContextPreparationService,
+    EvidenceSelection,
     RepresentativeChunkResolver,
 )
 from supportbench.rag.context_builder import RepresentativeChunkContextBuilder
@@ -47,6 +48,7 @@ class NvidiaTechQAContextConfig:
     source_candidate_k: int = 500
     parent_candidate_k: int = 20
     chunks_per_parent: int = 2
+    evidence_selection: EvidenceSelection = "within_parent_rerank"
     top_parents: int = 5
     max_context_tokens: int = 4_096
     model_context_window: int = 8_192
@@ -105,6 +107,11 @@ class NvidiaTechQAContextConfig:
 
         if self.top_parents > self.parent_candidate_k:
             raise ValueError("top_parents must not exceed parent_candidate_k")
+        if self.evidence_selection not in (
+            "retrieval_representatives",
+            "within_parent_rerank",
+        ):
+            raise ValueError(f"unknown evidence selection: {self.evidence_selection!r}")
         if self.source_candidate_k < self.parent_candidate_k:
             raise ValueError("source_candidate_k must be at least parent_candidate_k")
         if self.maximum_overlap_tokens < self.minimum_overlap_tokens:
@@ -189,6 +196,9 @@ def build_nvidia_techqa_context_service(
     chunk_resolver = RepresentativeChunkResolver(
         chunk_store=chunk_store,
         chunks_by_id=chunks_by_id,
+        reranker=reranker,
+        chunks_per_parent=config.chunks_per_parent,
+        evidence_selection=config.evidence_selection,
     )
     context_tokenizer = AutoTokenizer.from_pretrained(
         config.context_tokenizer_name,

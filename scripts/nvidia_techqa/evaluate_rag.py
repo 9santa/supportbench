@@ -338,6 +338,7 @@ def main() -> None:
                     "reserved_output_tokens": (config.reserved_output_tokens),
                     "top_parents": (config.top_parents),
                     "chunks_per_parent": (config.chunks_per_parent),
+                    "evidence_selection": config.evidence_selection,
                 }
             )
 

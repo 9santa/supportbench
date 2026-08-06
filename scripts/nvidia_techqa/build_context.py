@@ -28,7 +28,7 @@ def main() -> None:
     print(f"Query: {args.query}")
     print("Retrieval: parent WRRF -> independent cross-encoder -> fusion")
     print(f"Retrieved parents: {len({chunk.parent_doc_id for chunk in run.retrieved_chunks})}")
-    print(f"Representative chunks: {len(run.retrieved_chunks)}")
+    print(f"Evidence chunks: {len(run.retrieved_chunks)}")
     print(f"Context parents: {len(context.documents)}")
     print(f"Context chunks: {len(context.provenance)}")
     context_budget = (
