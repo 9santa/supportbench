@@ -25,6 +25,7 @@ from supportbench.chunking.loaders import load_chunk_parent_ids
 from supportbench.evaluation.rag_evaluator import (
     flatten_numeric_summary,
     lexical_token_scores,
+    output_contract_diagnostics,
     reference_is_in_text,
     summarize_rag_results,
 )
@@ -50,7 +51,7 @@ from supportbench.rag.generation.service import (
     GroundedAnswerGenerator,
 )
 
-EVALUATION_VERSION = "techqa_rag_eval_v4"
+EVALUATION_VERSION = "techqa_rag_eval_v5"
 PROMPT_VERSION = "grounded_source_ids_v4"
 PARSER_VERSION = "strict_json_v1"
 CITATION_VALIDATOR_VERSION = "source_resolution_contract_repair_v5"
@@ -517,6 +518,10 @@ def _evaluate_query(
 
     generation_latency_ms = (time.perf_counter() - generation_started) * 1_000.0
     answer = generation_run.answer
+    output_diagnostics = output_contract_diagnostics(
+        decision=answer.decision,
+        answer=answer.answer,
+    )
 
     precision, recall, f1 = (
         lexical_token_scores(
@@ -550,6 +555,11 @@ def _evaluate_query(
             "contract_repaired": generation_run.contract_repaired,
             "strict_contract_valid": generation_run.strict_contract_valid,
             "contract_violations": list(generation_run.contract_violations),
+            **output_diagnostics,
+            "full_output_contract_valid": (
+                generation_run.strict_contract_valid
+                and not _has_output_contract_violation(output_diagnostics)
+            ),
             "raw_response": (generation_run.raw_response),
             "llm_called": (generation_run.raw_response is not None),
             **_llm_metadata(generation_run.llm_response),
@@ -618,6 +628,12 @@ def _generation_error_result(
     raw_citation_ids: tuple[str, ...],
     resolved_citation_ids: tuple[str, ...],
 ) -> dict[str, Any]:
+    parsed_decision = parsed_answer.decision if parsed_answer is not None else None
+    parsed_answer_text = parsed_answer.answer if parsed_answer is not None else None
+    output_diagnostics = output_contract_diagnostics(
+        decision=parsed_decision,
+        answer=parsed_answer_text,
+    )
     result = _context_payload(
         query=query,
         context_run=context_run,
@@ -625,10 +641,8 @@ def _generation_error_result(
     result.update(
         {
             "status": status,
-            "parsed_decision": (
-                parsed_answer.decision if parsed_answer is not None else None
-            ),
-            "parsed_answer": parsed_answer.answer if parsed_answer is not None else None,
+            "parsed_decision": parsed_decision,
+            "parsed_answer": parsed_answer_text,
             "decision": None,
             "answer": None,
             "citation_ids": [],
@@ -643,6 +657,8 @@ def _generation_error_result(
                 if isinstance(error, CitationValidationError)
                 else []
             ),
+            **output_diagnostics,
+            "full_output_contract_valid": False,
             "raw_response": raw_response,
             "llm_called": True,
             **_llm_metadata(llm_response),
@@ -701,6 +717,12 @@ def _error_result(
         "contract_repaired": False,
         "strict_contract_valid": None,
         "contract_violations": [],
+        "answer_source_id_leak": False,
+        "answer_embedded_citation_list": False,
+        "answer_word_count": 0,
+        "answer_over_120_words": False,
+        "decision_content_mismatch": False,
+        "full_output_contract_valid": False,
         "raw_response": None,
         "llm_called": False,
         **_llm_metadata(None),
@@ -770,6 +792,20 @@ def _llm_metadata(response: LLMResponse | None) -> dict[str, object]:
         "prompt_eval_count": response.prompt_eval_count if response is not None else None,
         "eval_count": response.eval_count if response is not None else None,
     }
+
+
+def _has_output_contract_violation(
+    diagnostics: dict[str, bool | int],
+) -> bool:
+    return any(
+        bool(diagnostics[key])
+        for key in (
+            "answer_source_id_leak",
+            "answer_embedded_citation_list",
+            "answer_over_120_words",
+            "decision_content_mismatch",
+        )
+    )
 
 
 def _prepare_output(

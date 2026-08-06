@@ -229,7 +229,9 @@ def _build_anomaly_report(source_queries: tuple[_SourceQuery, ...]) -> dict[str,
 
         duplicate_groups.append(item)
 
-        if len([query.is_impossible for query in group]) != len(group):
+        answerability_values = {query.is_impossible for query in group}
+
+        if len(answerability_values) > 1:
             conflicting_groups.append(item)
 
     answerable = [query for query in source_queries if not query.is_impossible]

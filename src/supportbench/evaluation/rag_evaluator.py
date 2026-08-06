@@ -17,6 +17,23 @@ RESPONSE_STATUSES = {
 }
 REFERENCE_AVAILABLE = "answerable"
 REFERENCE_MISSING = "benchmark_reference_missing"
+SOURCE_ID_PATTERN = re.compile(r"\bS\d+\b")
+EMBEDDED_CITATION_LIST_PATTERN = re.compile(
+    r"\bcitation[\s_-]*ids?\b",
+    re.IGNORECASE,
+)
+ABSTENTION_SIGNAL_PATTERN = re.compile(
+    r"\b(?:"
+    r"cannot|can't|unable|insufficient|not enough|not available|not provided|not found|"
+    r"does not (?:address|contain|provide)|do not (?:have|provide)|"
+    r"no (?:direct|relevant|specific|sufficient) (?:answer|context|documents?|evidence|information)"
+    r")\b",
+    re.IGNORECASE,
+)
+CLARIFICATION_SIGNAL_PATTERN = re.compile(
+    r"\b(?:clarify|could you|please (?:provide|specify)|what|which)\b",
+    re.IGNORECASE,
+)
 
 
 def normalize_reference_text(text: str) -> str:
@@ -70,6 +87,35 @@ def lexical_token_scores(
     return precision, recall, f1
 
 
+def output_contract_diagnostics(
+    *,
+    decision: str | None,
+    answer: str | None,
+) -> dict[str, bool | int]:
+    text = answer or ""
+    word_count = len(_word_tokens(text))
+    source_id_leak = bool(SOURCE_ID_PATTERN.search(text))
+    embedded_citation_list = bool(EMBEDDED_CITATION_LIST_PATTERN.search(text))
+    over_120_words = word_count > 120
+
+    if decision == "abstain":
+        decision_content_mismatch = not bool(ABSTENTION_SIGNAL_PATTERN.search(text))
+    elif decision == "clarify":
+        decision_content_mismatch = not (
+            "?" in text or bool(CLARIFICATION_SIGNAL_PATTERN.search(text))
+        )
+    else:
+        decision_content_mismatch = False
+
+    return {
+        "answer_source_id_leak": source_id_leak,
+        "answer_embedded_citation_list": embedded_citation_list,
+        "answer_word_count": word_count,
+        "answer_over_120_words": over_120_words,
+        "decision_content_mismatch": decision_content_mismatch,
+    }
+
+
 def summarize_rag_results(
     results: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
@@ -103,6 +149,27 @@ def summarize_rag_results(
         decision
         for result in results
         if (decision := _generated_decision(result)) is not None
+    )
+    generated_outputs = [
+        result
+        for result in results
+        if _generated_decision(result) is not None and _generated_answer(result) is not None
+    ]
+    generated_answers = [
+        result for result in generated_outputs if _generated_decision(result) == "answer"
+    ]
+    output_diagnostics = {
+        id(result): output_contract_diagnostics(
+            decision=_generated_decision(result),
+            answer=_generated_answer(result),
+        )
+        for result in generated_outputs
+    }
+    full_output_contract_valid_count = sum(
+        result["status"] == SUCCESS_STATUS
+        and _strict_contract_valid(result)
+        and not _has_output_contract_violation(output_diagnostics[id(result)])
+        for result in generated_outputs
     )
 
     response_received = sum(result["status"] in RESPONSE_STATUSES for result in results)
@@ -200,6 +267,15 @@ def summarize_rag_results(
     gold_citation_results = [
         result for result in answered_answerable if result.get("gold_document_cited") is not None
     ]
+    answered_with_gold_context = [
+        result for result in answered_answerable if result.get("gold_document_in_context") is True
+    ]
+    gold_in_context = [
+        result for result in answerable if result.get("gold_document_in_context") is True
+    ]
+    reference_in_context = [
+        result for result in answerable if result.get("reference_answer_in_context") is True
+    ]
 
     return {
         "query_count": total,
@@ -216,7 +292,7 @@ def summarize_rag_results(
                     total,
                 )
             ),
-            "strict_generation_success_rate": (
+            "citation_contract_strict_success_rate": (
                 _safe_divide(
                     len(strict_successful),
                     total,
@@ -264,6 +340,28 @@ def summarize_rag_results(
                     status_counts["generation_truncated"],
                     llm_called,
                 )
+            ),
+        },
+        "output_contract": {
+            "answer_source_id_leak_rate": _mean_booleans(
+                bool(output_diagnostics[id(result)]["answer_source_id_leak"])
+                for result in generated_answers
+            ),
+            "answer_embedded_citation_list_rate": _mean_booleans(
+                bool(output_diagnostics[id(result)]["answer_embedded_citation_list"])
+                for result in generated_answers
+            ),
+            "answer_over_120_words_rate": _mean_booleans(
+                bool(output_diagnostics[id(result)]["answer_over_120_words"])
+                for result in generated_answers
+            ),
+            "decision_content_mismatch_rate": _mean_booleans(
+                bool(output_diagnostics[id(result)]["decision_content_mismatch"])
+                for result in generated_outputs
+            ),
+            "full_output_contract_valid_rate": _safe_divide(
+                full_output_contract_valid_count,
+                total,
             ),
         },
         "decisions": {
@@ -331,6 +429,19 @@ def summarize_rag_results(
                     result["reference_answer_in_context"] for result in reference_context_results
                 )
             ),
+            "answer_without_gold_context_rate": _mean_booleans(
+                result.get("gold_document_in_context") is False
+                for result in answered_answerable
+                if result.get("gold_document_in_context") is not None
+            ),
+            "abstain_with_gold_context_rate": _mean_booleans(
+                result["status"] == SUCCESS_STATUS and result.get("decision") == "abstain"
+                for result in gold_in_context
+            ),
+            "abstain_with_reference_in_context_rate": _mean_booleans(
+                result["status"] == SUCCESS_STATUS and result.get("decision") == "abstain"
+                for result in reference_in_context
+            ),
             "context_truncated_rate": (
                 _mean_booleans(
                     bool(result.get("context_truncated"))
@@ -358,6 +469,10 @@ def summarize_rag_results(
         "citations": {
             "gold_parent_citation_hit_rate": (
                 _mean_booleans(result["gold_document_cited"] for result in gold_citation_results)
+            ),
+            "gold_citation_hit_given_gold_in_context": _mean_booleans(
+                result.get("gold_document_cited") is True
+                for result in answered_with_gold_context
             ),
             "mean_citations_per_answer": (
                 _mean(
@@ -489,6 +604,27 @@ def _generated_decision(result: Mapping[str, Any]) -> str | None:
         decision = result.get("decision")
 
     return str(decision) if decision is not None else None
+
+
+def _generated_answer(result: Mapping[str, Any]) -> str | None:
+    answer = result.get("parsed_answer")
+
+    if answer is None:
+        answer = result.get("answer")
+
+    return str(answer) if answer is not None else None
+
+
+def _has_output_contract_violation(diagnostics: Mapping[str, bool | int]) -> bool:
+    return any(
+        bool(diagnostics[key])
+        for key in (
+            "answer_source_id_leak",
+            "answer_embedded_citation_list",
+            "answer_over_120_words",
+            "decision_content_mismatch",
+        )
+    )
 
 
 def _strict_contract_valid(result: Mapping[str, Any]) -> bool:
