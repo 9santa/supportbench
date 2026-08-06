@@ -13,6 +13,7 @@ from scripts.nvidia_techqa._evaluation_io import (
     write_json,
     write_jsonl,
 )
+from supportbench.evaluation.context_variants import summarize_generation_variants
 from supportbench.evaluation.grounded_generation import evaluate_grounded_generation
 from supportbench.evaluation.rag_evaluator import (
     flatten_numeric_summary,
@@ -25,6 +26,7 @@ from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import ChunkProvenance, RAGContext, RetrievedDocument
 
 EVALUATION_VERSION = "techqa_oracle_generation_v1"
+CONTEXT_VARIANT_EVALUATION_VERSION = "techqa_context_variant_generation_v1"
 PROMPT_VERSION = "grounded_source_ids_v4"
 MODES = (
     "current",
@@ -47,16 +49,14 @@ DEFAULT_CONTEXTS = (
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate answers from saved current and oracle NVIDIA TechQA contexts "
-            "without repeating retrieval."
+            "Generate answers from saved paired NVIDIA TechQA contexts without repeating retrieval."
         )
     )
     parser.add_argument("--contexts", type=Path, default=DEFAULT_CONTEXTS)
     parser.add_argument(
         "--modes",
         nargs="+",
-        choices=MODES,
-        default=list(MODES),
+        default=None,
     )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument(
@@ -92,7 +92,21 @@ def main() -> None:
     context_config = source_config["context"]
     context_window = int(context_config["model_context_window"])
     reserved_output_tokens = int(context_config["reserved_output_tokens"])
-    modes = tuple(dict.fromkeys(args.modes))
+    configured_modes = tuple(str(mode) for mode in source_config.get("modes", MODES))
+    modes = tuple(dict.fromkeys(args.modes or configured_modes))
+    unknown_modes = set(modes) - set(configured_modes)
+
+    if unknown_modes:
+        parser.error(
+            "requested modes are missing from the context artifact: "
+            + ", ".join(sorted(unknown_modes))
+        )
+
+    evaluation_version = (
+        EVALUATION_VERSION
+        if source_config.get("evaluation_version") == "techqa_oracle_context_v1"
+        else CONTEXT_VARIANT_EVALUATION_VERSION
+    )
 
     output = args.output_root / args.output_name / str(source_config["split"])
     config_path = output / "evaluation_config.json"
@@ -102,7 +116,7 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=True)
 
     config_payload = {
-        "evaluation_version": EVALUATION_VERSION,
+        "evaluation_version": evaluation_version,
         "split": source_config["split"],
         "limit": args.limit,
         "modes": list(modes),
@@ -212,10 +226,22 @@ def main() -> None:
             interrupted = True
         finally:
             results = load_jsonl(results_path)
-            summary = _summarize(results, modes=modes)
+            summary = summarize_generation_variants(results, modes=modes)
+
+            if "oracle_source" in modes:
+                oracle_verifiable = [
+                    result
+                    for result in results
+                    if result.get("mode") == "oracle_source"
+                    and result.get("reference_answer_in_context") is True
+                ]
+                summary["oracle_source_reference_present"] = summarize_rag_results(
+                    oracle_verifiable
+                )
+
             summary.update(
                 {
-                    "evaluation_version": EVALUATION_VERSION,
+                    "evaluation_version": evaluation_version,
                     "output_name": args.output_name,
                     "split": source_config["split"],
                     "selected_query_count": len(context_results),
@@ -315,27 +341,6 @@ def _result_payload(
         "reference_answer_in_context": mode_payload["reference_answer_in_context"],
         "context_latency_ms": 0.0,
         **generation_result,
-    }
-
-
-def _summarize(
-    results: list[dict[str, Any]],
-    *,
-    modes: tuple[str, ...],
-) -> dict[str, Any]:
-    by_mode = {
-        mode: summarize_rag_results([result for result in results if result.get("mode") == mode])
-        for mode in modes
-    }
-    oracle_verifiable = [
-        result
-        for result in results
-        if result.get("mode") == "oracle_source"
-        and result.get("reference_answer_in_context") is True
-    ]
-    return {
-        "modes": by_mode,
-        "oracle_source_reference_present": summarize_rag_results(oracle_verifiable),
     }
 
 
