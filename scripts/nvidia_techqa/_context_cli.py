@@ -14,7 +14,11 @@ from supportbench.applications.nvidia_techqa import (
 from supportbench.rag.context import ContextPreparationRun
 
 
-def add_context_config_arguments(parser: argparse.ArgumentParser) -> None:
+def add_context_config_arguments(
+    parser: argparse.ArgumentParser,
+    *,
+    include_evidence_selection: bool = True,
+) -> None:
     parser.add_argument("--chunk-config", default=DEFAULT_CHUNK_CONFIG)
     parser.add_argument(
         "--chunks-root",
@@ -40,12 +44,13 @@ def add_context_config_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--source-candidate-k", type=int, default=500)
     parser.add_argument("--parent-candidate-k", type=int, default=20)
     parser.add_argument("--chunks-per-parent", type=int, default=2)
-    parser.add_argument(
-        "--evidence-selection",
-        choices=("retrieval_representatives", "within_parent_rerank"),
-        default="within_parent_rerank",
-        help="select original WRRF chunks or rerank all chunks within final parents",
-    )
+    if include_evidence_selection:
+        parser.add_argument(
+            "--evidence-selection",
+            choices=("retrieval_representatives", "within_parent_rerank"),
+            default="within_parent_rerank",
+            help="select original WRRF chunks or rerank all chunks within final parents",
+        )
     parser.add_argument("--top-parents", type=int, default=5)
     parser.add_argument("--max-context-tokens", type=int, default=4_096)
     parser.add_argument("--model-context-window", type=int, default=8_192)
@@ -83,7 +88,11 @@ def context_config_from_args(
             source_candidate_k=args.source_candidate_k,
             parent_candidate_k=args.parent_candidate_k,
             chunks_per_parent=args.chunks_per_parent,
-            evidence_selection=args.evidence_selection,
+            evidence_selection=getattr(
+                args,
+                "evidence_selection",
+                "within_parent_rerank",
+            ),
             top_parents=args.top_parents,
             max_context_tokens=args.max_context_tokens,
             model_context_window=args.model_context_window,

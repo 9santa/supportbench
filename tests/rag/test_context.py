@@ -145,9 +145,20 @@ def test_reranks_all_chunks_within_final_parents() -> None:
         ),
     )
 
-    retrieved = resolver.resolve(run, query="query", top_k=2)
+    baseline = resolver.resolve(
+        run,
+        top_k=2,
+        evidence_selection="retrieval_representatives",
+    )
+    retrieved = resolver.resolve(
+        run,
+        query="query",
+        top_k=2,
+        evidence_selection="within_parent_rerank",
+    )
 
     assert reranker.calls == 1
+    assert [chunk.chunk_id for chunk in baseline] == ["b_1", "a_1"]
     assert {candidate.doc_id for candidate in reranker.candidates} == set(chunks) - {"c_1"}
     assert [chunk.chunk_id for chunk in retrieved] == ["b_2", "b_1", "a_3", "a_2"]
     assert [chunk.parent_rank for chunk in retrieved] == [1, 1, 2, 2]

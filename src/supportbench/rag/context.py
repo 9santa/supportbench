@@ -80,6 +80,7 @@ class RepresentativeChunkResolver:
         *,
         query: str | None = None,
         top_k: int = 5,
+        evidence_selection: EvidenceSelection | None = None,
     ) -> list[RetrievedChunk]:
         if top_k <= 0:
             raise ValueError("top_k must be positive")
@@ -89,10 +90,19 @@ class RepresentativeChunkResolver:
 
         parent_results = run.fused_parents[:top_k]
         self._validate_parent_results(parent_results)
+        selected_strategy = evidence_selection or self._evidence_selection
+
+        if selected_strategy not in (
+            "retrieval_representatives",
+            "within_parent_rerank",
+        ):
+            raise ValueError(f"unknown evidence selection: {selected_strategy!r}")
+
         chunk_ids_by_parent = self._select_chunk_ids(
             query=query,
             run=run,
             parent_results=parent_results,
+            evidence_selection=selected_strategy,
         )
         retrieved_chunks: list[RetrievedChunk] = []
         seen_chunk_ids: set[str] = set()
@@ -159,8 +169,9 @@ class RepresentativeChunkResolver:
         query: str | None,
         run: ParentRetrievalRun,
         parent_results: Sequence[SearchResult],
+        evidence_selection: EvidenceSelection,
     ) -> Mapping[str, tuple[str, ...]]:
-        if self._evidence_selection == "retrieval_representatives":
+        if evidence_selection == "retrieval_representatives":
             return run.representative_chunks_by_parent
 
         if query is None or not query.strip():
@@ -292,19 +303,26 @@ class ContextPreparationService:
         self._prompt_budget_calculator = prompt_budget_calculator
         self._top_parents = top_parents
 
-    def prepare(self, query: str) -> ContextPreparationRun:
+    def prepare(
+        self,
+        query: str,
+        *,
+        retrieval: ParentRetrievalRun | None = None,
+        evidence_selection: EvidenceSelection | None = None,
+    ) -> ContextPreparationRun:
         normalized_query = query.strip()
 
         if not normalized_query:
             raise ValueError("query must be non-empty")
 
         prompt_budget = self._prompt_budget_calculator.calculate(normalized_query)
-        retrieval = self._retrieval_service.retrieve(normalized_query)
+        retrieval_run = retrieval or self._retrieval_service.retrieve(normalized_query)
         retrieved_chunks = tuple(
             self._chunk_resolver.resolve(
-                retrieval,
+                retrieval_run,
                 query=normalized_query,
                 top_k=self._top_parents,
+                evidence_selection=evidence_selection,
             )
         )
         context_token_budget = prompt_budget.available_context_tokens
@@ -344,7 +362,7 @@ class ContextPreparationService:
             raise RuntimeError("full prompt exceeded the model context window")
 
         return ContextPreparationRun(
-            retrieval=retrieval,
+            retrieval=retrieval_run,
             retrieved_chunks=retrieved_chunks,
             context=context,
             prompt_budget=prompt_budget,
