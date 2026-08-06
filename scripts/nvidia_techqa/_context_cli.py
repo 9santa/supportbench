@@ -38,7 +38,7 @@ def add_context_config_arguments(
         help="Hugging Face tokenizer matching the generation model",
     )
     parser.add_argument("--dense-device", default="cuda")
-    parser.add_argument("--reranker-device", default="cuda")
+    parser.add_argument("--reranker-device", default="cpu")
     parser.add_argument("--dense-batch-size", type=int, default=16)
     parser.add_argument("--reranker-batch-size", type=int, default=16)
     parser.add_argument("--source-candidate-k", type=int, default=500)
@@ -51,10 +51,10 @@ def add_context_config_arguments(
             default="within_parent_rerank",
             help="select original WRRF chunks or rerank all chunks within final parents",
         )
-    parser.add_argument("--top-parents", type=int, default=5)
+    parser.add_argument("--top-parents", type=int, default=4)
     parser.add_argument("--max-context-tokens", type=int, default=4_096)
     parser.add_argument("--model-context-window", type=int, default=8_192)
-    parser.add_argument("--reserved-output-tokens", type=int, default=512)
+    parser.add_argument("--reserved-output-tokens", type=int, default=1_024)
     parser.add_argument("--candidate-prior-weight", type=float, default=1.25)
     parser.add_argument("--fusion-rrf-k", type=int, default=10)
     parser.add_argument("--minimum-overlap-tokens", type=int, default=8)

@@ -24,11 +24,13 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
     assert config.parent_candidate_k == 20
     assert config.chunks_per_parent == 2
     assert config.evidence_selection == "within_parent_rerank"
+    assert config.reranker_device == "cpu"
+    assert config.top_parents == 4
     assert config.candidate_prior_weight == 1.25
     assert config.second_evidence_weight == 0.0
     assert config.context_tokenizer_name != config.dense_model_name
     assert config.model_context_window == 8_192
-    assert config.reserved_output_tokens == 512
+    assert config.reserved_output_tokens == 1_024
 
 
 @pytest.mark.parametrize(
