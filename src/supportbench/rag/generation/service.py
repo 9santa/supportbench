@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from supportbench.rag.citations import (
     CitationValidationError,
-    validate_generated_answer,
+    resolve_generated_answer_citations,
+    validate_generated_answer_contract,
 )
 from supportbench.rag.generation.client import LLMClient
 from supportbench.rag.generation.models import ChatMessage, GeneratedAnswer, LLMResponse
@@ -12,7 +13,8 @@ from supportbench.rag.models import RAGContext
 
 EMPTY_CONTEXT_ABSTENTION = GeneratedAnswer(
     decision="abstain",
-    answer="В базе знаний не найдено документов, достаточных для ответа.",
+    answer="No documents were found in the knowledge base that "
+    "were sufficient to answer this question.",
     citation_ids=(),
 )
 
@@ -23,6 +25,10 @@ class GroundedGenerationRun:
     raw_response: str | None
     answer: GeneratedAnswer
     raw_citation_ids: tuple[str, ...] = ()
+    resolved_citation_ids: tuple[str, ...] = ()
+    contract_repaired: bool = False
+    strict_contract_valid: bool = True
+    contract_violations: tuple[str, ...] = ()
     llm_response: LLMResponse | None = None
 
 
@@ -83,16 +89,40 @@ class GroundedAnswerGenerator:
                 llm_response=llm_response,
             ) from error
 
-        raw_citation_ids = generated_answer.citation_ids
+        parsed_answer = generated_answer
+        raw_citation_ids = parsed_answer.citation_ids
 
         try:
-            generated_answer = validate_generated_answer(generated_answer, context)
+            generated_answer = resolve_generated_answer_citations(parsed_answer, context)
+            resolved_citation_ids = generated_answer.citation_ids
+            contract_violations: tuple[str, ...]
+
+            if generated_answer.decision in {"abstain", "clarify"} and resolved_citation_ids:
+                generated_answer = replace(
+                    generated_answer,
+                    citation_ids=(),
+                )
+                contract_repaired = True
+                strict_contract_valid = False
+                contract_violations = ("non_answer_has_citations",)
+            else:
+                generated_answer = validate_generated_answer_contract(
+                    generated_answer,
+                    raw_citation_ids=raw_citation_ids,
+                )
+                contract_repaired = False
+                strict_contract_valid = True
+                contract_violations = ()
         except CitationValidationError as error:
-            raise CitationValidationError(
+            error_type = type(error)
+            raise error_type(
                 str(error),
                 raw_response=llm_response.content,
                 llm_response=llm_response,
-                citation_ids=raw_citation_ids,
+                parsed_answer=error.parsed_answer,
+                raw_citation_ids=error.raw_citation_ids,
+                citation_ids=error.citation_ids,
+                contract_violations=error.contract_violations,
             ) from error
 
         return GroundedGenerationRun(
@@ -100,6 +130,10 @@ class GroundedAnswerGenerator:
             raw_response=llm_response.content,
             answer=generated_answer,
             raw_citation_ids=raw_citation_ids,
+            resolved_citation_ids=resolved_citation_ids,
+            contract_repaired=contract_repaired,
+            strict_contract_valid=strict_contract_valid,
+            contract_violations=contract_violations,
             llm_response=llm_response,
         )
 

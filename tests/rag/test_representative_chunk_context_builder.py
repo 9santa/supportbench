@@ -55,17 +55,20 @@ def _chunk(
     )
 
 
-def test_preserves_parent_citation_and_chunk_provenance() -> None:
+def test_exposes_local_source_id_and_preserves_real_provenance() -> None:
     context = RepresentativeChunkContextBuilder(
         token_codec=WhitespaceTokenCodec(),
         max_tokens=200,
     ).build([_chunk("chunk_a", text="Restart the service.")])
 
     assert [document.doc_id for document in context.documents] == ["parent_a"]
-    assert "doc_id: parent_a" in context.formatted_text
-    assert "chunk_id: chunk_a" in context.formatted_text
+    assert "source_id: S1" in context.formatted_text
+    assert "doc_id:" not in context.formatted_text
+    assert "chunk_id:" not in context.formatted_text
     assert "section: Troubleshooting > Resolution" in context.formatted_text
+    assert context.provenance[0].source_id == "S1"
     assert context.provenance[0].parent_doc_id == "parent_a"
+    assert context.provenance[0].chunk_id == "chunk_a"
     assert context.provenance[0].section_path == ("Troubleshooting", "Resolution")
 
 
@@ -96,9 +99,13 @@ def test_removes_character_offset_overlap() -> None:
 
     assert context.formatted_text.count("gamma") == 1
     assert "delta" in context.formatted_text
-    assert "source_span: 11:22" in context.formatted_text
-    assert "included_span: 17:22" in context.formatted_text
+    assert "source_span" not in context.formatted_text
+    assert "included_span" not in context.formatted_text
+    assert context.provenance[1].source_start_char == 11
+    assert context.provenance[1].source_end_char == 22
     assert context.provenance[1].included_start_char == 17
+    assert context.provenance[1].included_end_char == 22
+    assert [item.source_id for item in context.provenance] == ["S1", "S2"]
 
 
 def test_removes_token_overlap_without_character_offsets() -> None:
@@ -133,11 +140,11 @@ def test_context_never_exceeds_token_budget() -> None:
     assert context.token_count <= 26
     assert context.truncated is True
     assert context.provenance[0].truncated is True
-    assert f"source_span: 0:{len(text)}" in context.formatted_text
-    assert "included_span: 0:unknown" in context.formatted_text
+    assert context.provenance[0].source_start_char == 0
+    assert context.provenance[0].source_end_char == len(text)
+    assert context.provenance[0].included_start_char == 0
+    assert context.provenance[0].included_end_char is None
     assert "[TRUNCATED]" in context.formatted_text
-
-
 
 def test_parent_limit_keeps_highest_ranked_parents() -> None:
     context = RepresentativeChunkContextBuilder(

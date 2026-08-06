@@ -20,12 +20,17 @@ ANSWER_SCHEMA = {
         },
         "answer": {
             "type": "string",
+            "minLength": 1,
+            "maxLength": 1_500,
         },
         "citation_ids": {
             "type": "array",
             "items": {
                 "type": "string",
+                "minLength": 1,
             },
+            "uniqueItems": True,
+            "maxItems": 5,
         },
     },
     "required": [
@@ -34,6 +39,43 @@ ANSWER_SCHEMA = {
         "citation_ids",
     ],
     "additionalProperties": False,
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "decision": {
+                        "const": "answer",
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "citation_ids": {
+                        "minItems": 1,
+                    }
+                }
+            },
+        },
+        {
+            "if": {
+                "properties": {
+                    "decision": {
+                        "enum": [
+                            "abstain",
+                            "clarify",
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "citation_ids": {
+                        "maxItems": 0,
+                    }
+                }
+            },
+        },
+    ],
 }
 
 

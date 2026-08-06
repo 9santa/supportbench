@@ -12,6 +12,8 @@ RESPONSE_STATUSES = {
     "generation_truncated",
     "parse_error",
     "citation_error",
+    "citation_resolution_error",
+    "citation_contract_error",
 }
 REFERENCE_AVAILABLE = "answerable"
 REFERENCE_MISSING = "benchmark_reference_missing"
@@ -76,6 +78,10 @@ def summarize_rag_results(
     status_counts = Counter(str(result["status"]) for result in results)
 
     successful = [result for result in results if result["status"] == SUCCESS_STATUS]
+    strict_successful = [result for result in successful if _strict_contract_valid(result)]
+    contract_repaired_count = sum(
+        bool(result.get("contract_repaired")) for result in results
+    )
 
     answerable = [
         result for result in results if _reference_status(result) == REFERENCE_AVAILABLE
@@ -88,6 +94,16 @@ def summarize_rag_results(
     decisions = Counter(
         str(result["decision"]) for result in successful if result.get("decision") is not None
     )
+    strict_valid_decisions = Counter(
+        str(result["decision"])
+        for result in strict_successful
+        if result.get("decision") is not None
+    )
+    generated_decisions = Counter(
+        decision
+        for result in results
+        if (decision := _generated_decision(result)) is not None
+    )
 
     response_received = sum(result["status"] in RESPONSE_STATUSES for result in results)
 
@@ -96,6 +112,16 @@ def summarize_rag_results(
         in {
             "success",
             "citation_error",
+            "citation_resolution_error",
+            "citation_contract_error",
+        }
+        for result in results
+    )
+    citations_resolved = sum(
+        result["status"]
+        in {
+            "success",
+            "citation_contract_error",
         }
         for result in results
     )
@@ -181,10 +207,18 @@ def summarize_rag_results(
         "benchmark_reference_missing_query_count": len(reference_missing),
         "status_counts": dict(status_counts),
         "decision_counts": dict(decisions),
+        "generated_decision_counts": dict(generated_decisions),
+        "strict_valid_decision_counts": dict(strict_valid_decisions),
         "pipeline": {
             "generation_success_rate": (
                 _safe_divide(
                     len(successful),
+                    total,
+                )
+            ),
+            "strict_generation_success_rate": (
+                _safe_divide(
+                    len(strict_successful),
                     total,
                 )
             ),
@@ -204,6 +238,25 @@ def summarize_rag_results(
                 _safe_divide(
                     len(successful),
                     schema_valid,
+                )
+            ),
+            "citation_resolution_valid_rate": (
+                _safe_divide(
+                    citations_resolved,
+                    schema_valid,
+                )
+            ),
+            "citation_contract_valid_rate": (
+                _safe_divide(
+                    len(strict_successful),
+                    citations_resolved,
+                )
+            ),
+            "citation_contract_repaired_count": contract_repaired_count,
+            "citation_contract_repaired_rate": (
+                _safe_divide(
+                    contract_repaired_count,
+                    total,
                 )
             ),
             "generation_truncated_rate": (
@@ -427,6 +480,25 @@ def _reference_status(result: Mapping[str, Any]) -> str:
         if result.get("answerability") == "answerable"
         else REFERENCE_MISSING
     )
+
+
+def _generated_decision(result: Mapping[str, Any]) -> str | None:
+    decision = result.get("parsed_decision")
+
+    if decision is None:
+        decision = result.get("decision")
+
+    return str(decision) if decision is not None else None
+
+
+def _strict_contract_valid(result: Mapping[str, Any]) -> bool:
+    value = result.get("strict_contract_valid")
+
+    if value is None:
+        # Compatibility with successful evaluation artifacts written before repairs.
+        return True
+
+    return value is True
 
 
 def _safe_divide(num: int | float, denom: int | float) -> float:

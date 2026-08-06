@@ -11,7 +11,11 @@ from scripts.nvidia_techqa._context_cli import (
     validate_output_path,
 )
 from supportbench.applications.nvidia_techqa import build_nvidia_techqa_rag
-from supportbench.rag.citations import CitationValidationError
+from supportbench.rag.citations import (
+    CitationContractError,
+    CitationResolutionError,
+    CitationValidationError,
+)
 from supportbench.rag.context import ContextPreparationRun
 from supportbench.rag.generation.ollama import OllamaClientError, OllamaLLMClient
 from supportbench.rag.generation.parser import GeneratedAnswerParseError
@@ -72,6 +76,12 @@ def main() -> None:
     except GeneratedAnswerParseError as error:
         _print_generation_error("Generation contract error", error, args)
         raise SystemExit(2) from error
+    except CitationResolutionError as error:
+        _print_generation_error("Citation resolution error", error, args)
+        raise SystemExit(3) from error
+    except CitationContractError as error:
+        _print_generation_error("Citation contract error", error, args)
+        raise SystemExit(3) from error
     except CitationValidationError as error:
         _print_generation_error("Citation validation error", error, args)
         raise SystemExit(3) from error
@@ -138,6 +148,10 @@ def main() -> None:
             "messages": [asdict(message) for message in run.messages],
             "raw_response": run.raw_response,
             "raw_citation_ids": list(run.raw_citation_ids),
+            "resolved_citation_ids": list(run.resolved_citation_ids),
+            "contract_repaired": run.contract_repaired,
+            "strict_contract_valid": run.strict_contract_valid,
+            "contract_violations": list(run.contract_violations),
             "ollama": (
                 {
                     "done_reason": run.llm_response.done_reason,

@@ -28,8 +28,12 @@ from supportbench.evaluation.rag_evaluator import (
     reference_is_in_text,
     summarize_rag_results,
 )
-from supportbench.rag.citations import CitationValidationError
-from supportbench.rag.generation.models import LLMResponse
+from supportbench.rag.citations import (
+    CitationContractError,
+    CitationResolutionError,
+    CitationValidationError,
+)
+from supportbench.rag.generation.models import GeneratedAnswer, LLMResponse
 from supportbench.rag.generation.ollama import (
     OllamaClientError,
     OllamaLLMClient,
@@ -46,11 +50,11 @@ from supportbench.rag.generation.service import (
     GroundedAnswerGenerator,
 )
 
-EVALUATION_VERSION = "techqa_rag_eval_v2"
-PROMPT_VERSION = "grounded_json_v3"
+EVALUATION_VERSION = "techqa_rag_eval_v4"
+PROMPT_VERSION = "grounded_source_ids_v4"
 PARSER_VERSION = "strict_json_v1"
-CITATION_VALIDATOR_VERSION = "context_handle_normalization_v3"
-STRUCTURED_OUTPUT_VERSION = "ollama_json_schema_v1"
+CITATION_VALIDATOR_VERSION = "source_resolution_contract_repair_v5"
+STRUCTURED_OUTPUT_VERSION = "ollama_json_schema_v2"
 
 DEFAULT_LLM_MODEL = "gemma3:4b"
 
@@ -328,8 +332,9 @@ def main() -> None:
                     "temperature": args.temperature,
                     "prompt_version": PROMPT_VERSION,
                     "prompt_hash": (config_payload["prompt"]["sha256"]),
-                    "context_builder_version": ("representative_chunks_v1"),
+                    "context_builder_version": ("representative_sources_v2"),
                     "max_context_tokens": (config.max_context_tokens),
+                    "reserved_output_tokens": (config.reserved_output_tokens),
                     "top_parents": (config.top_parents),
                     "chunks_per_parent": (config.chunks_per_parent),
                 }
@@ -427,7 +432,39 @@ def _evaluate_query(
                 total_started=total_started,
                 raw_response=(error.raw_response),
                 llm_response=error.llm_response,
+                parsed_answer=None,
                 raw_citation_ids=(),
+                resolved_citation_ids=(),
+            )
+        except CitationResolutionError as error:
+            return _generation_error_result(
+                query=query,
+                context_run=context_run,
+                status="citation_resolution_error",
+                error=error,
+                context_latency_ms=context_latency_ms,
+                generation_started=generation_started,
+                total_started=total_started,
+                raw_response=error.raw_response,
+                llm_response=error.llm_response,
+                parsed_answer=error.parsed_answer,
+                raw_citation_ids=error.raw_citation_ids,
+                resolved_citation_ids=error.citation_ids,
+            )
+        except CitationContractError as error:
+            return _generation_error_result(
+                query=query,
+                context_run=context_run,
+                status="citation_contract_error",
+                error=error,
+                context_latency_ms=context_latency_ms,
+                generation_started=generation_started,
+                total_started=total_started,
+                raw_response=error.raw_response,
+                llm_response=error.llm_response,
+                parsed_answer=error.parsed_answer,
+                raw_citation_ids=error.raw_citation_ids,
+                resolved_citation_ids=error.citation_ids,
             )
         except CitationValidationError as error:
             return _generation_error_result(
@@ -440,7 +477,9 @@ def _evaluate_query(
                 total_started=total_started,
                 raw_response=(error.raw_response),
                 llm_response=error.llm_response,
-                raw_citation_ids=error.citation_ids,
+                parsed_answer=error.parsed_answer,
+                raw_citation_ids=error.raw_citation_ids,
+                resolved_citation_ids=error.citation_ids,
             )
         except GenerationTruncatedError as error:
             return _generation_error_result(
@@ -453,7 +492,9 @@ def _evaluate_query(
                 total_started=total_started,
                 raw_response=error.raw_response,
                 llm_response=error.llm_response,
+                parsed_answer=None,
                 raw_citation_ids=(),
+                resolved_citation_ids=(),
             )
 
     if generation_run is None:
@@ -469,7 +510,9 @@ def _evaluate_query(
             total_started=total_started,
             raw_response=None,
             llm_response=None,
+            parsed_answer=None,
             raw_citation_ids=(),
+            resolved_citation_ids=(),
         )
 
     generation_latency_ms = (time.perf_counter() - generation_started) * 1_000.0
@@ -497,10 +540,16 @@ def _evaluate_query(
     result.update(
         {
             "status": "success",
+            "parsed_decision": answer.decision,
+            "parsed_answer": answer.answer,
             "decision": answer.decision,
             "answer": answer.answer,
             "citation_ids": list(answer.citation_ids),
             "raw_citation_ids": list(generation_run.raw_citation_ids),
+            "resolved_citation_ids": list(generation_run.resolved_citation_ids),
+            "contract_repaired": generation_run.contract_repaired,
+            "strict_contract_valid": generation_run.strict_contract_valid,
+            "contract_violations": list(generation_run.contract_violations),
             "raw_response": (generation_run.raw_response),
             "llm_called": (generation_run.raw_response is not None),
             **_llm_metadata(generation_run.llm_response),
@@ -541,6 +590,11 @@ def _context_payload(
         "fused_parent_ids": [result.doc_id for result in retrieval.fused_parents],
         "context_parent_ids": [document.doc_id for document in context.documents],
         "context_chunk_ids": [item.chunk_id for item in context.provenance],
+        "source_to_parent": {
+            item.source_id: item.parent_doc_id
+            for item in context.provenance
+            if item.source_id is not None
+        },
         "context_token_count": (context.token_count),
         "prompt_token_count": (context_run.prompt_token_count),
         "context_truncated": (context.truncated),
@@ -560,7 +614,9 @@ def _generation_error_result(
     total_started: float,
     raw_response: str | None,
     llm_response: LLMResponse | None,
+    parsed_answer: GeneratedAnswer | None,
     raw_citation_ids: tuple[str, ...],
+    resolved_citation_ids: tuple[str, ...],
 ) -> dict[str, Any]:
     result = _context_payload(
         query=query,
@@ -569,10 +625,24 @@ def _generation_error_result(
     result.update(
         {
             "status": status,
+            "parsed_decision": (
+                parsed_answer.decision if parsed_answer is not None else None
+            ),
+            "parsed_answer": parsed_answer.answer if parsed_answer is not None else None,
             "decision": None,
             "answer": None,
             "citation_ids": [],
             "raw_citation_ids": list(raw_citation_ids),
+            "resolved_citation_ids": list(resolved_citation_ids),
+            "contract_repaired": False,
+            "strict_contract_valid": (
+                False if status == "citation_contract_error" else None
+            ),
+            "contract_violations": (
+                list(error.contract_violations)
+                if isinstance(error, CitationValidationError)
+                else []
+            ),
             "raw_response": raw_response,
             "llm_called": True,
             **_llm_metadata(llm_response),
@@ -621,10 +691,16 @@ def _error_result(
         "reference_answer": (query.reference_answer),
         "relevant_doc_ids": list(query.relevant_doc_ids),
         "status": status,
+        "parsed_decision": None,
+        "parsed_answer": None,
         "decision": None,
         "answer": None,
         "citation_ids": [],
         "raw_citation_ids": [],
+        "resolved_citation_ids": [],
+        "contract_repaired": False,
+        "strict_contract_valid": None,
+        "contract_violations": [],
         "raw_response": None,
         "llm_called": False,
         **_llm_metadata(None),
@@ -633,6 +709,7 @@ def _error_result(
         "fused_parent_ids": [],
         "context_parent_ids": [],
         "context_chunk_ids": [],
+        "source_to_parent": {},
         "context_token_count": None,
         "prompt_token_count": None,
         "context_truncated": None,
@@ -684,11 +761,7 @@ def _select_queries(
 
 
 def _benchmark_reference_status(query: BenchmarkQuery) -> str:
-    return (
-        "answerable"
-        if query.answerability == "answerable"
-        else "benchmark_reference_missing"
-    )
+    return "answerable" if query.answerability == "answerable" else "benchmark_reference_missing"
 
 
 def _llm_metadata(response: LLMResponse | None) -> dict[str, object]:

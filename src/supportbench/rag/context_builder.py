@@ -117,7 +117,13 @@ class RepresentativeChunkContextBuilder:
                 or len(packed) < len(prepared)
             ),
             token_count=token_count,
-            provenance=tuple(_build_provenance(chunk) for chunk in packed),
+            provenance=tuple(
+                _build_provenance(
+                    chunk,
+                    source_id=f"S{index}",
+                )
+                for index, chunk in enumerate(packed, start=1)
+            ),
         )
 
     def _validate_and_group(
@@ -349,58 +355,32 @@ def _longest_token_overlap(
 
 
 def _format_context(chunks: Sequence[_PreparedChunk]) -> str:
-    if not chunks:
-        return ""
-
-    groups: list[list[_PreparedChunk]] = []
-
-    for chunk in chunks:
-        if not groups or groups[-1][0].source.parent_doc_id != chunk.source.parent_doc_id:
-            groups.append([chunk])
-        else:
-            groups[-1].append(chunk)
-
-    return DOCUMENT_SEPARATOR.join(_format_parent(group) for group in groups)
-
-
-def _format_parent(chunks: list[_PreparedChunk]) -> str:
-    first = chunks[0].source
-    source_blocks = "\n\n".join(_format_chunk(chunk) for chunk in chunks)
-    return (
-        "[DOCUMENT]\n"
-        f"doc_id: {first.parent_doc_id}\n"
-        f"title: {first.document_title}\n"
-        f"category: {first.category}\n"
-        f"{source_blocks}\n"
-        "[/DOCUMENT]"
+    return DOCUMENT_SEPARATOR.join(
+        _format_source(
+            chunk,
+            source_id=f"S{index}",
+        )
+        for index, chunk in enumerate(chunks, start=1)
     )
 
 
-def _format_chunk(chunk: _PreparedChunk) -> str:
+def _format_source(
+    chunk: _PreparedChunk,
+    *,
+    source_id: str,
+) -> str:
     source = chunk.source
     section = " > ".join(source.section_path) if source.section_path else "<root>"
     marker = TRUNCATION_MARKER if chunk.truncated else ""
     return (
-        "[CHUNK]\n"
-        f"chunk_id: {source.chunk_id}\n"
+        "[DOCUMENT]\n"
+        f"source_id: {source_id}\n"
+        f"title: {source.document_title}\n"
         f"section: {section}\n"
-        f"ordinal: {source.ordinal}\n"
-        f"source_span: {_format_span(source.start_char, source.end_char)}\n"
-        "included_span: "
-        f"{_format_span(chunk.included_start_char, chunk.included_end_char)}\n"
         "content:\n"
         f"{chunk.text}{marker}\n"
-        "[/CHUNK]"
+        "[/DOCUMENT]"
     )
-
-
-def _format_span(start_char: int | None, end_char: int | None) -> str:
-    if start_char is None and end_char is None:
-        return "unknown"
-
-    start = str(start_char) if start_char is not None else "unknown"
-    end = str(end_char) if end_char is not None else "unknown"
-    return f"{start}:{end}"
 
 
 def _build_documents(chunks: Sequence[_PreparedChunk]) -> tuple[RetrievedDocument, ...]:
@@ -425,7 +405,11 @@ def _build_documents(chunks: Sequence[_PreparedChunk]) -> tuple[RetrievedDocumen
     )
 
 
-def _build_provenance(chunk: _PreparedChunk) -> ChunkProvenance:
+def _build_provenance(
+    chunk: _PreparedChunk,
+    *,
+    source_id: str,
+) -> ChunkProvenance:
     source = chunk.source
     return ChunkProvenance(
         parent_doc_id=source.parent_doc_id,
@@ -442,4 +426,5 @@ def _build_provenance(chunk: _PreparedChunk) -> ChunkProvenance:
         removed_prefix_tokens=chunk.removed_prefix_tokens,
         included_tokens=len(chunk.token_ids),
         truncated=chunk.truncated,
+        source_id=source_id,
     )

@@ -43,6 +43,7 @@ class ChunkProvenance:
     removed_prefix_tokens: int
     included_tokens: int
     truncated: bool
+    source_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

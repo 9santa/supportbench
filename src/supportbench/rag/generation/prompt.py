@@ -42,23 +42,22 @@ Allowed decisions:
 
 For answer:
 - answer must contain a direct answer;
-- citation_ids must contain at least one parent doc_id from a
+- citation_ids must contain at least one source_id from a
   [DOCUMENT] block;
-- use only the ID value, without the "doc_id:" prefix;
-- never put chunk_id values in citation_ids.
+- use only local source IDs such as S1 or S2.
 
 For abstain and clarify:
 - answer must contain a short explanation or clarification question;
 - citation_ids must be an empty list.
 
-Never invent document IDs.
-Use only parent doc_id values present in the supplied context.
+Never invent source IDs.
+Use only source_id values present in the supplied context.
 
 Required schema:
 {
   "decision": "answer | abstain | clarify",
   "answer": "non-empty string",
-  "citation_ids": ["doc_id"]
+  "citation_ids": ["S1"]
 }
 """
 

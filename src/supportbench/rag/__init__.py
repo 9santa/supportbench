@@ -1,6 +1,10 @@
 from supportbench.rag.citations import (
+    CitationContractError,
+    CitationResolutionError,
     CitationValidationError,
+    resolve_generated_answer_citations,
     validate_generated_answer,
+    validate_generated_answer_contract,
 )
 from supportbench.rag.context import (
     ContextPreparationRun,
@@ -42,6 +46,10 @@ __all__ = [
 ]
 
 __all__ += [
+    "CitationContractError",
+    "CitationResolutionError",
     "CitationValidationError",
+    "resolve_generated_answer_citations",
     "validate_generated_answer",
+    "validate_generated_answer_contract",
 ]

@@ -17,6 +17,10 @@ class RAGRun:
     raw_response: str | None
     answer: GeneratedAnswer
     raw_citation_ids: tuple[str, ...] = ()
+    resolved_citation_ids: tuple[str, ...] = ()
+    contract_repaired: bool = False
+    strict_contract_valid: bool = True
+    contract_violations: tuple[str, ...] = ()
     llm_response: LLMResponse | None = None
     prompt_budget: PromptBudget | None = None
     prompt_token_count: int = 0
@@ -52,6 +56,10 @@ class RAGPipeline:
             raw_response=generation.raw_response,
             answer=generation.answer,
             raw_citation_ids=generation.raw_citation_ids,
+            resolved_citation_ids=generation.resolved_citation_ids,
+            contract_repaired=generation.contract_repaired,
+            strict_contract_valid=generation.strict_contract_valid,
+            contract_violations=generation.contract_violations,
             llm_response=generation.llm_response,
             prompt_budget=context_run.prompt_budget,
             prompt_token_count=context_run.prompt_token_count,
