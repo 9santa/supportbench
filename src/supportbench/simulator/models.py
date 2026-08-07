@@ -92,3 +92,84 @@ class ServiceInstance:
 
         if self.status not in _SERVICE_STATUSES:
             raise ValueError(f"unknown service status: {self.status!r}")
+
+
+@dataclass(frozen=True, slots=True)
+class Asset:
+    world_id: str
+    asset_id: str
+    hostname: str
+    operating_system: str
+    environment: Environment
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("asset_id", field_name=self.asset_id)
+        _require_non_empty("hostname", field_name=self.hostname)
+        _require_non_empty(
+            "operating_system",
+            field_name=self.operating_system,
+        )
+
+        if self.environment not in _ENVIRONMENTS:
+            raise ValueError(f"invalid environment: {self.environment!r}")
+
+
+@dataclass(frozen=True, slots=True)
+class InstalledProduct:
+    world_id: str
+    asset_id: str
+    product_key: str
+    version: str
+    patch_level: str
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("asset_id", field_name=self.asset_id)
+        _require_non_empty(
+            "product_key",
+            field_name=self.product_key,
+        )
+        _require_non_empty("version", field_name=self.version)
+        _require_non_empty(
+            "patch_level",
+            field_name=self.patch_level,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class User:
+    world_id: str
+    user_id: str
+    display_name: str
+    department: str
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(
+            "display_name",
+            field_name=self.display_name,
+        )
+        _require_non_empty(
+            "department",
+            field_name=self.department,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class UserEntitlement:
+    world_id: str
+    user_id: str
+    service_id: str
+    granted: bool  # important for `access_denied`
+    role: str
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(
+            "service_id",
+            field_name=self.service_id,
+        )
+        _require_non_empty("role", field_name=self.role)
