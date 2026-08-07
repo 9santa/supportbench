@@ -55,4 +55,5 @@ strict = true
 [tool.pytest.ini_options]
 markers = [
     "smoke: integration tests that require local models and cuda available",
+    "postgres: integration tests that require a real PostgreSQL database",
 ]
