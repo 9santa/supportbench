@@ -2,7 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from supportbench.applications.nvidia_techqa import NvidiaTechQAContextConfig
+from supportbench.applications.nvidia_techqa import (
+    FROZEN_PROMPT_LAYOUT,
+    NvidiaTechQAContextConfig,
+)
 
 
 def make_config(**overrides: object) -> NvidiaTechQAContextConfig:
@@ -31,6 +34,7 @@ def test_defaults_capture_frozen_online_retrieval_profile() -> None:
     assert config.context_tokenizer_name != config.dense_model_name
     assert config.model_context_window == 8_192
     assert config.reserved_output_tokens == 1_024
+    assert FROZEN_PROMPT_LAYOUT == "legacy_system_user"
 
 
 @pytest.mark.parametrize(

@@ -18,6 +18,7 @@ from supportbench.rag.generation.client import LLMClient
 from supportbench.rag.generation.prompt import (
     GroundedPromptBuilder,
     PromptBudgetCalculator,
+    PromptLayout,
 )
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.pipeline import RAGPipeline
@@ -31,6 +32,7 @@ DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
 DEFAULT_GENERATION_TOKENIZER = "vllmd/gemma-3-4b-it-w8a8"
+FROZEN_PROMPT_LAYOUT: PromptLayout = "legacy_system_user"
 
 
 @dataclass(frozen=True, slots=True)
@@ -204,7 +206,7 @@ def build_nvidia_techqa_context_service(
         config.context_tokenizer_name,
         local_files_only=True,
     )
-    prompt_builder = GroundedPromptBuilder()
+    prompt_builder = GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT)
     context_builder = RepresentativeChunkContextBuilder(
         token_codec=HuggingFaceTokenCodec(context_tokenizer),
         max_tokens=config.max_context_tokens,
@@ -236,7 +238,7 @@ def build_nvidia_techqa_rag(
     return RAGPipeline(
         context_service=build_nvidia_techqa_context_service(config),
         answer_generator=GroundedAnswerGenerator(
-            prompt_builder=GroundedPromptBuilder(),
+            prompt_builder=GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT),
             llm_client=llm_client,
         ),
     )

@@ -102,10 +102,12 @@ def test_generates_and_validates_grounded_answer() -> None:
     assert run.raw_response is not None
     assert run.llm_response is not None
     assert run.llm_response.eval_count == 20
+    assert len(client.messages) == 1
+    assert client.messages[0].role == "user"
     assert "Always answer in English" in client.messages[0].content
-    assert "source_id: S1" in client.messages[1].content
-    assert "parent_a" not in client.messages[1].content
-    assert "chunk_0001" not in client.messages[1].content
+    assert "source_id: S1" in client.messages[0].content
+    assert "parent_a" not in client.messages[0].content
+    assert "chunk_0001" not in client.messages[0].content
 
 
 def test_empty_context_abstains_without_calling_llm() -> None:

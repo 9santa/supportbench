@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import cast
+from typing import Literal
 
 from transformers import PreTrainedTokenizerBase
 
@@ -61,6 +62,13 @@ Required schema:
 }
 """
 
+type PromptLayout = Literal[
+    "gemma_single_user",
+    "legacy_system_user",
+]
+
+DEFAULT_PROMPT_LAYOUT: PromptLayout = "gemma_single_user"
+
 @dataclass(frozen=True, slots=True)
 class PromptBudget:
     model_context_window: int
@@ -70,6 +78,16 @@ class PromptBudget:
 
 
 class GroundedPromptBuilder:
+    def __init__(self, *, layout: PromptLayout = DEFAULT_PROMPT_LAYOUT) -> None:
+        if layout not in ("gemma_single_user", "legacy_system_user"):
+            raise ValueError(f"unknown prompt layout: {layout!r}")
+
+        self._layout = layout
+
+    @property
+    def layout(self) -> PromptLayout:
+        return self._layout
+
     def build(
         self,
         *,
@@ -90,14 +108,22 @@ class GroundedPromptBuilder:
             "[/KNOWLEDGE_BASE_CONTEXT]"
         )
 
+        if self._layout == "legacy_system_user":
+            return (
+                ChatMessage(
+                    role="system",
+                    content=SYSTEM_PROMPT,
+                ),
+                ChatMessage(
+                    role="user",
+                    content=user_message,
+                ),
+            )
+
         return (
             ChatMessage(
-                role="system",
-                content=SYSTEM_PROMPT,
-            ),
-            ChatMessage(
                 role="user",
-                content=user_message,
+                content=f"{SYSTEM_PROMPT}\n{user_message}",
             ),
         )
 
@@ -152,16 +178,46 @@ class PromptBudgetCalculator:
 
     def count_prompt(self, *, query: str, context: RAGContext) -> int:
         messages = self._prompt_builder.build(query=query, context=context)
-        # Ollama's gemma3 template keeps system and user messages as separate user turns.
-        rendered = "<bos>" + "".join(
-            f"<start_of_turn>user\n{message.content}<end_of_turn>\n" for message in messages
-        )
-        rendered += "<start_of_turn>model\n"
 
-        token_ids = self._tokenizer.encode(
-            rendered,
-            add_special_tokens=False,
-            truncation=False,
-            verbose=False,
+        if self._prompt_builder.layout == "legacy_system_user":
+            rendered = "<bos>" + "".join(
+                f"<start_of_turn>user\n{message.content}<end_of_turn>\n"
+                for message in messages
+            )
+            rendered += "<start_of_turn>model\n"
+            token_ids = self._tokenizer.encode(
+                rendered,
+                add_special_tokens=False,
+                truncation=False,
+                verbose=False,
+            )
+
+            if not isinstance(token_ids, list):
+                raise TypeError("tokenizer did not return a flat input_ids list")
+
+            return len(token_ids)
+
+        tokenized: object = self._tokenizer.apply_chat_template(
+            [
+                {
+                    "role": message.role,
+                    "content": message.content,
+                }
+                for message in messages
+            ],
+            tokenize=True,
+            add_generation_prompt=True,
+            return_tensors=None,
         )
-        return len(cast(list[int], token_ids))
+
+        if isinstance(tokenized, Mapping):
+            token_ids = tokenized.get("input_ids")
+        else:
+            token_ids = tokenized
+
+        if not isinstance(token_ids, list) or not all(
+            isinstance(token_id, int) for token_id in token_ids
+        ):
+            raise TypeError("chat template did not return a flat input_ids list")
+
+        return len(token_ids)

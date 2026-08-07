@@ -13,6 +13,7 @@ from scripts.nvidia_techqa._evaluation_io import (
     write_json,
     write_jsonl,
 )
+from supportbench.applications.nvidia_techqa import FROZEN_PROMPT_LAYOUT
 from supportbench.evaluation.context_variants import summarize_generation_variants
 from supportbench.evaluation.grounded_generation import evaluate_grounded_generation
 from supportbench.evaluation.rag_evaluator import (
@@ -21,13 +22,19 @@ from supportbench.evaluation.rag_evaluator import (
 )
 from supportbench.experiments.fingerprints import read_git_state, sha256_file
 from supportbench.rag.generation.ollama import OllamaLLMClient
-from supportbench.rag.generation.prompt import SYSTEM_PROMPT, GroundedPromptBuilder
+from supportbench.rag.generation.prompt import (
+    SYSTEM_PROMPT,
+    GroundedPromptBuilder,
+)
 from supportbench.rag.generation.service import GroundedAnswerGenerator
 from supportbench.rag.models import ChunkProvenance, RAGContext, RetrievedDocument
 
-EVALUATION_VERSION = "techqa_oracle_generation_v1"
-CONTEXT_VARIANT_EVALUATION_VERSION = "techqa_context_variant_generation_v1"
-PROMPT_VERSION = "grounded_source_ids_v4"
+EVALUATION_VERSION = "techqa_oracle_generation_v2"
+CONTEXT_VARIANT_EVALUATION_VERSION = "techqa_context_variant_generation_v2"
+PROMPT_VERSIONS = {
+    "legacy_system_user": "grounded_source_ids_v4",
+    "gemma_single_user": "grounded_source_ids_gemma_single_user_v5",
+}
 MODES = (
     "current",
     "gold_injected",
@@ -74,6 +81,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--llm-retries", type=int, default=1)
     parser.add_argument(
+        "--prompt-layout",
+        choices=tuple(PROMPT_VERSIONS),
+        default=FROZEN_PROMPT_LAYOUT,
+    )
+    parser.add_argument(
         "--context-run-id",
         default=None,
         help="MLflow run ID of the saved oracle-context evaluation.",
@@ -92,6 +104,7 @@ def main() -> None:
     context_config = source_config["context"]
     context_window = int(context_config["model_context_window"])
     reserved_output_tokens = int(context_config["reserved_output_tokens"])
+    prompt_version = PROMPT_VERSIONS[args.prompt_layout]
     configured_modes = tuple(str(mode) for mode in source_config.get("modes", MODES))
     modes = tuple(dict.fromkeys(args.modes or configured_modes))
     unknown_modes = set(modes) - set(configured_modes)
@@ -131,7 +144,8 @@ def main() -> None:
             "reserved_output_tokens": reserved_output_tokens,
         },
         "prompt": {
-            "version": PROMPT_VERSION,
+            "version": prompt_version,
+            "layout": args.prompt_layout,
             "sha256": hashlib.sha256(SYSTEM_PROMPT.encode("utf-8")).hexdigest(),
         },
         "source": {
@@ -165,7 +179,7 @@ def main() -> None:
         if (str(result["query_id"]), mode) not in completed
     ]
     answer_generator = GroundedAnswerGenerator(
-        prompt_builder=GroundedPromptBuilder(),
+        prompt_builder=GroundedPromptBuilder(layout=args.prompt_layout),
         llm_client=OllamaLLMClient(
             model_name=args.llm_model,
             base_url=args.ollama_url,
@@ -260,7 +274,8 @@ def main() -> None:
                     "mode_count": len(modes),
                     "generation_model": args.llm_model,
                     "temperature": args.temperature,
-                    "prompt_version": PROMPT_VERSION,
+                    "prompt_version": prompt_version,
+                    "prompt_layout": args.prompt_layout,
                     "model_context_window": context_window,
                     "reserved_output_tokens": reserved_output_tokens,
                 }
@@ -335,7 +350,9 @@ def _result_payload(
         "context_chunk_ids": mode_payload["context_chunk_ids"],
         "source_to_parent": mode_payload["source_to_parent"],
         "context_token_count": mode_payload["context_token_count"],
-        "prompt_token_count": mode_payload["prompt_token_count"],
+        "source_prompt_token_count": mode_payload["prompt_token_count"],
+        "prompt_token_count": generation_result.get("prompt_eval_count")
+        or mode_payload["prompt_token_count"],
         "context_truncated": mode_payload["context_truncated"],
         "gold_document_in_context": mode_payload["gold_document_in_context"],
         "reference_answer_in_context": mode_payload["reference_answer_in_context"],

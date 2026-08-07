@@ -190,7 +190,7 @@ def build_pipeline(args: argparse.Namespace) -> GroundedRAGPipeline:
             max_documents=args.max_documents,
             max_characters=args.max_characters,
         ),
-        prompt_builder=GroundedPromptBuilder(),
+        prompt_builder=GroundedPromptBuilder(layout="legacy_system_user"),
         llm_client=OllamaLLMClient(
             model_name=args.llm_model,
             base_url=args.ollama_url,

@@ -17,6 +17,7 @@ from scripts.nvidia_techqa._context_cli import (
     context_config_from_args,
 )
 from supportbench.applications.nvidia_techqa import (
+    FROZEN_PROMPT_LAYOUT,
     build_nvidia_techqa_context_service,
 )
 from supportbench.benchmark.loaders import load_benchmark_queries
@@ -51,7 +52,7 @@ from supportbench.rag.generation.service import (
     GroundedAnswerGenerator,
 )
 
-EVALUATION_VERSION = "techqa_rag_eval_v5"
+EVALUATION_VERSION = "techqa_rag_eval_v6"
 PROMPT_VERSION = "grounded_source_ids_v4"
 PARSER_VERSION = "strict_json_v1"
 CITATION_VALIDATOR_VERSION = "source_resolution_contract_repair_v5"
@@ -179,6 +180,7 @@ def main() -> None:
         },
         "prompt": {
             "version": PROMPT_VERSION,
+            "layout": FROZEN_PROMPT_LAYOUT,
             "sha256": hashlib.sha256(SYSTEM_PROMPT.encode("utf-8")).hexdigest(),
         },
         "parser_version": PARSER_VERSION,
@@ -230,7 +232,7 @@ def main() -> None:
 
     context_service = build_nvidia_techqa_context_service(config)
     answer_generator = GroundedAnswerGenerator(
-        prompt_builder=(GroundedPromptBuilder()),
+        prompt_builder=GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT),
         llm_client=OllamaLLMClient(
             model_name=args.llm_model,
             base_url=args.ollama_url,
@@ -332,6 +334,7 @@ def main() -> None:
                     "generation_backend": "ollama",
                     "temperature": args.temperature,
                     "prompt_version": PROMPT_VERSION,
+                    "prompt_layout": FROZEN_PROMPT_LAYOUT,
                     "prompt_hash": (config_payload["prompt"]["sha256"]),
                     "context_builder_version": ("representative_sources_v2"),
                     "max_context_tokens": (config.max_context_tokens),

@@ -1232,3 +1232,17 @@ After reranking:
   R@5 : 0.6875
   R@10: 0.7438
   MRR:  0.5590
+
+
+
+## Current fixed configuration:
+  - Parent WRRF + parent reranking/fusion.
+  - parent_candidate_k=20.
+  - candidate_prior_weight=1.25.
+  - top_parents=4.
+  - Within-parent cross-encoder selection.
+  - chunks_per_parent=2.
+  - max_context_tokens=4096.
+  - model_context_window=8192.
+  - reserved_output_tokens=1024.
+  - Dense на CUDA.
