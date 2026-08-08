@@ -7,7 +7,11 @@ from sqlalchemy import (
     Table,
     Boolean,
     ForeignKeyConstraint,
+    DateTime,
+    UniqueConstraint,
+    Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -272,5 +276,184 @@ user_entitlements = Table(
             "service_instances.service_id",
         ],
         ondelete="CASCADE",
+    ),
+)
+
+
+support_cases = Table(
+    "support_cases",
+    metadata,
+    Column(
+        "world_id",
+        String(128),
+        ForeignKey(
+            "simulator_worlds.world_id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+    Column(
+        "case_id",
+        String(128),
+        primary_key=True,
+    ),
+    Column(
+        "idempotency_key",
+        String(255),
+        nullable=False,
+    ),
+    Column(
+        "actor_user_id",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "user_id",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "service_id",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "summary",
+        String(500),
+        nullable=False,
+    ),
+    Column(
+        "description",
+        Text,
+        nullable=False,
+    ),
+    Column(
+        "severity",
+        String(32),
+        nullable=False,
+    ),
+    Column(
+        "status",
+        String(32),
+        nullable=False,
+    ),
+    Column(
+        "assigned_team",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "created_at",
+        DateTime(timezone=True),
+        nullable=False,
+    ),
+    Column(
+        "updated_at",
+        DateTime(timezone=True),
+        nullable=False,
+    ),
+    ForeignKeyConstraint(
+        [
+            "world_id",
+            "actor_user_id",
+        ],
+        [
+            "users.world_id",
+            "users.user_id",
+        ],
+    ),
+    ForeignKeyConstraint(
+        [
+            "world_id",
+            "user_id",
+        ],
+        [
+            "users.world_id",
+            "users.user_id",
+        ],
+    ),
+    ForeignKeyConstraint(
+        [
+            "world_id",
+            "service_id",
+        ],
+        [
+            "service_instances.world_id",
+            "service_instances.service_id",
+        ],
+    ),
+    # Can't create two same cases
+    UniqueConstraint(
+        "world_id",
+        "idempotency_key",
+        name="idempotency_key",
+    ),
+    CheckConstraint(
+        ("severity IN ('low','medium','high','critical')"),
+        name="severity",
+    ),
+    CheckConstraint(
+        ("status IN ('open','in_progress','escalated','resolved')"),
+        name="status",
+    ),
+)
+
+
+audit_events = Table(
+    "audit_events",
+    metadata,
+    Column(
+        "world_id",
+        String(128),
+        ForeignKey(
+            "simulator_worlds.world_id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+    Column(
+        "event_id",
+        String(128),
+        primary_key=True,
+    ),
+    Column(
+        "event_type",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "actor_user_id",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "entity_type",
+        String(64),
+        nullable=False,
+    ),
+    Column(
+        "entity_id",
+        String(128),
+        nullable=False,
+    ),
+    Column(
+        "occurred_at",
+        DateTime(timezone=True),
+        nullable=False,
+    ),
+    Column(
+        "metadata",
+        JSONB,
+        nullable=False,
+    ),
+    ForeignKeyConstraint(
+        [
+            "world_id",
+            "actor_user_id",
+        ],
+        [
+            "users.world_id",
+            "users.user_id",
+        ],
     ),
 )

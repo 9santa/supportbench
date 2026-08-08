@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Any
+from datetime import datetime
 
 type Environment = Literal[
     "production",
@@ -14,18 +15,54 @@ type ServiceStatus = Literal[
     "maintenance",
 ]
 
-_ENVIRONMENTS = {
-    "production",
-    "staging",
-    "development",
-}
+type CaseSeverity = Literal[
+    "low",
+    "medium",
+    "high",
+    "critical",
+]
 
-_SERVICE_STATUSES = {
-    "operational",
-    "degraded",
-    "outage",
-    "maintenance",
-}
+type CaseStatus = Literal[
+    "open",
+    "in_progress",
+    "escalated",
+    "resolved",
+]
+
+_ENVIRONMENTS = frozenset(
+    {
+        "production",
+        "staging",
+        "development",
+    }
+)
+
+_SERVICE_STATUSES = frozenset(
+    {
+        "operational",
+        "degraded",
+        "outage",
+        "maintenance",
+    }
+)
+
+_CASE_SEVERITIES = frozenset(
+    {
+        "low",
+        "medium",
+        "high",
+        "critical",
+    }
+)
+
+_CASE_STATUSES = frozenset(
+    {
+        "open",
+        "in_progress",
+        "escalated",
+        "resolved",
+    }
+)
 
 # Runtime validation even though DB will have its own constraints,
 # because domain validation + database constraints are different guard lines.
@@ -173,3 +210,101 @@ class UserEntitlement:
             field_name=self.service_id,
         )
         _require_non_empty("role", field_name=self.role)
+
+
+@dataclass(frozen=True, slots=True)
+class SupportCase:
+    world_id: str
+    case_id: str
+    idempotency_key: str
+
+    # For example: actor_user_id = alice, user_id = bob
+    # means that Alice opens a case from Bob's name.
+    actor_user_id: str
+    user_id: str
+    service_id: str
+
+    summary: str
+    description: str
+    severity: CaseSeverity
+    status: CaseStatus
+    assigned_team: str
+
+    created_at: datetime
+    updated_at: datetime
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("case_id", field_name=self.case_id)
+        _require_non_empty(
+            "idempotency_key",
+            field_name=self.idempotency_key,
+        )
+        _require_non_empty(
+            "actor_user_id",
+            field_name=self.actor_user_id,
+        )
+        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(
+            "service_id",
+            field_name=self.service_id,
+        )
+        _require_non_empty("summary", field_name=self.summary)
+        _require_non_empty(
+            "description",
+            field_name=self.description,
+        )
+        _require_non_empty(
+            "assigned_team",
+            field_name=self.assigned_team,
+        )
+
+        if self.severity not in _CASE_SEVERITIES:
+            raise ValueError(f"invalid case severity: {self.severity!r}")
+
+        if self.status not in _CASE_STATUSES:
+            raise ValueError(f"invalid case status: {self.status!r}")
+
+        if self.created_at.tzinfo is None:
+            raise ValueError("created_at must be timezone-aware")
+
+        if self.updated_at.tzinfo is None:
+            raise ValueError("updated_at must be timezone-aware")
+
+
+@dataclass(frozen=True, slots=True)
+class AuditEvent:
+    world_id: str
+    event_id: str
+
+    event_type: str
+    actor_user_id: str
+
+    entity_type: str
+    entity_id: str
+
+    occurred_at: datetime
+    metadata: dict[str, Any]
+
+    def __post_init__(self) -> None:
+        _require_non_empty("world_id", field_name=self.world_id)
+        _require_non_empty("event_id", field_name=self.event_id)
+        _require_non_empty(
+            "event_type",
+            field_name=self.event_type,
+        )
+        _require_non_empty(
+            "actor_user_id",
+            field_name=self.actor_user_id,
+        )
+        _require_non_empty(
+            "entity_type",
+            field_name=self.entity_type,
+        )
+        _require_non_empty(
+            "entity_id",
+            field_name=self.entity_id,
+        )
+
+        if self.occurred_at.tzinfo is None:
+            raise ValueError("occurred_at must be timezone-aware")
