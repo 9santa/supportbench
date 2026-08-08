@@ -20,7 +20,10 @@ from supportbench.simulator.postgres.session import (
 )
 from supportbench.simulator.scenarios import (
     build_healthy_scenario,
+    build_scenario,
 )
+from supportbench.simulator.service import EnterpriseService
+from supportbench.simulator.postgres.unit_of_work import PostgresUnitOfWork
 
 
 pytestmark = pytest.mark.postgres
@@ -64,7 +67,7 @@ def test_installed_product_cannot_reference_asset_from_other_world() -> None:
                 session.execute(
                     insert(assets).values(
                         world_id=world_a,
-                        asset_id="dash-host-01",
+                        asset_id="world-a-only-asset",
                         hostname="dash-host-01.example.test",
                         operating_system="RHEL 9",
                         environment="production",
@@ -77,7 +80,7 @@ def test_installed_product_cannot_reference_asset_from_other_world() -> None:
                     session.execute(
                         insert(installed_products).values(
                             world_id=world_b,
-                            asset_id="dash-host-01",
+                            asset_id="world-a-only-asset",
                             product_key="dash",
                             version="3.1.2.1",
                             patch_level="FP1",
@@ -122,8 +125,8 @@ def test_entitlement_cannot_reference_user_from_other_world() -> None:
                 session.execute(
                     insert(users).values(
                         world_id=world_a,
-                        user_id="alice",
-                        display_name="Alice",
+                        user_id="world-a-only-user",
+                        display_name="World A User",
                         department="Operations",
                     )
                 )
@@ -134,7 +137,7 @@ def test_entitlement_cannot_reference_user_from_other_world() -> None:
                     session.execute(
                         insert(user_entitlements).values(
                             world_id=world_b,
-                            user_id="alice",
+                            user_id="world-a-only-user",
                             service_id="webgui-noc-prod",
                             granted=True,
                             role="viewer",
@@ -176,15 +179,6 @@ def test_entitlement_cannot_reference_service_from_other_world() -> None:
 
         with session_factory() as session:
             with session.begin():
-                session.execute(
-                    insert(users).values(
-                        world_id=world_b,
-                        user_id="alice",
-                        display_name="Alice",
-                        department="Operations",
-                    )
-                )
-
                 session.execute(
                     insert(service_instances).values(
                         world_id=world_a,
@@ -240,47 +234,6 @@ def test_deleting_world_cascades_world_state() -> None:
         with session_factory() as session:
             with session.begin():
                 session.execute(
-                    insert(assets).values(
-                        world_id=world_id,
-                        asset_id="dash-host-01",
-                        hostname="dash-host-01.example.test",
-                        operating_system="RHEL 9",
-                        environment="production",
-                    )
-                )
-
-                session.execute(
-                    insert(installed_products).values(
-                        world_id=world_id,
-                        asset_id="dash-host-01",
-                        product_key="dash",
-                        version="3.1.2.1",
-                        patch_level="FP1",
-                    )
-                )
-
-                session.execute(
-                    insert(users).values(
-                        world_id=world_id,
-                        user_id="alice",
-                        display_name="Alice",
-                        department="Operations",
-                    )
-                )
-
-                session.execute(
-                    insert(user_entitlements).values(
-                        world_id=world_id,
-                        user_id="alice",
-                        service_id="webgui-noc-prod",
-                        granted=True,
-                        role="viewer",
-                    )
-                )
-
-        with session_factory() as session:
-            with session.begin():
-                session.execute(
                     delete(simulator_worlds).where(simulator_worlds.c.world_id == world_id)
                 )
 
@@ -314,6 +267,59 @@ def test_deleting_world_cascades_world_state() -> None:
             with session.begin():
                 session.execute(
                     delete(simulator_worlds).where(simulator_worlds.c.world_id == world_id)
+                )
+
+        engine.dispose()
+
+
+def test_entitlement_differs_between_worlds() -> None:
+    engine = build_engine(_database_url())
+    session_factory = build_session_factory(engine)
+
+    healthy_world = f"test-{uuid4()}"
+    denied_world = f"test-{uuid4()}"
+
+    try:
+        seed_scenario(
+            session_factory=session_factory,
+            scenario=build_scenario(
+                name="healthy",
+                world_id=healthy_world,
+            ),
+        )
+
+        seed_scenario(
+            session_factory=session_factory,
+            scenario=build_scenario(
+                name="access_denied",
+                world_id=denied_world,
+            ),
+        )
+
+        enterprise = EnterpriseService(uow_factory=lambda: PostgresUnitOfWork(session_factory))
+
+        healthy = enterprise.check_user_entitlement(
+            world_id=healthy_world,
+            user_id="alice",
+            service_id="webgui-noc-prod",
+        )
+
+        denied = enterprise.check_user_entitlement(
+            world_id=denied_world,
+            user_id="alice",
+            service_id="webgui-noc-prod",
+        )
+
+        assert healthy.granted is True
+        assert denied.granted is False
+
+    finally:
+        with session_factory() as session:
+            with session.begin():
+                session.execute(
+                    delete(simulator_worlds).where(
+                        simulator_worlds.c.world_id.in_([healthy_world, denied_world])
+                    )
                 )
 
         engine.dispose()

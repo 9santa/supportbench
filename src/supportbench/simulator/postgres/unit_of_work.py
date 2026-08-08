@@ -5,13 +5,21 @@ from sqlalchemy.orm import Session
 
 from supportbench.simulator.postgres.repositories import (
     PostgresServiceRepository,
+    PostgresInstalledProductRepository,
+    PostgresUserEntitlementRepository,
 )
 from supportbench.simulator.postgres.session import SessionFactory
-from supportbench.simulator.repositories import ServiceRepository
+from supportbench.simulator.repositories import (
+    ServiceRepository,
+    InstalledProductRepository,
+    UserEntitlementRepository,
+)
 
 
 class PostgresUnitOfWork:
     services: ServiceRepository
+    installed_products: InstalledProductRepository
+    user_entitlements: UserEntitlementRepository
 
     def __init__(
         self,
@@ -25,6 +33,8 @@ class PostgresUnitOfWork:
 
         self._session = session
         self.services = PostgresServiceRepository(session)
+        self.installed_products = PostgresInstalledProductRepository(session)
+        self.user_entitlements = PostgresUserEntitlementRepository(session)
 
         return self
 

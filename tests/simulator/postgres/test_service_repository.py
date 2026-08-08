@@ -93,6 +93,10 @@ def test_same_service_can_have_different_state_per_world() -> None:
             else service
             for service in old_dash.services
         ),
+        assets=(),
+        installed_products=(),
+        users=(),
+        entitlements=(),
     )
 
     try:
