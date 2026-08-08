@@ -85,6 +85,7 @@ def _build_parser() -> argparse.ArgumentParser:
             "healthy",
             "dash_outage",
             "old_dash_version",
+            "access_denied",
         ),
         default="healthy",
     )
@@ -98,6 +99,40 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_WORLD_ID,
     )
     status_parser.add_argument(
+        "--service-id",
+        required=True,
+    )
+
+    installed_parser = subparsers.add_parser(
+        "installed-product",
+        help="Read an installed product from an asset.",
+    )
+    installed_parser.add_argument(
+        "--world-id",
+        default=DEFAULT_WORLD_ID,
+    )
+    installed_parser.add_argument(
+        "--asset-id",
+        required=True,
+    )
+    installed_parser.add_argument(
+        "--product-key",
+        required=True,
+    )
+
+    entitlement_parser = subparsers.add_parser(
+        "user-entitlement",
+        help="Read a user's entitlement for a service.",
+    )
+    entitlement_parser.add_argument(
+        "--world-id",
+        default=DEFAULT_WORLD_ID,
+    )
+    entitlement_parser.add_argument(
+        "--user-id",
+        required=True,
+    )
+    entitlement_parser.add_argument(
         "--service-id",
         required=True,
     )
@@ -153,6 +188,52 @@ def _run_service_status(
     return 0
 
 
+def _run_installed_product(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+    asset_id: str,
+    product_key: str,
+) -> int:
+    installed_product = runtime.service.get_installed_product(
+        world_id=world_id,
+        asset_id=asset_id,
+        product_key=product_key,
+    )
+
+    print(
+        json.dumps(
+            asdict(installed_product),
+            indent=2,
+        )
+    )
+
+    return 0
+
+
+def _run_user_entitlement(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+    user_id: str,
+    service_id: str,
+) -> int:
+    entitlement = runtime.service.check_user_entitlement(
+        world_id=world_id,
+        user_id=user_id,
+        service_id=service_id,
+    )
+
+    print(
+        json.dumps(
+            asdict(entitlement),
+            indent=2,
+        )
+    )
+
+    return 0
+
+
 def main(
     argv: Sequence[str] | None = None,
 ) -> int:
@@ -174,6 +255,22 @@ def main(
                 return _run_service_status(
                     runtime=runtime,
                     world_id=args.world_id,
+                    service_id=args.service_id,
+                )
+
+            case "installed-product":
+                return _run_installed_product(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                    asset_id=args.asset_id,
+                    product_key=args.product_key,
+                )
+
+            case "user-entitlement":
+                return _run_user_entitlement(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                    user_id=args.user_id,
                     service_id=args.service_id,
                 )
 
