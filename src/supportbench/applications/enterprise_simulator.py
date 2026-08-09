@@ -3,10 +3,12 @@ import json
 import os
 from dataclasses import asdict, dataclass
 from collections.abc import Sequence
+from typing import cast
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from supportbench.simulator.models import CaseSeverity
 from supportbench.simulator.postgres.seed import seed_scenario
 from supportbench.simulator.postgres.session import (
     build_engine,
@@ -19,6 +21,7 @@ from supportbench.simulator.scenarios import (
     ScenarioName,
     build_scenario,
 )
+from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.service import EnterpriseService
 
 
@@ -137,6 +140,57 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    create_case_parser = subparsers.add_parser(
+        "create-support-case",
+        help="Create a support case in a simulator world.",
+    )
+
+    create_case_parser.add_argument(
+        "--world-id",
+        default=DEFAULT_WORLD_ID,
+    )
+
+    create_case_parser.add_argument(
+        "--idempotency-key",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--actor-user-id",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--user-id",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--service-id",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--summary",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--description",
+        required=True,
+    )
+
+    create_case_parser.add_argument(
+        "--severity",
+        choices=(
+            "low",
+            "medium",
+            "high",
+            "critical",
+        ),
+        required=True,
+    )
+
     return parser
 
 
@@ -234,6 +288,42 @@ def _run_user_entitlement(
     return 0
 
 
+def _run_create_support_case(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+    idempotency_key: str,
+    actor_user_id: str,
+    user_id: str,
+    service_id: str,
+    summary: str,
+    description: str,
+    severity: CaseSeverity,
+) -> int:
+    support_case = runtime.service.create_support_case(
+        CreateSupportCaseCommand(
+            world_id=world_id,
+            idempotency_key=idempotency_key,
+            actor_user_id=actor_user_id,
+            user_id=user_id,
+            service_id=service_id,
+            summary=summary,
+            description=description,
+            severity=severity,
+        )
+    )
+
+    print(
+        json.dumps(
+            asdict(support_case),
+            indent=2,
+            default=str,
+        )
+    )
+
+    return 0
+
+
 def main(
     argv: Sequence[str] | None = None,
 ) -> int:
@@ -272,6 +362,22 @@ def main(
                     world_id=args.world_id,
                     user_id=args.user_id,
                     service_id=args.service_id,
+                )
+
+            case "create-support-case":
+                return _run_create_support_case(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                    idempotency_key=args.idempotency_key,
+                    actor_user_id=args.actor_user_id,
+                    user_id=args.user_id,
+                    service_id=args.service_id,
+                    summary=args.summary,
+                    description=args.description,
+                    severity=cast(
+                        CaseSeverity,
+                        args.severity,
+                    ),
                 )
 
             case _:

@@ -1246,3 +1246,28 @@ After reranking:
   - model_context_window=8192.
   - reserved_output_tokens=1024.
   - Dense на CUDA.
+
+
+
+# Enterprise system
+
+PostgreSQL persistence
+        │
+        ├── isolated worlds
+        ├── services
+        ├── assets / installed products
+        ├── users / entitlements
+        ├── support cases
+        └── audit events
+
+EnterpriseService
+        │
+        ├── get_service_status
+        ├── get_installed_product
+        ├── check_user_entitlement
+        └── create_support_case
+                │
+                ├── business assignment
+                ├── Clock
+                ├── atomic audit
+                └── race-safe idempotency
