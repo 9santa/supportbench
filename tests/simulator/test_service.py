@@ -1,12 +1,16 @@
 from types import TracebackType
+from datetime import datetime, timezone
 
 import pytest
 
+from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.errors import ServiceNotFoundError
 from supportbench.simulator.models import (
     ServiceInstance,
     InstalledProduct,
     UserEntitlement,
+    SupportCase,
+    AuditEvent,
 )
 from supportbench.simulator.service import EnterpriseService
 
@@ -75,16 +79,55 @@ class FakeUserEntitlementRepository:
         return self._entitlements.get((world_id, user_id, service_id))
 
 
+class FakeSupportCaseRepository:
+    def __init__(self) -> None:
+        self.items: list[SupportCase] = []
+
+    def get_by_idempotency_key(
+        self,
+        *,
+        world_id: str,
+        idempotency_key: str,
+    ) -> SupportCase | None:
+        for item in self.items:
+            if item.world_id == world_id and item.idempotency_key == idempotency_key:
+                return item
+
+        return None
+
+    def add(
+        self,
+        support_case: SupportCase,
+    ) -> None:
+        self.items.append(support_case)
+
+
+class FakeAuditEventRepository:
+    def __init__(self) -> None:
+        self.items: list[AuditEvent] = []
+
+    def add(
+        self,
+        event: AuditEvent,
+    ) -> None:
+        self.items.append(event)
+
+
 class FakeUnitOfWork:
     def __init__(
         self,
-        services: tuple[ServiceInstance, ...],
-        installed_products: tuple[InstalledProduct, ...],
-        entitlements: tuple[UserEntitlement, ...],
+        services: tuple[ServiceInstance, ...] = (),
+        installed_products: tuple[InstalledProduct, ...] = (),
+        entitlements: tuple[UserEntitlement, ...] = (),
     ) -> None:
         self.services = FakeServiceRepository(services)
         self.installed_products = FakeInstalledProductRepository(installed_products)
         self.user_entitlements = FakeUserEntitlementRepository(entitlements)
+        self.support_cases = FakeSupportCaseRepository()
+        self.audit_events = FakeAuditEventRepository()
+
+        self.commit_count = 0
+        self.rollback_count = 0
 
     def __enter__(self) -> "FakeUnitOfWork":
         return self
@@ -98,10 +141,32 @@ class FakeUnitOfWork:
         return None
 
     def commit(self) -> None:
-        pass
+        self.commit_count += 1
 
     def rollback(self) -> None:
-        pass
+        self.rollback_count += 1
+
+
+class FixedClock:
+    def __init__(
+        self,
+        value: datetime,
+    ) -> None:
+        self._value = value
+
+    def now(self) -> datetime:
+        return self._value
+
+
+class SequenceIdGenerator:
+    def __init__(
+        self,
+        *values: str,
+    ) -> None:
+        self._values = iter(values)
+
+    def new_id(self) -> str:
+        return next(self._values)
 
 
 def test_get_service_status_returns_service() -> None:
@@ -232,3 +297,121 @@ def test_check_user_entitlement_preserves_explicit_denial() -> None:
 
     assert actual.granted is False
     assert actual.role == "viewer"
+
+
+def test_create_support_case() -> None:
+    service_instance = ServiceInstance(
+        world_id="world-a",
+        service_id="webgui-noc-prod",
+        display_name="NOC Web GUI",
+        product_key="netcool_webgui",
+        version="8.1 FP7",
+        environment="production",
+        status="operational",
+        owner_team="noc-platform",
+    )
+
+    uow = FakeUnitOfWork(
+        services=(service_instance,),
+    )
+
+    now = datetime(2026, 8, 9, 12, 0, tzinfo=timezone.utc)
+
+    enterprise = EnterpriseService(
+        uow_factory=lambda: uow,
+        clock=FixedClock(now),
+        id_generator=SequenceIdGenerator(
+            "CASE-001",
+            "EVENT-001",
+        ),
+    )
+
+    result = enterprise.create_support_case(
+        CreateSupportCaseCommand(
+            world_id="world-a",
+            idempotency_key="request-001",
+            actor_user_id="alice",
+            user_id="alice",
+            service_id="webgui-noc-prod",
+            summary="Cannot access Web GUI",
+            description=("Alice cannot access the production Web GUI."),
+            severity="high",
+        )
+    )
+
+    assert result.case_id == "CASE-001"
+    assert result.status == "open"
+
+    assert result.assigned_team == "noc-platform"
+
+    assert result.created_at == now
+    assert result.updated_at == now
+
+    assert len(uow.support_cases.items) == 1
+    assert len(uow.audit_events.items) == 1
+
+    audit = uow.audit_events.items[0]
+
+    assert audit.event_id == "EVENT-001"
+    assert audit.event_type == "support_case.created"
+    assert audit.entity_id == "CASE-001"
+    assert audit.occurred_at == now
+
+    assert uow.commit_count == 1
+
+
+def test_create_support_case_is_idempotent() -> None:
+    service_instance = ServiceInstance(
+        world_id="world-a",
+        service_id="webgui-noc-prod",
+        display_name="NOC Web GUI",
+        product_key="netcool_webgui",
+        version="8.1 FP7",
+        environment="production",
+        status="operational",
+        owner_team="noc-platform",
+    )
+
+    uow = FakeUnitOfWork(
+        services=(service_instance,),
+    )
+
+    now = datetime(
+        2026,
+        8,
+        8,
+        12,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    enterprise = EnterpriseService(
+        uow_factory=lambda: uow,
+        clock=FixedClock(now),
+        id_generator=SequenceIdGenerator(
+            "CASE-001",
+            "EVENT-001",
+        ),
+    )
+
+    command = CreateSupportCaseCommand(
+        world_id="world-a",
+        idempotency_key="request-001",
+        actor_user_id="alice",
+        user_id="alice",
+        service_id="webgui-noc-prod",
+        summary="Cannot access Web GUI",
+        description="Cannot access Web GUI.",
+        severity="high",
+    )
+
+    first = enterprise.create_support_case(command)
+
+    second = enterprise.create_support_case(command)
+
+    assert first == second
+
+    assert len(uow.support_cases.items) == 1
+    assert len(uow.audit_events.items) == 1
+
+    assert uow.commit_count == 1

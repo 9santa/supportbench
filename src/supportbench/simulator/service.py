@@ -1,3 +1,6 @@
+from supportbench.simulator.clock import Clock, SystemClock
+from supportbench.simulator.ids import IdGenerator, UuidGenerator
+from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.errors import (
     ServiceNotFoundError,
     InstalledProductNotFoundError,
@@ -7,6 +10,8 @@ from supportbench.simulator.models import (
     InstalledProduct,
     ServiceInstance,
     UserEntitlement,
+    AuditEvent,
+    SupportCase,
 )
 from supportbench.simulator.repositories import UnitOfWorkFactory
 
@@ -16,8 +21,12 @@ class EnterpriseService:
         self,
         *,
         uow_factory: UnitOfWorkFactory,
+        clock: Clock | None = None,
+        id_generator: IdGenerator | None = None,
     ) -> None:
         self._uow_factory = uow_factory
+        self._clock = clock or SystemClock()
+        self._id_generator = id_generator or UuidGenerator()
 
     def get_service_status(
         self,
@@ -119,3 +128,109 @@ class EnterpriseService:
             )
 
         return entitlement
+
+    def create_support_case(
+        self,
+        command: CreateSupportCaseCommand,
+    ) -> SupportCase:
+        """
+        1. idempotency lookup
+        2. service lookup
+        3. construct case
+        4. construct audit
+        5. add case
+        6. add audit
+        7. one commit
+        """
+        world_id = command.world_id.strip()
+        idempotency_key = command.idempotency_key.strip()
+        actor_user_id = command.actor_user_id.strip()
+        user_id = command.user_id.strip()
+        service_id = command.service_id.strip()
+        summary = command.summary.strip()
+        description = command.description.strip()
+
+        if not world_id:
+            raise ValueError("world_id must be non-empty")
+
+        if not idempotency_key:
+            raise ValueError("idempotency_key must be non-empty")
+
+        if not actor_user_id:
+            raise ValueError("actor_user_id must be non-empty")
+
+        if not user_id:
+            raise ValueError("user_id must be non-empty")
+
+        if not service_id:
+            raise ValueError("service_id must be non-empty")
+
+        if not summary:
+            raise ValueError("summary must be non-empty")
+
+        if not description:
+            raise ValueError("description must be non-empty")
+
+        with self._uow_factory() as uow:
+            existing = uow.support_cases.get_by_idempotency_key(
+                world_id=world_id,
+                idempotency_key=idempotency_key,
+            )
+
+            # This case already exists
+            if existing is not None:
+                return existing
+
+            service = uow.services.get(
+                world_id=world_id,
+                service_id=service_id,
+            )
+
+            if service is None:
+                raise ServiceNotFoundError(
+                    world_id=world_id,
+                    service_id=service_id,
+                )
+
+            now = self._clock.now()
+
+            support_case = SupportCase(
+                world_id=world_id,
+                case_id=self._id_generator.new_id(),
+                idempotency_key=idempotency_key,
+                actor_user_id=actor_user_id,
+                user_id=user_id,
+                service_id=service_id,
+                summary=summary,
+                description=description,
+                severity=command.severity,
+                status="open",
+                assigned_team=service.owner_team,
+                created_at=now,
+                updated_at=now,
+            )
+
+            audit_event = AuditEvent(
+                world_id=world_id,
+                event_id=self._id_generator.new_id(),
+                event_type="support_case.created",
+                actor_user_id=actor_user_id,
+                entity_type="support_case",
+                entity_id=support_case.case_id,
+                occurred_at=now,
+                metadata={
+                    "service_id": service_id,
+                    "user_id": user_id,
+                    "severity": command.severity,
+                    "status": "open",
+                    "assigned_team": service.owner_team,
+                    "idempotency_key": idempotency_key,
+                },
+            )
+
+            uow.support_cases.add(support_case)
+            uow.audit_events.add(audit_event)
+
+            uow.commit()
+
+            return support_case

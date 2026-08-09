@@ -7,12 +7,16 @@ from supportbench.simulator.postgres.repositories import (
     PostgresServiceRepository,
     PostgresInstalledProductRepository,
     PostgresUserEntitlementRepository,
+    PostgresSupportCaseRepository,
+    PostgresAuditEventRepository,
 )
 from supportbench.simulator.postgres.session import SessionFactory
 from supportbench.simulator.repositories import (
     ServiceRepository,
     InstalledProductRepository,
     UserEntitlementRepository,
+    AuditEventRepository,
+    SupportCaseRepository,
 )
 
 
@@ -20,6 +24,8 @@ class PostgresUnitOfWork:
     services: ServiceRepository
     installed_products: InstalledProductRepository
     user_entitlements: UserEntitlementRepository
+    support_cases: SupportCaseRepository
+    audit_events: AuditEventRepository
 
     def __init__(
         self,
@@ -35,6 +41,8 @@ class PostgresUnitOfWork:
         self.services = PostgresServiceRepository(session)
         self.installed_products = PostgresInstalledProductRepository(session)
         self.user_entitlements = PostgresUserEntitlementRepository(session)
+        self.support_cases = PostgresSupportCaseRepository(session)
+        self.audit_events = PostgresAuditEventRepository(session)
 
         return self
 

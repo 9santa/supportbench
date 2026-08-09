@@ -6,6 +6,8 @@ from supportbench.simulator.models import (
     ServiceInstance,
     InstalledProduct,
     UserEntitlement,
+    SupportCase,
+    AuditEvent,
 )
 
 
@@ -38,10 +40,34 @@ class UserEntitlementRepository(Protocol):
     ) -> UserEntitlement | None: ...
 
 
+class SupportCaseRepository(Protocol):
+    def get_by_idempotency_key(
+        self,
+        *,
+        world_id: str,
+        idempotency_key: str,
+    ) -> SupportCase | None: ...
+
+    def add(
+        self,
+        support_case: SupportCase,
+    ) -> None: ...
+
+
+class AuditEventRepository(Protocol):
+    def add(
+        self,
+        event: AuditEvent,
+    ) -> None: ...
+
+
 class UnitOfWork(Protocol):
     services: ServiceRepository
     installed_products: InstalledProductRepository
     user_entitlements: UserEntitlementRepository
+
+    support_cases: SupportCaseRepository
+    audit_events: AuditEventRepository
 
     def __enter__(self) -> Self: ...
 
