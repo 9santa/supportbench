@@ -312,6 +312,11 @@ def test_support_case_concurrent_conflict() -> None:
         barrier: Barrier,
         support_case: SupportCase,
     ) -> bool:
+        """
+        Creates two different sessions, so we get at the same time (due to ThreadPoolExecutor):
+        Session A -> DB Connection A -> Transaction A
+        Session B -> DB Connection B -> Transaction B
+        """
         with session_factory() as session:
             repository = PostgresSupportCaseRepository(session)
 
