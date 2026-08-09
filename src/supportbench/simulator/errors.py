@@ -53,3 +53,16 @@ class UserEntitlementNotFoundError(SimulatorError):
             f"user_id={user_id!r}, "
             f"service_id={service_id!r}"
         )
+
+
+class SupportCaseNotFoundError(SimulatorError):
+    def __init__(
+        self,
+        *,
+        world_id: str,
+        case_id: str,
+    ) -> None:
+        self.world_id = world_id
+        self.case_id = case_id
+
+        super().__init__(f"support case not found: world_id={world_id!r}, case_id={case_id!r}")

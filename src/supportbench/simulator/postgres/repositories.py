@@ -153,27 +153,25 @@ class PostgresSupportCaseRepository:
         if row is None:
             return None
 
-        return SupportCase(
-            world_id=row["world_id"],
-            case_id=row["case_id"],
-            idempotency_key=row["idempotency_key"],
-            actor_user_id=row["actor_user_id"],
-            user_id=row["user_id"],
-            service_id=row["service_id"],
-            summary=row["summary"],
-            description=row["description"],
-            severity=cast(
-                CaseSeverity,
-                row["severity"],
-            ),
-            status=cast(
-                CaseStatus,
-                row["status"],
-            ),
-            assigned_team=row["assigned_team"],
-            created_at=row["created_at"],
-            updated_at=row["updated_at"],
+        return self._from_row(row)
+
+    def get(
+        self,
+        *,
+        world_id: str,
+        case_id: str,
+    ) -> SupportCase | None:
+        statement = select(support_cases).where(
+            support_cases.c.world_id == world_id,
+            support_cases.c.case_id == case_id,
         )
+
+        row = self._session.execute(statement).mappings().one_or_none()
+
+        if row is None:
+            return None
+
+        return self._from_row(row)
 
     def add(
         self,
@@ -230,6 +228,30 @@ class PostgresSupportCaseRepository:
         inserted_case_id = self._session.execute(statement).scalar_one_or_none()
 
         return inserted_case_id is not None
+
+    @staticmethod
+    def _from_row(row) -> SupportCase:
+        return SupportCase(
+            world_id=row["world_id"],
+            case_id=row["case_id"],
+            idempotency_key=row["idempotency_key"],
+            actor_user_id=row["actor_user_id"],
+            user_id=row["user_id"],
+            service_id=row["service_id"],
+            summary=row["summary"],
+            description=row["description"],
+            severity=cast(
+                CaseSeverity,
+                row["severity"],
+            ),
+            status=cast(
+                CaseStatus,
+                row["status"],
+            ),
+            assigned_team=row["assigned_team"],
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )
 
 
 class PostgresAuditEventRepository:

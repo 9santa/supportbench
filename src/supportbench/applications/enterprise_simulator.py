@@ -23,6 +23,10 @@ from supportbench.simulator.scenarios import (
 )
 from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.service import EnterpriseService
+from supportbench.simulator.postgres.lifecycle import (
+    reset_world,
+    delete_world,
+)
 
 
 DATABASE_URL_ENV = "SUPPORTBENCH_SIMULATOR_DATABASE_URL"
@@ -74,6 +78,7 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    # === SEED PARSER ===
     seed_parser = subparsers.add_parser(
         "seed",
         help="Seed an isolated simulator world.",
@@ -93,6 +98,7 @@ def _build_parser() -> argparse.ArgumentParser:
         default="healthy",
     )
 
+    # === STATUS PARSER ===
     status_parser = subparsers.add_parser(
         "service-status",
         help="Get service state from a simulator world.",
@@ -106,6 +112,7 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    # === INSTALLED PRODUCT PARSER ===
     installed_parser = subparsers.add_parser(
         "installed-product",
         help="Read an installed product from an asset.",
@@ -123,6 +130,7 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    # === USER ENTITLEMENT PARSER ===
     entitlement_parser = subparsers.add_parser(
         "user-entitlement",
         help="Read a user's entitlement for a service.",
@@ -140,6 +148,7 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
+    # === CREATE SUPPORT CASE PARSER ===
     create_case_parser = subparsers.add_parser(
         "create-support-case",
         help="Create a support case in a simulator world.",
@@ -188,6 +197,50 @@ def _build_parser() -> argparse.ArgumentParser:
             "high",
             "critical",
         ),
+        required=True,
+    )
+
+    # === RESET WORLD PARSER ===
+    reset_parser = subparsers.add_parser(
+        "reset-world",
+        help="Atomically replace a simulator world with a fresh scenario.",
+    )
+    reset_parser.add_argument(
+        "--world-id",
+        required=True,
+    )
+    reset_parser.add_argument(
+        "--scenario",
+        choices=(
+            "healthy",
+            "dash_outage",
+            "old_dash_version",
+            "access_denied",
+        ),
+        required=True,
+    )
+
+    # === DELETE WORLD PARSER ===
+    delete_parser = subparsers.add_parser(
+        "delete-world",
+        help="Delete a simulator world and all world-dependent stuff.",
+    )
+    delete_parser.add_argument(
+        "--world-id",
+        required=True,
+    )
+
+    # === GET SUPPORT CASE PARSER ===
+    get_case_parser = subparsers.add_parser(
+        "get-support-case",
+        help="Read a support case from a simulator world.",
+    )
+    get_case_parser.add_argument(
+        "--world-id",
+        default=DEFAULT_WORLD_ID,
+    )
+    get_case_parser.add_argument(
+        "--case-id",
         required=True,
     )
 
@@ -324,6 +377,81 @@ def _run_create_support_case(
     return 0
 
 
+def _run_reset_world(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+    scenario_name: ScenarioName,
+) -> int:
+    scenario = build_scenario(
+        name=scenario_name,
+        world_id=world_id,
+    )
+
+    reset_world(
+        session_factory=runtime.session_factory,
+        scenario=scenario,
+    )
+
+    print(
+        json.dumps(
+            {
+                "world_id": world_id,
+                "scenario_name": scenario_name,
+                "reset": True,
+            },
+            indent=2,
+        )
+    )
+
+    return 0
+
+
+def _run_delete_world(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+) -> int:
+    deleted = delete_world(
+        session_factory=runtime.session_factory,
+        world_id=world_id,
+    )
+
+    print(
+        json.dumps(
+            {
+                "world_id": world_id,
+                "deleted": deleted,
+            },
+            indent=2,
+        )
+    )
+
+    return 0
+
+
+def _run_get_support_case(
+    *,
+    runtime: EnterpriseSimulatorRuntime,
+    world_id: str,
+    case_id: str,
+) -> int:
+    support_case = runtime.service.get_support_case(
+        world_id=world_id,
+        case_id=case_id,
+    )
+
+    print(
+        json.dumps(
+            asdict(support_case),
+            indent=2,
+            default=str,
+        )
+    )
+
+    return 0
+
+
 def main(
     argv: Sequence[str] | None = None,
 ) -> int:
@@ -378,6 +506,26 @@ def main(
                         CaseSeverity,
                         args.severity,
                     ),
+                )
+
+            case "reset-world":
+                return _run_reset_world(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                    scenario_name=args.scenario,
+                )
+
+            case "delete-world":
+                return _run_delete_world(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                )
+
+            case "get-support-case":
+                return _run_get_support_case(
+                    runtime=runtime,
+                    world_id=args.world_id,
+                    case_id=args.case_id,
                 )
 
             case _:

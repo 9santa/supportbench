@@ -4,6 +4,7 @@ from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.errors import (
     ServiceNotFoundError,
     InstalledProductNotFoundError,
+    SupportCaseNotFoundError,
     UserEntitlementNotFoundError,
 )
 from supportbench.simulator.models import (
@@ -249,3 +250,32 @@ class EnterpriseService:
             uow.commit()
 
             return support_case
+
+    def get_support_case(
+        self,
+        *,
+        world_id: str,
+        case_id: str,
+    ) -> SupportCase:
+        normalized_world_id = world_id.strip()
+        normalized_case_id = case_id.strip()
+
+        if not normalized_world_id:
+            raise ValueError("world_id must be non-empty")
+
+        if not normalized_case_id:
+            raise ValueError("case_id must be non-empty")
+
+        with self._uow_factory() as uow:
+            support_case = uow.support_cases.get(
+                world_id=normalized_world_id,
+                case_id=normalized_case_id,
+            )
+
+        if support_case is None:
+            raise SupportCaseNotFoundError(
+                world_id=normalized_world_id,
+                case_id=normalized_case_id,
+            )
+
+        return support_case

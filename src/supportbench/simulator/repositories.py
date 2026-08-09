@@ -58,6 +58,13 @@ class SupportCaseRepository(Protocol):
         support_case: SupportCase,
     ) -> bool: ...
 
+    def get(
+        self,
+        *,
+        world_id: str,
+        case_id: str,
+    ) -> SupportCase | None: ...
+
 
 class AuditEventRepository(Protocol):
     def add(
