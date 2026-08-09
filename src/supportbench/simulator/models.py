@@ -140,12 +140,12 @@ class Asset:
     environment: Environment
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("asset_id", field_name=self.asset_id)
-        _require_non_empty("hostname", field_name=self.hostname)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.asset_id, field_name="asset_id")
+        _require_non_empty(self.hostname, field_name="hostname")
         _require_non_empty(
-            "operating_system",
-            field_name=self.operating_system,
+            self.operating_system,
+            field_name="operating_system",
         )
 
         if self.environment not in _ENVIRONMENTS:
@@ -161,16 +161,16 @@ class InstalledProduct:
     patch_level: str
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("asset_id", field_name=self.asset_id)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.asset_id, field_name="asset_id")
         _require_non_empty(
-            "product_key",
-            field_name=self.product_key,
+            self.product_key,
+            field_name="product_key",
         )
-        _require_non_empty("version", field_name=self.version)
+        _require_non_empty(self.version, field_name="version")
         _require_non_empty(
-            "patch_level",
-            field_name=self.patch_level,
+            self.patch_level,
+            field_name="patch_level",
         )
 
 
@@ -182,15 +182,15 @@ class User:
     department: str
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.user_id, field_name="user_id")
         _require_non_empty(
-            "display_name",
-            field_name=self.display_name,
+            self.display_name,
+            field_name="display_name",
         )
         _require_non_empty(
-            "department",
-            field_name=self.department,
+            self.department,
+            field_name="department",
         )
 
 
@@ -203,13 +203,13 @@ class UserEntitlement:
     role: str
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.user_id, field_name="user_id")
         _require_non_empty(
-            "service_id",
-            field_name=self.service_id,
+            self.service_id,
+            field_name="service_id",
         )
-        _require_non_empty("role", field_name=self.role)
+        _require_non_empty(self.role, field_name="role")
 
 
 @dataclass(frozen=True, slots=True)
@@ -234,29 +234,29 @@ class SupportCase:
     updated_at: datetime
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("case_id", field_name=self.case_id)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.case_id, field_name="case_id")
         _require_non_empty(
-            "idempotency_key",
-            field_name=self.idempotency_key,
+            self.idempotency_key,
+            field_name="idempotency_key",
         )
         _require_non_empty(
-            "actor_user_id",
-            field_name=self.actor_user_id,
+            self.actor_user_id,
+            field_name="actor_user_id",
         )
-        _require_non_empty("user_id", field_name=self.user_id)
+        _require_non_empty(self.user_id, field_name="user_id")
         _require_non_empty(
-            "service_id",
-            field_name=self.service_id,
+            self.service_id,
+            field_name="service_id",
         )
-        _require_non_empty("summary", field_name=self.summary)
+        _require_non_empty(self.summary, field_name="summary")
         _require_non_empty(
-            "description",
-            field_name=self.description,
+            self.description,
+            field_name="description",
         )
         _require_non_empty(
-            "assigned_team",
-            field_name=self.assigned_team,
+            self.assigned_team,
+            field_name="assigned_team",
         )
 
         if self.severity not in _CASE_SEVERITIES:
@@ -287,23 +287,23 @@ class AuditEvent:
     metadata: dict[str, Any]
 
     def __post_init__(self) -> None:
-        _require_non_empty("world_id", field_name=self.world_id)
-        _require_non_empty("event_id", field_name=self.event_id)
+        _require_non_empty(self.world_id, field_name="world_id")
+        _require_non_empty(self.event_id, field_name="event_id")
         _require_non_empty(
-            "event_type",
-            field_name=self.event_type,
+            self.event_type,
+            field_name="event_type",
         )
         _require_non_empty(
-            "actor_user_id",
-            field_name=self.actor_user_id,
+            self.actor_user_id,
+            field_name="actor_user_id",
         )
         _require_non_empty(
-            "entity_type",
-            field_name=self.entity_type,
+            self.entity_type,
+            field_name="entity_type",
         )
         _require_non_empty(
-            "entity_id",
-            field_name=self.entity_id,
+            self.entity_id,
+            field_name="entity_id",
         )
 
         if self.occurred_at.tzinfo is None:
