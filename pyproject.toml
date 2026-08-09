@@ -32,6 +32,12 @@ tracking = [
     "psutil",
     "nvidia-ml-py",
 ]
+simulator = [
+    "sqlalchemy>=2,<3",
+    "psycopg[binary]>=3,<4",
+    "alembic>=1.16,<2",
+]
+
 
 [tool.ruff]
 target-version = "py312"
