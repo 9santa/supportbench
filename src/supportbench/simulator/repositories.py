@@ -53,6 +53,11 @@ class SupportCaseRepository(Protocol):
         support_case: SupportCase,
     ) -> None: ...
 
+    def add_if_absent(
+        self,
+        support_case: SupportCase,
+    ) -> bool: ...
+
 
 class AuditEventRepository(Protocol):
     def add(

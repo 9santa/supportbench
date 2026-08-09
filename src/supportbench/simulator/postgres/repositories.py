@@ -1,6 +1,7 @@
 from typing import cast
 
 from sqlalchemy import select, insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from supportbench.simulator.models import (
@@ -195,6 +196,40 @@ class PostgresSupportCaseRepository:
                 updated_at=support_case.updated_at,
             )
         )
+
+    def add_if_absent(
+        self,
+        support_case: SupportCase,
+    ) -> bool:
+        statement = (
+            pg_insert(support_cases)
+            .values(
+                world_id=support_case.world_id,
+                case_id=support_case.case_id,
+                idempotency_key=support_case.idempotency_key,
+                actor_user_id=support_case.actor_user_id,
+                user_id=support_case.user_id,
+                service_id=support_case.service_id,
+                summary=support_case.summary,
+                description=support_case.description,
+                severity=support_case.severity,
+                status=support_case.status,
+                assigned_team=support_case.assigned_team,
+                created_at=support_case.created_at,
+                updated_at=support_case.updated_at,
+            )
+            .on_conflict_do_nothing(
+                index_elements=[
+                    support_cases.c.world_id,
+                    support_cases.c.idempotency_key,
+                ]
+            )
+            .returning(support_cases.c.case_id)
+        )
+
+        inserted_case_id = self._session.execute(statement).scalar_one_or_none()
+
+        return inserted_case_id is not None
 
 
 class PostgresAuditEventRepository:

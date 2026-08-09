@@ -101,6 +101,21 @@ class FakeSupportCaseRepository:
     ) -> None:
         self.items.append(support_case)
 
+    def add_if_absent(
+        self,
+        support_case: SupportCase,
+    ) -> bool:
+        existing = self.get_by_idempotency_key(
+            world_id=support_case.world_id,
+            idempotency_key=support_case.idempotency_key,
+        )
+
+        if existing is not None:
+            return False
+
+        self.items.append(support_case)
+        return True
+
 
 class FakeAuditEventRepository:
     def __init__(self) -> None:

@@ -210,6 +210,22 @@ class EnterpriseService:
                 updated_at=now,
             )
 
+            inserted = uow.support_cases.add_if_absent(support_case)
+
+            if not inserted:
+                existing = uow.support_cases.get_by_idempotency_key(
+                    world_id=world_id,
+                    idempotency_key=idempotency_key,
+                )
+
+                if existing is None:
+                    raise RuntimeError(
+                        "support case idempotency conflict "
+                        "was detected, but the existing case could not be loaded"
+                    )
+
+                return existing
+
             audit_event = AuditEvent(
                 world_id=world_id,
                 event_id=self._id_generator.new_id(),
@@ -228,7 +244,6 @@ class EnterpriseService:
                 },
             )
 
-            uow.support_cases.add(support_case)
             uow.audit_events.add(audit_event)
 
             uow.commit()
