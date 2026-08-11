@@ -1271,3 +1271,21 @@ EnterpriseService
                 ├── Clock
                 ├── atomic audit
                 └── race-safe idempotency
+
+
+
+untrusted
+ToolCall.arguments
+       │
+       ▼
+ Pydantic extra=forbid
+       │
+       ▼
+   Tool Handler
+       │
+       ▼
+trusted context
+world / actor / request
+       │
+       ▼
+EnterpriseService
