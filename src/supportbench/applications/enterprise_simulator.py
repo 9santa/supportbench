@@ -27,6 +27,10 @@ from supportbench.simulator.postgres.lifecycle import (
     reset_world,
     delete_world,
 )
+from supportbench.tools.enterprise import (
+    build_enterprise_tool_handlers,
+)
+from supportbench.tools.gateway import ToolGateway
 
 
 DATABASE_URL_ENV = "SUPPORTBENCH_SIMULATOR_DATABASE_URL"
@@ -38,6 +42,7 @@ class EnterpriseSimulatorRuntime:
     engine: Engine
     session_factory: sessionmaker[Session]
     service: EnterpriseService
+    tool_gateway: ToolGateway
 
     def close(self) -> None:
         self.engine.dispose()
@@ -52,10 +57,13 @@ def build_enterprise_simulator(
 
     service = EnterpriseService(uow_factory=lambda: PostgresUnitOfWork(session_factory))
 
+    tool_gateway = ToolGateway(build_enterprise_tool_handlers(service))
+
     return EnterpriseSimulatorRuntime(
         engine=engine,
         session_factory=session_factory,
         service=service,
+        tool_gateway=tool_gateway,
     )
 
 

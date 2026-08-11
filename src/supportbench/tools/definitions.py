@@ -115,5 +115,5 @@ CREATE_SUPPORT_CASE = ToolDefinition(
     name="create_support_case",
     description=("Create a support case for a user and enterprise service."),
     arguments_schema=(CreateSupportCaseArguments.model_json_schema()),
-    mutating=False,
+    mutating=True,
 )

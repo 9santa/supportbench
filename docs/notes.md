@@ -1274,6 +1274,7 @@ EnterpriseService
 
 
 
+## Security boundary
 untrusted
 ToolCall.arguments
        │
@@ -1289,3 +1290,19 @@ world / actor / request
        │
        ▼
 EnterpriseService
+
+
+## End-to-end tool calling pipeline
+ToolCall
+  ↓
+ToolGateway
+  ↓
+Pydantic validation
+  ↓
+enterprise handler
+  ↓
+EnterpriseService
+  ↓
+PostgresUnitOfWork
+  ↓
+PostgreSQL
