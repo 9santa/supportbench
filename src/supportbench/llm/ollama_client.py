@@ -107,7 +107,7 @@ class OllamaToolCallingClient:
         except (URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise OllamaTransportError("Ollama request failed") from exc
 
-        if not isinstance(response, Mapping):
+        if not isinstance(response_data, Mapping):
             raise OllamaProtocolError("Ollama returned an invalid response envelope")
 
         return response_data

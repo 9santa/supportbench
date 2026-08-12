@@ -1434,3 +1434,39 @@ Ollama role="tool"
   "eval_count": 170,
   "eval_duration": 1139644714
 }
+
+
+python -m supportbench.applications.ollama_tool_smoke
+assistant content:
+'Okay, the user is asking about the current status of webgui-noc-prod. Let me check which tool I can use here.\n\nLooking at the tools provided, the first function is get_service_status. It takes a service_id as a parameter. The service_id here would be "webgui-noc-prod". The function returns the operational state and deployed version.\n\nSo I need to call get_service_status with service_id set to "webgui-noc-prod". The other tools like get_installed_product, check_user_entitlement, and create_support_case don\'t seem relevant here because the user isn\'t asking about product versions, user entitlements, or creating a case. \n\nI should make sure that the service_id is correctly formatted. The user wrote "webgui-noc-prod", so I\'ll use that as the service_id parameter. \n\nNo other parameters are needed for this function. So the tool call should be straightforward.\n</think>\n\n'
+tool calls:
+{
+  "call_id": "ollama-call:2130f18321c45a2a70556f126042a2ae096c35272336b3c0a20eb54b5a680b23",
+  "name": "get_service_status",
+  "arguments": {
+    "service_id": "webgui-noc-prod"
+  }
+}
+tool result:
+{
+  "call_id": "ollama-call:2130f18321c45a2a70556f126042a2ae096c35272336b3c0a20eb54b5a680b23",
+  "tool_name": "get_service_status",
+  "status": "success",
+  "data": {
+    "world_id": "ollama-tool-smoke",
+    "service_id": "webgui-noc-prod",
+    "display_name": "NOC Web GUI",
+    "product_key": "netcool_webgui",
+    "version": "8.1 FP7",
+    "environment": "production",
+    "status": "degraded",
+    "owner_team": "noc-platform"
+  },
+  "error": null
+}
+ollama tool message:
+{
+  "role": "tool",
+  "tool_name": "get_service_status",
+  "content": "{\"call_id\":\"ollama-call:2130f18321c45a2a70556f126042a2ae096c35272336b3c0a20eb54b5a680b23\",\"data\":{\"display_name\":\"NOC Web GUI\",\"environment\":\"production\",\"owner_team\":\"noc-platform\",\"product_key\":\"netcool_webgui\",\"service_id\":\"webgui-noc-prod\",\"status\":\"degraded\",\"version\":\"8.1 FP7\",\"world_id\":\"ollama-tool-smoke\"},\"error\":null,\"status\":\"success\",\"tool_name\":\"get_service_status\"}"
+}
