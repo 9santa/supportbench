@@ -1335,3 +1335,35 @@ actor            └───────┬────────┘
                          │
                          ▼
                     PostgreSQL
+
+
+## Forward
+ToolGateway.definitions
+        │
+        ▼
+tool_definitions_to_ollama()
+        │
+        ▼
+Ollama "tools" JSON
+
+## Backward
+Ollama response
+ message.tool_calls
+        │
+        ▼
+parse_ollama_chat_response()
+        │
+        ▼
+supportbench ToolCall
+        │
+        ▼
+ToolGateway.execute()
+        │
+        ▼
+ToolResult
+        │
+        ▼
+tool_result_to_ollama_message()
+        │
+        ▼
+Ollama role="tool"
