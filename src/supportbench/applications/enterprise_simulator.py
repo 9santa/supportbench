@@ -31,6 +31,9 @@ from supportbench.tools.enterprise import (
     build_enterprise_tool_handlers,
 )
 from supportbench.tools.gateway import ToolGateway
+from supportbench.tools.policies import (
+    build_enterprise_tool_policy_engine,
+)
 
 
 DATABASE_URL_ENV = "SUPPORTBENCH_SIMULATOR_DATABASE_URL"
@@ -57,7 +60,10 @@ def build_enterprise_simulator(
 
     service = EnterpriseService(uow_factory=lambda: PostgresUnitOfWork(session_factory))
 
-    tool_gateway = ToolGateway(build_enterprise_tool_handlers(service))
+    tool_gateway = ToolGateway(
+        build_enterprise_tool_handlers(service),
+        policy_engine=build_enterprise_tool_policy_engine(),
+    )
 
     return EnterpriseSimulatorRuntime(
         engine=engine,

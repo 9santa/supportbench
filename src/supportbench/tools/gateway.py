@@ -21,6 +21,7 @@ from supportbench.tools.models import (
     ToolExecutionContext,
     ToolResult,
 )
+from supportbench.tools.policies import ToolPolicyEngine
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ class ToolGateway:
     def __init__(
         self,
         handlers: Iterable[ToolHandler],
+        *,
+        policy_engine: ToolPolicyEngine,
     ) -> None:
         registry: dict[str, ToolHandler] = {}
 
@@ -43,7 +46,12 @@ class ToolGateway:
 
             registry[name] = handler
 
+        policy_engine.validate_registered_tools(
+            registry.keys(),
+        )
+
         self._handlers = registry
+        self._policy_engine = policy_engine
 
     @property
     def definitions(
@@ -64,6 +72,19 @@ class ToolGateway:
                 call=call,
                 code="unknown_tool",
                 message=f"Unknown tool {call.name!r}.",
+            )
+
+        decision = self._policy_engine.evaluate(
+            call=call,
+            definition=handler.definition,
+            context=context,
+        )
+
+        if decision.outcome != "allow":
+            return _error_result(
+                call=call,
+                code=decision.code or "forbidden",
+                message=decision.message or "Tool execution is not allowed.",
             )
 
         try:

@@ -1306,3 +1306,32 @@ EnterpriseService
 PostgresUnitOfWork
   ↓
 PostgreSQL
+
+
+
+                       ToolCall
+                          │
+                          ▼
+                 ┌────────────────┐
+                 │  Tool Gateway  │
+                 └───────┬────────┘
+                         │
+                         ▼
+                 ┌────────────────┐
+TRUSTED ────────►│ Policy Engine  │
+permissions      │                │
+approvals        │ authorization  │
+world            │ approval       │
+actor            └───────┬────────┘
+                         │ allow only
+                         ▼
+                Pydantic validation
+                         │
+                         ▼
+                    Handler
+                         │
+                         ▼
+               EnterpriseService
+                         │
+                         ▼
+                    PostgreSQL

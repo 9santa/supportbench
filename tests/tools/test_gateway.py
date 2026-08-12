@@ -1,19 +1,40 @@
 from collections.abc import Mapping
+from dataclasses import replace
+from datetime import UTC, datetime
 
 import pytest
 
 from supportbench.simulator.commands import CreateSupportCaseCommand
+from supportbench.simulator.models import (
+    InstalledProduct,
+    ServiceInstance,
+    SupportCase,
+    UserEntitlement,
+)
 from supportbench.tools.definitions import (
     GET_SERVICE_STATUS,
     ToolDefinition,
 )
+from supportbench.tools.enterprise import (
+    build_enterprise_tool_handlers,
+)
 from supportbench.tools.errors import (
     DuplicateToolNameError,
+    MissingToolPolicyError,
+    UnknownToolPolicyError,
 )
 from supportbench.tools.gateway import ToolGateway
 from supportbench.tools.models import (
     ToolCall,
     ToolExecutionContext,
+)
+from supportbench.tools.policies import (
+    CREATE_SUPPORT_CASE_PERMISSION,
+    ENTERPRISE_READ_PERMISSION,
+    StaticToolPolicyEngine,
+    ToolPolicyRule,
+    build_enterprise_tool_policy_engine,
+    tool_approval_id,
 )
 
 
@@ -41,16 +62,23 @@ class FakeHandler:
         }
 
 
-def _context() -> ToolExecutionContext:
+def _context(
+    *,
+    permissions: frozenset[str] = frozenset({ENTERPRISE_READ_PERMISSION}),
+) -> ToolExecutionContext:
     return ToolExecutionContext(
         world_id="trusted-world",
         actor_user_id="alice",
         request_id="req-001",
+        permissions=permissions,
     )
 
 
 def test_unknown_tool_returns_error() -> None:
-    gateway = ToolGateway(())
+    gateway = ToolGateway(
+        (),
+        policy_engine=StaticToolPolicyEngine({}),
+    )
 
     result = gateway.execute(
         ToolCall(
@@ -75,21 +103,32 @@ def test_duplicate_tool_names_are_rejected() -> None:
             (
                 handler,
                 handler,
-            )
+            ),
+            policy_engine=StaticToolPolicyEngine({}),
         )
 
 
-from datetime import datetime, timezone
+def test_missing_tool_policy_is_rejected() -> None:
+    with pytest.raises(MissingToolPolicyError, match="get_service_status"):
+        ToolGateway(
+            (FakeHandler(),),
+            policy_engine=StaticToolPolicyEngine({}),
+        )
 
-from supportbench.simulator.models import (
-    InstalledProduct,
-    ServiceInstance,
-    SupportCase,
-    UserEntitlement,
-)
-from supportbench.tools.enterprise import (
-    build_enterprise_tool_handlers,
-)
+
+def test_policy_for_unknown_tool_is_rejected() -> None:
+    with pytest.raises(UnknownToolPolicyError, match="unknown_tool"):
+        ToolGateway(
+            (),
+            policy_engine=StaticToolPolicyEngine(
+                {
+                    "unknown_tool": ToolPolicyRule(
+                        required_permissions=frozenset(),
+                        requires_approval=False,
+                    )
+                }
+            ),
+        )
 
 
 class FakeEnterpriseService:
@@ -152,7 +191,7 @@ class FakeEnterpriseService:
 
     def create_support_case(
         self,
-        command,
+        command: CreateSupportCaseCommand,
     ) -> SupportCase:
         self.last_command = command
 
@@ -162,7 +201,7 @@ class FakeEnterpriseService:
             11,
             12,
             0,
-            tzinfo=timezone.utc,
+            tzinfo=UTC,
         )
 
         return SupportCase(
@@ -185,7 +224,29 @@ class FakeEnterpriseService:
 def _enterprise_gateway(
     service: FakeEnterpriseService,
 ) -> ToolGateway:
-    return ToolGateway(build_enterprise_tool_handlers(service))
+    return ToolGateway(
+        build_enterprise_tool_handlers(service),
+        policy_engine=build_enterprise_tool_policy_engine(),
+    )
+
+
+def _approved_context(
+    call: ToolCall,
+    *,
+    world_id: str = "scenario-0042",
+    actor_user_id: str = "alice",
+    request_id: str = "req-900",
+) -> ToolExecutionContext:
+    context = ToolExecutionContext(
+        world_id=world_id,
+        actor_user_id=actor_user_id,
+        request_id=request_id,
+        permissions=frozenset({CREATE_SUPPORT_CASE_PERMISSION}),
+    )
+    return replace(
+        context,
+        approved_tool_calls=frozenset({tool_approval_id(call=call, context=context)}),
+    )
 
 
 def test_world_id_cannot_be_controlled_by_tool_arguments() -> None:
@@ -205,6 +266,7 @@ def test_world_id_cannot_be_controlled_by_tool_arguments() -> None:
             world_id="trusted-world",
             actor_user_id="alice",
             request_id="req-001",
+            permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
         ),
     )
 
@@ -231,6 +293,7 @@ def test_service_status_uses_trusted_world() -> None:
             world_id="trusted-world",
             actor_user_id="alice",
             request_id="req-001",
+            permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
         ),
     )
 
@@ -244,24 +307,21 @@ def test_service_status_uses_trusted_world() -> None:
 def test_create_support_case_uses_trusted_actor() -> None:
     service = FakeEnterpriseService()
     gateway = _enterprise_gateway(service)
+    call = ToolCall(
+        call_id="tc-017",
+        name="create_support_case",
+        arguments={
+            "user_id": "bob",
+            "service_id": "webgui-noc-prod",
+            "summary": "Cannot access Web GUI",
+            "description": ("Bob cannot access the Web GUI."),
+            "severity": "high",
+        },
+    )
 
     result = gateway.execute(
-        ToolCall(
-            call_id="tc-017",
-            name="create_support_case",
-            arguments={
-                "user_id": "bob",
-                "service_id": "webgui-noc-prod",
-                "summary": "Cannot access Web GUI",
-                "description": ("Bob cannot access the Web GUI."),
-                "severity": "high",
-            },
-        ),
-        context=ToolExecutionContext(
-            world_id="scenario-0042",
-            actor_user_id="alice",
-            request_id="req-900",
-        ),
+        call,
+        context=_approved_context(call),
     )
 
     assert result.status == "success"
@@ -292,11 +352,7 @@ def test_same_tool_call_gets_same_idempotency_key() -> None:
         },
     )
 
-    context = ToolExecutionContext(
-        world_id="scenario-0042",
-        actor_user_id="alice",
-        request_id="req-900",
-    )
+    context = _approved_context(call)
 
     _enterprise_gateway(first_service).execute(
         call,
@@ -308,7 +364,174 @@ def test_same_tool_call_gets_same_idempotency_key() -> None:
         context=context,
     )
 
+    assert first_service.last_command is not None
+    assert second_service.last_command is not None
     assert first_service.last_command.idempotency_key == second_service.last_command.idempotency_key
+
+
+def test_read_tool_is_denied_without_permission() -> None:
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+
+    result = gateway.execute(
+        ToolCall(
+            call_id="tc-001",
+            name="get_service_status",
+            arguments={"service_id": "webgui-noc-prod"},
+        ),
+        context=_context(permissions=frozenset()),
+    )
+
+    assert result.status == "error"
+    assert result.error is not None
+    assert result.error.code == "forbidden"
+    assert service.last_world_id is None
+
+
+def test_read_tool_is_allowed_with_permission() -> None:
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+
+    result = gateway.execute(
+        ToolCall(
+            call_id="tc-001",
+            name="get_service_status",
+            arguments={"service_id": "webgui-noc-prod"},
+        ),
+        context=_context(),
+    )
+
+    assert result.status == "success"
+    assert service.last_world_id == "trusted-world"
+
+
+def test_mutating_tool_with_permission_requires_approval() -> None:
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+    call = ToolCall(
+        call_id="tc-017",
+        name="create_support_case",
+        arguments={
+            "user_id": "alice",
+            "service_id": "webgui-noc-prod",
+            "summary": "Cannot access Web GUI",
+            "description": "Cannot access Web GUI.",
+            "severity": "high",
+        },
+    )
+
+    result = gateway.execute(
+        call,
+        context=ToolExecutionContext(
+            world_id="scenario-0042",
+            actor_user_id="alice",
+            request_id="req-900",
+            permissions=frozenset({CREATE_SUPPORT_CASE_PERMISSION}),
+        ),
+    )
+
+    assert result.status == "error"
+    assert result.error is not None
+    assert result.error.code == "approval_required"
+    assert service.last_command is None
+
+
+def test_approved_create_case_is_executed() -> None:
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+
+    call = ToolCall(
+        call_id="tc-create-001",
+        name="create_support_case",
+        arguments={
+            "user_id": "alice",
+            "service_id": "webgui-noc-prod",
+            "summary": "Cannot access Web GUI",
+            "description": "Cannot access Web GUI.",
+            "severity": "high",
+        },
+    )
+
+    context = _approved_context(call=call)
+
+    result = gateway.execute(
+        call,
+        context=context,
+    )
+
+    assert result.status == "success"
+
+    assert service.last_command is not None
+    assert service.last_command.world_id == "scenario-0042"
+
+
+def test_approval_is_bound_to_call_arguments() -> None:
+    """
+    Approved severity=high, after that changed call arguments to
+    severity=critical, old approval should not work.
+    """
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+
+    original_call = ToolCall(
+        call_id="tc-create-001",
+        name="create_support_case",
+        arguments={
+            "user_id": "alice",
+            "service_id": "webgui-noc-prod",
+            "summary": "Cannot access Web GUI",
+            "description": "Cannot access Web GUI.",
+            "severity": "high",
+        },
+    )
+
+    context = ToolExecutionContext(
+        world_id="trusted-world",
+        actor_user_id="alice",
+        request_id="req-001",
+        permissions=frozenset({"support_case:create"}),
+    )
+
+    approval_id = tool_approval_id(
+        call=original_call,
+        context=context,
+    )
+
+    context = replace(
+        context,
+        approved_tool_calls=frozenset({approval_id}),
+    )
+
+    changed_call = ToolCall(
+        call_id="tc-create-001",
+        name="create_support_case",
+        arguments={
+            **original_call.arguments,
+            "severity": "critical",
+        },
+    )
+
+    result = gateway.execute(
+        changed_call,
+        context=context,
+    )
+
+    assert result.status == "error"
+    assert result.error is not None
+    assert result.error.code == "approval_required"
+
+    assert service.last_command is None
+
+
+def test_all_registered_tools_have_explicit_policy() -> None:
+    service = FakeEnterpriseService()
+
+    gateway = ToolGateway(
+        build_enterprise_tool_handlers(service),
+        policy_engine=build_enterprise_tool_policy_engine(),
+    )
+
+    assert len(gateway.definitions) == 4
 
 
 def test_tool_definitions_have_strict_json_schemas() -> None:

@@ -23,6 +23,9 @@ class ToolExecutionContext:
     actor_user_id: str
     request_id: str
 
+    permissions: frozenset[str] = frozenset()
+    approved_tool_calls: frozenset[str] = frozenset()
+
     def __post_init__(self) -> None:
         _require_non_empty("world_id", self.world_id)
         _require_non_empty("actor_user_id", self.actor_user_id)

@@ -1,4 +1,5 @@
 import os
+from dataclasses import replace
 from uuid import uuid4
 
 import pytest
@@ -22,7 +23,11 @@ from supportbench.tools.models import (
     ToolCall,
     ToolExecutionContext,
 )
-
+from supportbench.tools.policies import (
+    CREATE_SUPPORT_CASE_PERMISSION,
+    ENTERPRISE_READ_PERMISSION,
+    tool_approval_id,
+)
 
 pytestmark = pytest.mark.postgres
 
@@ -65,6 +70,7 @@ def test_get_service_status_through_gateway() -> None:
                 world_id=world_id,
                 actor_user_id="alice",
                 request_id="req-001",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
             ),
         )
 
@@ -126,6 +132,7 @@ def test_entitlement_result_depends_on_trusted_world() -> None:
                 world_id=healthy_world,
                 actor_user_id="alice",
                 request_id="req-healthy",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
             ),
         )
 
@@ -135,6 +142,7 @@ def test_entitlement_result_depends_on_trusted_world() -> None:
                 world_id=denied_world,
                 actor_user_id="alice",
                 request_id="req-denied",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
             ),
         )
 
@@ -187,6 +195,7 @@ def test_installed_product_exposes_scenario_version() -> None:
                 world_id=world_id,
                 actor_user_id="alice",
                 request_id="req-001",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
             ),
         )
 
@@ -218,24 +227,29 @@ def test_create_support_case_through_gateway() -> None:
             ),
         )
 
-        result = runtime.tool_gateway.execute(
-            ToolCall(
-                call_id="tc-create-001",
-                name="create_support_case",
-                arguments={
-                    "user_id": "alice",
-                    "service_id": "webgui-noc-prod",
-                    "summary": "Cannot access Web GUI",
-                    "description": ("Alice cannot access production Web GUI."),
-                    "severity": "high",
-                },
-            ),
-            context=ToolExecutionContext(
-                world_id=world_id,
-                actor_user_id="alice",
-                request_id="req-001",
-            ),
+        call = ToolCall(
+            call_id="tc-create-001",
+            name="create_support_case",
+            arguments={
+                "user_id": "alice",
+                "service_id": "webgui-noc-prod",
+                "summary": "Cannot access Web GUI",
+                "description": ("Alice cannot access production Web GUI."),
+                "severity": "high",
+            },
         )
+        context = ToolExecutionContext(
+            world_id=world_id,
+            actor_user_id="alice",
+            request_id="req-001",
+            permissions=frozenset({CREATE_SUPPORT_CASE_PERMISSION}),
+        )
+        context = replace(
+            context,
+            approved_tool_calls=frozenset({tool_approval_id(call=call, context=context)}),
+        )
+
+        result = runtime.tool_gateway.execute(call, context=context)
 
         assert result.status == "success"
         assert result.error is None
