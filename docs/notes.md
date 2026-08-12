@@ -1367,3 +1367,70 @@ tool_result_to_ollama_message()
         │
         ▼
 Ollama role="tool"
+
+
+
+## Manual smoke test with curl
+
+ curl -s http://127.0.0.1:11434/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "qwen3:4b",
+    "stream": false,
+    "think": false,
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the current status of webgui-noc-prod?"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "get_service_status",
+          "description": "Return the current operational state and deployed version of a managed enterprise service.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "service_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "service_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    ]
+  }' | jq
+{
+  "model": "qwen3:4b",
+  "created_at": "2026-08-12T10:43:00.463033192Z",
+  "message": {
+    "role": "assistant",
+    "content": "Okay, the user is asking about the current status of webgui-noc-prod. Let me check the tools provided. There's a function called get_service_status that takes a service_id as a string. The service they mentioned is webgui-noc-prod, so I need to call that function with service_id set to \"webgui-noc-prod\". Let me make sure the function name is correct. The function name is get_service_status, and the argument is service_id. Yep, so I'll structure the tool call accordingly. No other parameters are needed since the function expects an object with service_id. Alright, time to output the tool call in JSON inside the tool_call tags.\n</think>\n\n",
+    "tool_calls": [
+      {
+        "id": "call_qubp7i1o",
+        "function": {
+          "index": 0,
+          "name": "get_service_status",
+          "arguments": {
+            "service_id": "webgui-noc-prod"
+          }
+        }
+      }
+    ]
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1324523079,
+  "load_duration": 76172800,
+  "prompt_eval_count": 154,
+  "prompt_eval_duration": 49298306,
+  "eval_count": 170,
+  "eval_duration": 1139644714
+}
