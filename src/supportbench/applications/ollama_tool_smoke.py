@@ -8,7 +8,7 @@ from supportbench.llm.ollama_client import (
     OllamaToolCallingClient,
 )
 from supportbench.llm.ollama_tools import (
-    tool_result_to_ollama_message,
+    build_ollama_tool_to_followup_messages,
 )
 from supportbench.simulator.postgres.lifecycle import (
     reset_world,
@@ -122,39 +122,35 @@ def main() -> int:
             ),
         )
 
-        print("tool result:")
+        followup_messages = build_ollama_tool_to_followup_messages(
+            messages,
+            assistant_turn=turn,
+            tool_results=(result,),
+        )
+
+        print("follow-up history:")
         print(
             json.dumps(
-                {
-                    "call_id": result.call_id,
-                    "tool_name": result.tool_name,
-                    "status": result.status,
-                    "data": result.data,
-                    "error": (
-                        {
-                            "code": result.error.code,
-                            "message": result.error.message,
-                        }
-                        if result.error
-                        else None
-                    ),
-                },
+                followup_messages,
                 indent=2,
-                default=str,
+                ensure_ascii=False,
             )
         )
 
-        tool_message = tool_result_to_ollama_message(result)
-
-        print("ollama tool message:")
-        print(
-            json.dumps(
-                tool_message,
-                indent=2,
-            )
+        final_turn = client.chat(
+            messages=followup_messages,
+            tools=runtime.tool_gateway.definitions,
+            request_id="smoke-request-001",
+            assistant_turn_index=1,
         )
 
-        return 0
+        if final_turn.tool_calls:
+            raise RuntimeError("expected the model to answer after observing the service status")
+
+        if not final_turn.content.strip():
+            raise RuntimeError("expected a non-empty final answer")
+
+        print(final_turn.content)
 
     finally:
         runtime.close()

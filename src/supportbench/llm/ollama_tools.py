@@ -212,3 +212,36 @@ def tool_result_to_ollama_message(
         "tool_name": result.tool_name,
         "content": content,
     }
+
+
+def build_ollama_tool_to_followup_messages(
+    messages: Sequence[Mapping[str, object]],
+    *,
+    assistant_turn: AssistantModelTurn,
+    tool_results: Sequence[ToolResult],
+) -> list[dict[str, object]]:
+    expected_calls = assistant_turn.tool_calls
+
+    if len(tool_results) != len(expected_calls):
+        raise OllamaProtocolError(
+            "number of tool results does not match the number of assistant tool calls"
+        )
+
+    result_messages = [dict(messages) for message in messages]
+
+    result_messages.append(dict(assistant_turn.history_message))
+
+    for call, result in zip(
+        expected_calls,
+        tool_results,
+        strict=True,
+    ):
+        if result.call_id != call.call_id:
+            raise OllamaProtocolError("tool result call_id does not match the assistant tool call")
+
+        if result.tool_name != call.name:
+            raise OllamaProtocolError("tool result name does not match the assistant tool call")
+
+        result_messages.append(tool_result_to_ollama_message(result))
+
+    return result_messages
