@@ -1,27 +1,76 @@
 from typing import cast
 
-from sqlalchemy import select, insert
+from sqlalchemy import case, func, insert, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.engine import RowMapping
 from sqlalchemy.orm import Session
 
 from supportbench.simulator.models import (
-    Environment,
-    ServiceInstance,
-    ServiceStatus,
-    InstalledProduct,
-    UserEntitlement,
     AuditEvent,
-    SupportCase,
     CaseSeverity,
     CaseStatus,
+    Environment,
+    InstalledProduct,
+    Product,
+    ServiceInstance,
+    ServiceStatus,
+    SupportCase,
+    UserEntitlement,
 )
 from supportbench.simulator.postgres.schema import (
-    service_instances,
-    installed_products,
-    user_entitlements,
-    support_cases,
     audit_events,
+    installed_products,
+    products,
+    service_instances,
+    support_cases,
+    user_entitlements,
 )
+
+
+class PostgresProductRepository:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def search(
+        self,
+        *,
+        query: str,
+        limit: int,
+    ) -> tuple[Product, ...]:
+        normalized_query = query.lower()
+        key = func.lower(products.c.product_key)
+        name = func.lower(products.c.display_name)
+
+        statement = (
+            select(products)
+            .where(
+                or_(
+                    key == normalized_query,
+                    name == normalized_query,
+                    key.contains(normalized_query, autoescape=True),
+                    name.contains(normalized_query, autoescape=True),
+                )
+            )
+            .order_by(
+                case(
+                    (key == normalized_query, 0),
+                    (name == normalized_query, 1),
+                    else_=2,
+                ),
+                key,
+            )
+            .limit(limit)
+        )
+
+        rows = self._session.execute(statement).mappings().all()
+
+        return tuple(
+            Product(
+                product_key=row["product_key"],
+                display_name=row["display_name"],
+            )
+            for row in rows
+        )
 
 
 class PostgresServiceRepository:
@@ -230,7 +279,7 @@ class PostgresSupportCaseRepository:
         return inserted_case_id is not None
 
     @staticmethod
-    def _from_row(row) -> SupportCase:
+    def _from_row(row: RowMapping) -> SupportCase:
         return SupportCase(
             world_id=row["world_id"],
             case_id=row["case_id"],

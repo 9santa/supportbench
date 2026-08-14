@@ -1,13 +1,14 @@
+from collections.abc import Mapping
 from dataclasses import asdict
 from hashlib import sha256
 from typing import Protocol
-from collections.abc import Mapping
 
 from supportbench.simulator.commands import (
     CreateSupportCaseCommand,
 )
 from supportbench.simulator.models import (
     InstalledProduct,
+    Product,
     ServiceInstance,
     SupportCase,
     UserEntitlement,
@@ -17,10 +18,12 @@ from supportbench.tools.definitions import (
     CREATE_SUPPORT_CASE,
     GET_INSTALLED_PRODUCT,
     GET_SERVICE_STATUS,
+    SEARCH_PRODUCTS,
     CheckUserEntitlementArguments,
     CreateSupportCaseArguments,
     GetInstalledProductArguments,
     GetServiceStatusArguments,
+    SearchProductsArguments,
     ToolDefinition,
 )
 from supportbench.tools.handlers import ToolHandler
@@ -30,6 +33,12 @@ from supportbench.tools.models import (
 
 
 class EnterpriseToolService(Protocol):
+    def search_products(
+        self,
+        *,
+        query: str,
+    ) -> tuple[Product, ...]: ...
+
     def get_service_status(
         self,
         *,
@@ -133,6 +142,35 @@ class GetInstalledProductHandler:
         return asdict(result)
 
 
+class SearchProductsHandler:
+    def __init__(
+        self,
+        service: EnterpriseToolService,
+    ) -> None:
+        self._service = service
+
+    @property
+    def definition(self) -> ToolDefinition:
+        return SEARCH_PRODUCTS
+
+    def execute(
+        self,
+        *,
+        call_id: str,
+        arguments: Mapping[str, object],
+        context: ToolExecutionContext,
+    ) -> Mapping[str, object]:
+        args = SearchProductsArguments.model_validate(arguments)
+
+        matches = self._service.search_products(
+            query=args.query,
+        )
+
+        return {
+            "matches": [asdict(product) for product in matches],
+        }
+
+
 class CheckUserEntitlementHandler:
     def __init__(
         self,
@@ -211,6 +249,7 @@ def build_enterprise_tool_handlers(
 ) -> tuple[ToolHandler, ...]:
     return (
         GetServiceStatusHandler(service),
+        SearchProductsHandler(service),
         GetInstalledProductHandler(service),
         CheckUserEntitlementHandler(service),
         CreateSupportCaseHandler(service),

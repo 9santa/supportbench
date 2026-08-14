@@ -4,23 +4,26 @@ from typing import Self
 from sqlalchemy.orm import Session
 
 from supportbench.simulator.postgres.repositories import (
-    PostgresServiceRepository,
-    PostgresInstalledProductRepository,
-    PostgresUserEntitlementRepository,
-    PostgresSupportCaseRepository,
     PostgresAuditEventRepository,
+    PostgresInstalledProductRepository,
+    PostgresProductRepository,
+    PostgresServiceRepository,
+    PostgresSupportCaseRepository,
+    PostgresUserEntitlementRepository,
 )
 from supportbench.simulator.postgres.session import SessionFactory
 from supportbench.simulator.repositories import (
-    ServiceRepository,
-    InstalledProductRepository,
-    UserEntitlementRepository,
     AuditEventRepository,
+    InstalledProductRepository,
+    ProductRepository,
+    ServiceRepository,
     SupportCaseRepository,
+    UserEntitlementRepository,
 )
 
 
 class PostgresUnitOfWork:
+    products: ProductRepository
     services: ServiceRepository
     installed_products: InstalledProductRepository
     user_entitlements: UserEntitlementRepository
@@ -38,6 +41,7 @@ class PostgresUnitOfWork:
         session = self._session_factory()
 
         self._session = session
+        self.products = PostgresProductRepository(session)
         self.services = PostgresServiceRepository(session)
         self.installed_products = PostgresInstalledProductRepository(session)
         self.user_entitlements = PostgresUserEntitlementRepository(session)

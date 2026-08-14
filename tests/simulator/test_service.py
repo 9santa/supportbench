@@ -1,18 +1,39 @@
+from datetime import UTC, datetime
 from types import TracebackType
-from datetime import datetime, timezone
 
 import pytest
 
 from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.errors import ServiceNotFoundError
 from supportbench.simulator.models import (
-    ServiceInstance,
-    InstalledProduct,
-    UserEntitlement,
-    SupportCase,
     AuditEvent,
+    InstalledProduct,
+    Product,
+    ServiceInstance,
+    SupportCase,
+    UserEntitlement,
 )
 from supportbench.simulator.service import EnterpriseService
+
+
+class FakeProductRepository:
+    def __init__(self, products: tuple[Product, ...]) -> None:
+        self._products = products
+
+    def search(
+        self,
+        *,
+        query: str,
+        limit: int,
+    ) -> tuple[Product, ...]:
+        normalized_query = query.casefold()
+        matches = (
+            product
+            for product in self._products
+            if normalized_query in product.product_key.casefold()
+            or normalized_query in product.display_name.casefold()
+        )
+        return tuple(matches)[:limit]
 
 
 class FakeServiceRepository:
@@ -134,7 +155,9 @@ class FakeUnitOfWork:
         services: tuple[ServiceInstance, ...] = (),
         installed_products: tuple[InstalledProduct, ...] = (),
         entitlements: tuple[UserEntitlement, ...] = (),
+        products: tuple[Product, ...] = (),
     ) -> None:
+        self.products = FakeProductRepository(products)
         self.services = FakeServiceRepository(services)
         self.installed_products = FakeInstalledProductRepository(installed_products)
         self.user_entitlements = FakeUserEntitlementRepository(entitlements)
@@ -287,6 +310,18 @@ def test_get_installed_product() -> None:
     assert actual == expected
 
 
+def test_search_products_returns_canonical_product_key() -> None:
+    expected = Product(
+        product_key="dash",
+        display_name="IBM Dashboard Application Services Hub",
+    )
+    service = EnterpriseService(
+        uow_factory=lambda: FakeUnitOfWork(products=(expected,)),
+    )
+
+    assert service.search_products(query="DASH") == (expected,)
+
+
 def test_check_user_entitlement_preserves_explicit_denial() -> None:
     expected = UserEntitlement(
         world_id="world-a",
@@ -330,7 +365,7 @@ def test_create_support_case() -> None:
         services=(service_instance,),
     )
 
-    now = datetime(2026, 8, 9, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 9, 12, 0, tzinfo=UTC)
 
     enterprise = EnterpriseService(
         uow_factory=lambda: uow,
@@ -397,7 +432,7 @@ def test_create_support_case_is_idempotent() -> None:
         8,
         12,
         0,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
     enterprise = EnterpriseService(

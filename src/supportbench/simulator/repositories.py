@@ -3,12 +3,22 @@ from types import TracebackType
 from typing import Protocol, Self
 
 from supportbench.simulator.models import (
-    ServiceInstance,
-    InstalledProduct,
-    UserEntitlement,
-    SupportCase,
     AuditEvent,
+    InstalledProduct,
+    Product,
+    ServiceInstance,
+    SupportCase,
+    UserEntitlement,
 )
+
+
+class ProductRepository(Protocol):
+    def search(
+        self,
+        *,
+        query: str,
+        limit: int,
+    ) -> tuple[Product, ...]: ...
 
 
 class ServiceRepository(Protocol):
@@ -74,6 +84,7 @@ class AuditEventRepository(Protocol):
 
 
 class UnitOfWork(Protocol):
+    products: ProductRepository
     services: ServiceRepository
     installed_products: InstalledProductRepository
     user_entitlements: UserEntitlementRepository

@@ -182,6 +182,29 @@ def test_installed_product_exposes_scenario_version() -> None:
             ),
         )
 
+        search_result = runtime.tool_gateway.execute(
+            ToolCall(
+                call_id="tc-search-001",
+                name="search_products",
+                arguments={"query": "DASH"},
+            ),
+            context=ToolExecutionContext(
+                world_id=world_id,
+                actor_user_id="alice",
+                request_id="req-001",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+            ),
+        )
+
+        assert search_result.status == "success"
+        assert search_result.data is not None
+        assert search_result.data["matches"] == [
+            {
+                "product_key": "dash",
+                "display_name": "IBM Dashboard Application Services Hub",
+            }
+        ]
+
         result = runtime.tool_gateway.execute(
             ToolCall(
                 call_id="tc-002",

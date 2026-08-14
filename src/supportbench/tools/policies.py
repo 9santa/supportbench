@@ -1,16 +1,15 @@
-from collections.abc import Collection, Mapping
 import json
-from hashlib import sha256
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass
+from hashlib import sha256
 from typing import Literal, Protocol
 
-from supportbench.tools.models import ToolCall, ToolExecutionContext
 from supportbench.tools.definitions import ToolDefinition
 from supportbench.tools.errors import (
     MissingToolPolicyError,
     UnknownToolPolicyError,
 )
-
+from supportbench.tools.models import ToolCall, ToolExecutionContext
 
 type ToolPolicyOutcome = Literal[
     "allow",
@@ -153,6 +152,10 @@ ENTERPRISE_TOOL_POLICIES = {
         requires_approval=False,
     ),
     "get_installed_product": ToolPolicyRule(
+        required_permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+        requires_approval=False,
+    ),
+    "search_products": ToolPolicyRule(
         required_permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
         requires_approval=False,
     ),

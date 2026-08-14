@@ -7,6 +7,7 @@ import pytest
 from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.models import (
     InstalledProduct,
+    Product,
     ServiceInstance,
     SupportCase,
     UserEntitlement,
@@ -135,6 +136,18 @@ class FakeEnterpriseService:
     def __init__(self) -> None:
         self.last_world_id: str | None = None
         self.last_command: CreateSupportCaseCommand | None = None
+
+    def search_products(
+        self,
+        *,
+        query: str,
+    ) -> tuple[Product, ...]:
+        return (
+            Product(
+                product_key="dash",
+                display_name="IBM Dashboard Application Services Hub",
+            ),
+        )
 
     def get_service_status(
         self,
@@ -531,7 +544,7 @@ def test_all_registered_tools_have_explicit_policy() -> None:
         policy_engine=build_enterprise_tool_policy_engine(),
     )
 
-    assert len(gateway.definitions) == 4
+    assert len(gateway.definitions) == 5
 
 
 def test_tool_definitions_have_strict_json_schemas() -> None:
@@ -543,6 +556,7 @@ def test_tool_definitions_have_strict_json_schemas() -> None:
     assert set(definitions) == {
         "get_service_status",
         "get_installed_product",
+        "search_products",
         "check_user_entitlement",
         "create_support_case",
     }
@@ -557,6 +571,32 @@ def test_tool_definitions_have_strict_json_schemas() -> None:
     assert "service_id" in properties
     assert "world_id" not in properties
     assert "actor_user_id" not in properties
+
+
+def test_search_products_returns_canonical_keys() -> None:
+    result = _enterprise_gateway(FakeEnterpriseService()).execute(
+        ToolCall(
+            call_id="tc-search-001",
+            name="search_products",
+            arguments={"query": "DASH"},
+        ),
+        context=ToolExecutionContext(
+            world_id="world-a",
+            actor_user_id="alice",
+            request_id="req-001",
+            permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.data == {
+        "matches": [
+            {
+                "product_key": "dash",
+                "display_name": "IBM Dashboard Application Services Hub",
+            }
+        ]
+    }
 
 
 class ExplodingEnterpriseService(FakeEnterpriseService):

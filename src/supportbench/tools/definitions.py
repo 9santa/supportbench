@@ -1,7 +1,6 @@
-from dataclasses import dataclass
-from os import name
-from typing import Literal
 from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -39,6 +38,17 @@ class GetInstalledProductArguments(BaseModel):
         min_length=1,
     )
     product_key: str = Field(
+        min_length=1,
+    )
+
+
+class SearchProductsArguments(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+    )
+
+    query: str = Field(
         min_length=1,
     )
 
@@ -97,8 +107,24 @@ GET_SERVICE_STATUS = ToolDefinition(
 
 GET_INSTALLED_PRODUCT = ToolDefinition(
     name="get_installed_product",
-    description=("Return the installed version and patch level of a product on an asset."),
+    description=(
+        "Return the installed version and patch level for an exact canonical product_key. "
+        "When the user provides a product name instead of a known key, call "
+        "search_products first."
+    ),
     arguments_schema=(GetInstalledProductArguments.model_json_schema()),
+    mutating=False,
+)
+
+
+SEARCH_PRODUCTS = ToolDefinition(
+    name="search_products",
+    description=(
+        "Search the product catalog by a user-facing name or partial name and return "
+        "matching canonical product_key values. Use this before tools that require an "
+        "exact product_key."
+    ),
+    arguments_schema=(SearchProductsArguments.model_json_schema()),
     mutating=False,
 )
 

@@ -1,18 +1,19 @@
 from supportbench.simulator.clock import Clock, SystemClock
-from supportbench.simulator.ids import IdGenerator, UuidGenerator
 from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.errors import (
-    ServiceNotFoundError,
     InstalledProductNotFoundError,
+    ServiceNotFoundError,
     SupportCaseNotFoundError,
     UserEntitlementNotFoundError,
 )
+from supportbench.simulator.ids import IdGenerator, UuidGenerator
 from supportbench.simulator.models import (
-    InstalledProduct,
-    ServiceInstance,
-    UserEntitlement,
     AuditEvent,
+    InstalledProduct,
+    Product,
+    ServiceInstance,
     SupportCase,
+    UserEntitlement,
 )
 from supportbench.simulator.repositories import UnitOfWorkFactory
 
@@ -93,6 +94,22 @@ class EnterpriseService:
             )
 
         return installed_product
+
+    def search_products(
+        self,
+        *,
+        query: str,
+    ) -> tuple[Product, ...]:
+        normalized_query = query.strip()
+
+        if not normalized_query:
+            raise ValueError("query must be non-empty")
+
+        with self._uow_factory() as uow:
+            return uow.products.search(
+                query=normalized_query,
+                limit=10,
+            )
 
     def check_user_entitlement(
         self,
