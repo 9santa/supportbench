@@ -1470,3 +1470,14 @@ ollama tool message:
   "tool_name": "get_service_status",
   "content": "{\"call_id\":\"ollama-call:2130f18321c45a2a70556f126042a2ae096c35272336b3c0a20eb54b5a680b23\",\"data\":{\"display_name\":\"NOC Web GUI\",\"environment\":\"production\",\"owner_team\":\"noc-platform\",\"product_key\":\"netcool_webgui\",\"service_id\":\"webgui-noc-prod\",\"status\":\"degraded\",\"version\":\"8.1 FP7\",\"world_id\":\"ollama-tool-smoke\"},\"error\":null,\"status\":\"success\",\"tool_name\":\"get_service_status\"}"
 }
+
+
+
+## Agent invariants:
+max_steps обязателен
+tool calls выполняются последовательно
+approval_required останавливает run
+обычные tool errors возвращаются модели как observations
+пустой final turn запрещён
+trajectory сохраняется
+LLM transport/protocol exceptions не превращаются в ToolResult
