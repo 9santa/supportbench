@@ -3,6 +3,7 @@ from collections.abc import Mapping, Sequence
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from supportbench.agent.protocols import AgentModelClient
 from supportbench.llm.errors import (
     OllamaProtocolError,
     OllamaTransportError,
@@ -11,11 +12,13 @@ from supportbench.llm.models import AssistantModelTurn
 from supportbench.llm.ollama_tools import (
     parse_ollama_chat_response,
     tool_definitions_to_ollama,
+    tool_result_to_ollama_message,
 )
 from supportbench.tools.definitions import ToolDefinition
+from supportbench.tools.models import ToolResult
 
 
-class OllamaToolCallingClient:
+class OllamaToolCallingClient(AgentModelClient):
     def __init__(
         self,
         *,
@@ -111,3 +114,9 @@ class OllamaToolCallingClient:
             raise OllamaProtocolError("Ollama returned an invalid response envelope")
 
         return response_data
+
+    def tool_result_message(
+        self,
+        result: ToolResult,
+    ) -> Mapping[str, object]:
+        return tool_result_to_ollama_message(result)

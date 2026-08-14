@@ -227,7 +227,7 @@ def build_ollama_tool_to_followup_messages(
             "number of tool results does not match the number of assistant tool calls"
         )
 
-    result_messages = [dict(messages) for message in messages]
+    result_messages = [dict(message) for message in messages]
 
     result_messages.append(dict(assistant_turn.history_message))
 
