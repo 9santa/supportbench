@@ -1481,3 +1481,37 @@ approval_required останавливает run
 пустой final turn запрещён
 trajectory сохраняется
 LLM transport/protocol exceptions не превращаются в ToolResult
+
+
+
+User
+ │
+ ▼
+AgentOrchestrator
+ │
+ ▼
+LLM
+ │
+ │ ToolCall
+ ▼
+ToolGateway
+ │
+ ├── trusted context
+ ├── validation
+ ├── policy
+ └── error mapping
+ │
+ ▼
+EnterpriseService
+ │
+ ▼
+PostgreSQL
+ │
+ ▼
+ToolResult
+ │
+ ▼
+LLM
+ │
+ ▼
+Final answer
