@@ -13,6 +13,11 @@ from supportbench.simulator.models import (
     SupportCase,
     UserEntitlement,
 )
+from supportbench.simulator.errors import (
+    InstalledProductNotFoundError,
+    ServiceNotFoundError,
+    UserEntitlementNotFoundError,
+)
 from supportbench.tools.definitions import (
     CHECK_USER_ENTITLEMENT,
     CREATE_SUPPORT_CASE,
@@ -26,9 +31,11 @@ from supportbench.tools.definitions import (
     SearchProductsArguments,
     ToolDefinition,
 )
+from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.handlers import ToolHandler
 from supportbench.tools.models import (
     ToolExecutionContext,
+    ToolErrorInfo,
 )
 
 
@@ -254,3 +261,41 @@ def build_enterprise_tool_handlers(
         CheckUserEntitlementHandler(service),
         CreateSupportCaseHandler(service),
     )
+
+
+class EnterpriseToolExceptionMapper(ToolExceptionMapper):
+    def map_exception(
+        self,
+        exc: Exception,
+    ) -> ToolErrorInfo | None:
+        if isinstance(exc, ServiceNotFoundError):
+            return ToolErrorInfo(
+                code="service_not_found", message=(f"Service {exc.service_id!r} was not found.")
+            )
+
+        if isinstance(exc, InstalledProductNotFoundError):
+            return ToolErrorInfo(
+                code=("installed_product_not_found"),
+                message=(
+                    "Installed product "
+                    f"{exc.product_key!r} "
+                    "was not found on asset "
+                    f"{exc.asset_id!r}."
+                ),
+            )
+
+        if isinstance(
+            exc,
+            UserEntitlementNotFoundError,
+        ):
+            return ToolErrorInfo(
+                code=("user_entitlement_not_found"),
+                message=(
+                    "No entitlement was found "
+                    f"for user {exc.user_id!r} "
+                    "and service "
+                    f"{exc.service_id!r}."
+                ),
+            )
+
+        return None

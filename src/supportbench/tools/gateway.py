@@ -3,11 +3,7 @@ from collections.abc import Iterable, Mapping
 
 from pydantic import ValidationError
 
-from supportbench.simulator.errors import (
-    InstalledProductNotFoundError,
-    ServiceNotFoundError,
-    UserEntitlementNotFoundError,
-)
+from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.definitions import (
     ToolDefinition,
 )
@@ -33,6 +29,7 @@ class ToolGateway:
         handlers: Iterable[ToolHandler],
         *,
         policy_engine: ToolPolicyEngine,
+        exception_mappers: Iterable[ToolExceptionMapper] = (),
     ) -> None:
         registry: dict[str, ToolHandler] = {}
 
@@ -52,6 +49,7 @@ class ToolGateway:
 
         self._handlers = registry
         self._policy_engine = policy_engine
+        self._exception_mappers = tuple(exception_mappers)
 
     @property
     def definitions(
@@ -101,42 +99,23 @@ class ToolGateway:
                 message=_validation_message(exc),
             )
 
-        except ServiceNotFoundError as exc:
-            return _error_result(
-                call=call,
-                code="service_not_found",
-                message=(f"Service {exc.service_id!r} was not found."),
-            )
+        except Exception as exc:
+            for mapper in self._exception_mappers:
+                mapped = mapper.map_exception(exc)
 
-        except InstalledProductNotFoundError as exc:
-            return _error_result(
-                call=call,
-                code="installed_product_not_found",
-                message=(
-                    "Installed product "
-                    f"{exc.product_key!r} was not found "
-                    f"on asset {exc.asset_id!r}."
-                ),
-            )
+                if mapped is not None:
+                    return _error_result(
+                        call=call,
+                        code=mapped.code,
+                        message=mapped.message,
+                    )
 
-        except UserEntitlementNotFoundError as exc:
-            return _error_result(
-                call=call,
-                code="user_entitlement_not_found",
-                message=(
-                    "No entitlement was found for user "
-                    f"{exc.user_id!r} and service "
-                    f"{exc.service_id!r}."
-                ),
-            )
-
-        except Exception:
             logger.exception(
                 "Unexpected tool execution failure",
                 extra={
                     "tool_name": call.name,
                     "call_id": call.call_id,
-                    "request_id": context.request_id,
+                    "request_id": (context.request_id),
                     "world_id": context.world_id,
                 },
             )

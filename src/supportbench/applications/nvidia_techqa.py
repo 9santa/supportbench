@@ -1,11 +1,14 @@
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Mapping
+from types import MappingProxyType
 
 from transformers import AutoTokenizer
 
 from supportbench.chunking.base import HuggingFaceTokenCodec
 from supportbench.chunking.loaders import load_chunks
+from supportbench.chunking.models import Chunk
 from supportbench.data.loaders import load_documents
 from supportbench.rag.context import (
     ContextPreparationService,
@@ -33,6 +36,13 @@ DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
 DEFAULT_GENERATION_TOKENIZER = "vllmd/gemma-3-4b-it-w8a8"
 FROZEN_PROMPT_LAYOUT: PromptLayout = "legacy_system_user"
+
+
+@dataclass(frozen=True, slots=True)
+class NvidiaTechQARetrievalRuntime:
+    retrieval_service: ParentRetrievalService
+    chunk_resolver: RepresentativeChunkResolver
+    chunks_by_id: Mapping[str, Chunk]
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,13 +127,9 @@ class NvidiaTechQAContextConfig:
         if self.source_candidate_k < self.parent_candidate_k:
             raise ValueError("source_candidate_k must be at least parent_candidate_k")
         if self.maximum_overlap_tokens < self.minimum_overlap_tokens:
-            raise ValueError(
-                "maximum_overlap_tokens must be at least minimum_overlap_tokens"
-            )
+            raise ValueError("maximum_overlap_tokens must be at least minimum_overlap_tokens")
         if self.reserved_output_tokens >= self.model_context_window:
-            raise ValueError(
-                "reserved_output_tokens must be smaller than model_context_window"
-            )
+            raise ValueError("reserved_output_tokens must be smaller than model_context_window")
 
         non_negative_weights = {
             "candidate_prior_weight": self.candidate_prior_weight,
@@ -141,12 +147,15 @@ class NvidiaTechQAContextConfig:
             raise ValueError("second_evidence_weight must be between 0 and 1")
 
 
-def build_nvidia_techqa_context_service(
+def build_nvidia_techqa_retrieval_runtime(
     config: NvidiaTechQAContextConfig,
-) -> ContextPreparationService:
+) -> NvidiaTechQARetrievalRuntime:
     chunk_directory = config.chunks_root / config.chunk_config
+
     runtime_documents = load_documents(chunk_directory / "documents.jsonl")
+
     chunks_by_id = load_chunks(chunk_directory / "chunks.jsonl")
+
     runtime_ids = {document.doc_id for document in runtime_documents}
 
     if runtime_ids != set(chunks_by_id):
@@ -163,9 +172,8 @@ def build_nvidia_techqa_context_service(
             bm25_b=config.bm25_b,
         ),
     )
-    parent_by_chunk_id = {
-        chunk_id: chunk.document_id for chunk_id, chunk in chunks_by_id.items()
-    }
+
+    parent_by_chunk_id = {chunk_id: chunk.document_id for chunk_id, chunk in chunks_by_id.items()}
     parent_wrrf = ParentWeightedRRFHybrid(
         sources=(
             WeightedRetrieverSource("bm25", factory.create("bm25"), config.bm25_weight),
@@ -202,10 +210,26 @@ def build_nvidia_techqa_context_service(
         chunks_per_parent=config.chunks_per_parent,
         evidence_selection=config.evidence_selection,
     )
+
+    return NvidiaTechQARetrievalRuntime(
+        retrieval_service=retrieval_service,
+        chunk_resolver=chunk_resolver,
+        chunks_by_id=MappingProxyType(dict(chunks_by_id)),
+    )
+
+
+def build_nvidia_techqa_context_service(
+    config: NvidiaTechQAContextConfig,
+    *,
+    retrieval_runtime: NvidiaTechQARetrievalRuntime | None = None,
+) -> ContextPreparationService:
+    runtime = retrieval_runtime or build_nvidia_techqa_retrieval_runtime(config)
+
     context_tokenizer = AutoTokenizer.from_pretrained(
         config.context_tokenizer_name,
         local_files_only=True,
     )
+
     prompt_builder = GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT)
     context_builder = RepresentativeChunkContextBuilder(
         token_codec=HuggingFaceTokenCodec(context_tokenizer),
@@ -216,8 +240,8 @@ def build_nvidia_techqa_context_service(
     )
 
     return ContextPreparationService(
-        retrieval_service=retrieval_service,
-        chunk_resolver=chunk_resolver,
+        retrieval_service=runtime.retrieval_service,
+        chunk_resolver=runtime.chunk_resolver,
         context_builder=context_builder,
         prompt_budget_calculator=PromptBudgetCalculator(
             tokenizer=context_tokenizer,
@@ -234,9 +258,13 @@ def build_nvidia_techqa_rag(
     config: NvidiaTechQAContextConfig,
     *,
     llm_client: LLMClient,
+    retrieval_runtime: NvidiaTechQARetrievalRuntime | None = None,
 ) -> RAGPipeline:
     return RAGPipeline(
-        context_service=build_nvidia_techqa_context_service(config),
+        context_service=build_nvidia_techqa_context_service(
+            config,
+            retrieval_runtime=retrieval_runtime,
+        ),
         answer_generator=GroundedAnswerGenerator(
             prompt_builder=GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT),
             llm_client=llm_client,

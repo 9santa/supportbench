@@ -138,7 +138,7 @@ class StaticToolPolicyEngine(ToolPolicyEngine):
                 return ToolPolicyDecision(
                     outcome="approval_required",
                     code="approval_required",
-                    message=("This toll call requires approval before it can be executed."),
+                    message=("This tool call requires approval before it can be executed."),
                 )
 
         return ToolPolicyDecision(
@@ -182,6 +182,15 @@ KNOWLEDGE_TOOL_POLICIES = {
         requires_approval=False,
     ),
 }
+
+SUPPORT_AGENT_TOOL_POLICIES = {
+    **ENTERPRISE_TOOL_POLICIES,
+    **KNOWLEDGE_TOOL_POLICIES,
+}
+
+
+def build_support_agent_tool_policy_engine() -> StaticToolPolicyEngine:
+    return StaticToolPolicyEngine(SUPPORT_AGENT_TOOL_POLICIES)
 
 
 def build_enterprise_tool_policy_engine() -> StaticToolPolicyEngine:

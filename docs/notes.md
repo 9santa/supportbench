@@ -1515,3 +1515,30 @@ LLM
  │
  ▼
 Final answer
+
+
+classic RAG:
+RetrievalRuntime
+→ ContextPreparationService
+→ generator
+
+agent:
+RetrievalRuntime
+→ TechQAKnowledgeService
+→ tools
+→ same agent LLM
+
+
+                    AgentOrchestrator
+                           │
+                           ▼
+                     ToolGateway
+                           │
+          ┌────────────────┴───────────────┐
+          │                                │
+          ▼                                ▼
+enterprise handlers                knowledge handlers
+          │                                │
+EnterpriseService              TechQAKnowledgeService
+          │                                │
+      PostgreSQL                    frozen retrieval

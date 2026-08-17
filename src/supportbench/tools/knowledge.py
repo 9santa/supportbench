@@ -8,9 +8,17 @@ from pydantic import (
 )
 
 from supportbench.knowledge.protocols import SupportKnowledgeService
+from supportbench.knowledge.errors import (
+    SupportChunkNotFoundError,
+    SupportDocumentNotFoundError,
+)
+from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.definitions import ToolDefinition
 from supportbench.tools.handlers import ToolHandler
-from supportbench.tools.models import ToolExecutionContext
+from supportbench.tools.models import (
+    ToolExecutionContext,
+    ToolErrorInfo,
+)
 
 
 class SearchSupportDocsArguments(BaseModel):
@@ -181,3 +189,29 @@ def build_knowledge_tool_handlers(
         SearchSupportDocsHandler(service),
         ReadSupportDocHandler(service),
     )
+
+
+class KnowledgeToolExceptionMapper(ToolExceptionMapper):
+    def map_exception(
+        self,
+        exc: Exception,
+    ) -> ToolErrorInfo | None:
+        if isinstance(
+            exc,
+            SupportDocumentNotFoundError,
+        ):
+            return ToolErrorInfo(
+                code=("support_document_not_found"),
+                message=("The requested support document was not found."),
+            )
+
+        if isinstance(
+            exc,
+            SupportChunkNotFoundError,
+        ):
+            return ToolErrorInfo(
+                code="support_chunk_not_found",
+                message=("The requested support chunk was not found in the document."),
+            )
+
+        return None
