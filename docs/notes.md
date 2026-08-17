@@ -1542,3 +1542,14 @@ enterprise handlers                knowledge handlers
 EnterpriseService              TechQAKnowledgeService
           │                                │
       PostgreSQL                    frozen retrieval
+
+
+# AgentBench
+
+Хотим уметь отвечать на вопросы:
+- какой статус получил run?
+- какие tools реально использовались?
+- все ли обязательные tools были вызваны?
+- были ли запрещённые tools?
+- были ли неожиданные tool errors?
+- сколько было calls / steps / approvals?
