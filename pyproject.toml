@@ -36,6 +36,7 @@ simulator = [
     "sqlalchemy>=2,<3",
     "psycopg[binary]>=3,<4",
     "alembic>=1.16,<2",
+    "pydantic",
 ]
 
 

@@ -170,5 +170,19 @@ ENTERPRISE_TOOL_POLICIES = {
 }
 
 
+SUPPORT_DOCS_READ_PERMISSION = "support_docs:read"
+
+KNOWLEDGE_TOOL_POLICIES = {
+    "search_support_docs": ToolPolicyRule(
+        required_permissions=frozenset({SUPPORT_DOCS_READ_PERMISSION}),
+        requires_approval=False,
+    ),
+    "read_support_doc": ToolPolicyRule(
+        required_permissions=frozenset({SUPPORT_DOCS_READ_PERMISSION}),
+        requires_approval=False,
+    ),
+}
+
+
 def build_enterprise_tool_policy_engine() -> StaticToolPolicyEngine:
     return StaticToolPolicyEngine(ENTERPRISE_TOOL_POLICIES)
