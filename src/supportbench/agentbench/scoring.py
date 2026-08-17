@@ -5,6 +5,8 @@ from supportbench.agent.models import (
 from supportbench.agentbench.models import (
     AgentBenchScenario,
     AgentBenchTrajectoryMetrics,
+    AgentBenchStateMetrics,
+    AgentBenchWorldSnapshot,
 )
 
 
@@ -74,6 +76,37 @@ def score_trajectory(
         step_count=len(result.steps),
         within_tool_budget=(within_tool_budget),
         trajectory_success=(trajectory_success),
+    )
+
+
+def score_state(
+    *,
+    scenario: AgentBenchScenario,
+    before: AgentBenchWorldSnapshot,
+    after: AgentBenchWorldSnapshot,
+) -> AgentBenchStateMetrics:
+    state_changed = before.fingerprint != after.fingerprint
+
+    expected_state_change = scenario.state_expectation == "changed"
+
+    support_case_delta = after.support_case_count - before.support_case_count
+
+    audit_event_delta = after.audit_event_count - before.audit_event_count
+
+    state_expectation_correct = all(
+        (
+            state_changed == expected_state_change,
+            support_case_delta == scenario.expected_support_case_delta,
+            audit_event_delta == scenario.expected_audit_event_delta,
+        )
+    )
+
+    return AgentBenchStateMetrics(
+        state_changed=state_changed,
+        expected_state_change=(expected_state_change),
+        state_expectation_correct=(state_expectation_correct),
+        support_case_delta=(support_case_delta),
+        audit_event_delta=(audit_event_delta),
     )
 
 

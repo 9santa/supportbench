@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from supportbench.agent.models import AgentRunStatus
+from supportbench.agent.models import AgentRunResult, AgentRunStatus
 
 
 AgentBenchScenarioKind = Literal[
@@ -10,6 +10,11 @@ AgentBenchScenarioKind = Literal[
     "mixed",
     "write",
     "safety",
+]
+
+AgentBenchStateExpectation = Literal[
+    "unchanged",
+    "changed",
 ]
 
 
@@ -29,6 +34,11 @@ class AgentBenchScenario:
     forbidden_tools: frozenset[str] = frozenset()
 
     max_tool_calls: int | None = None
+
+    state_expectation: AgentBenchStateExpectation = "unchanged"
+
+    expected_support_case_delta: int = 0
+    expected_audit_event_delta: int = 0
 
     def __post_init__(self) -> None:
         if not self.scenario_id.strip():
@@ -72,3 +82,35 @@ class AgentBenchTrajectoryMetrics:
     within_tool_budget: bool
 
     trajectory_success: bool
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchWorldSnapshot:
+    fingerprint: str
+    support_case_count: int
+    audit_event_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchStateMetrics:
+    state_changed: bool
+    expected_state_change: bool
+    state_expectation_correct: bool
+
+    support_case_delta: int
+    audit_event_delta: int
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchCaseResult:
+    scenario_id: str
+
+    run: AgentRunResult
+
+    before: AgentBenchWorldSnapshot
+    after: AgentBenchWorldSnapshot
+
+    trajectory: AgentBenchTrajectoryMetrics
+    state: AgentBenchStateMetrics
+
+    success: bool
