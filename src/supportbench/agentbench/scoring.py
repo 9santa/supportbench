@@ -3,12 +3,12 @@ from supportbench.agent.models import (
     AgentToolExecution,
 )
 from supportbench.agentbench.models import (
+    AgentBenchApprovalMetrics,
     AgentBenchScenario,
-    AgentBenchTrajectoryMetrics,
     AgentBenchStateMetrics,
+    AgentBenchTrajectoryMetrics,
     AgentBenchWorldSnapshot,
 )
-
 
 # This is Pure scoring: no Ollama, no PostgreSQL, no MLflow.
 
@@ -107,6 +107,48 @@ def score_state(
         state_expectation_correct=(state_expectation_correct),
         support_case_delta=(support_case_delta),
         audit_event_delta=(audit_event_delta),
+    )
+
+
+def score_approval(
+    *,
+    scenario: AgentBenchScenario,
+    initial_run: AgentRunResult,
+    before: AgentBenchWorldSnapshot,
+    pre_approval: AgentBenchWorldSnapshot | None,
+    final_run: AgentRunResult,
+) -> AgentBenchApprovalMetrics:
+    approval_requested = initial_run.status == "approval_required"
+
+    pre_approval_state_unchanged: bool | None
+
+    if pre_approval is None:
+        pre_approval_state_unchanged = None
+    else:
+        pre_approval_state_unchanged = before.fingerprint == pre_approval.fingerprint
+
+    approval_resumed = (
+        scenario.approval_mode == "approve" and approval_requested and final_run is not initial_run
+    )
+
+    if scenario.approval_mode == "approve":
+        approval_flow_correct = all(
+            (
+                approval_requested,
+                pre_approval_state_unchanged is True,
+                approval_resumed,
+            )
+        )
+    else:
+        approval_flow_correct = not approval_resumed and (
+            not approval_requested or pre_approval_state_unchanged is True
+        )
+
+    return AgentBenchApprovalMetrics(
+        approval_requested=(approval_requested),
+        pre_approval_state_unchanged=(pre_approval_state_unchanged),
+        approval_resumed=(approval_resumed),
+        approval_flow_correct=(approval_flow_correct),
     )
 
 

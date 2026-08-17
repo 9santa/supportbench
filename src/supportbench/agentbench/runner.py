@@ -14,6 +14,7 @@ from supportbench.agentbench.postgres import (
     PostgresAgentBenchSnapshotter,
 )
 from supportbench.agentbench.scoring import (
+    score_approval,
     score_state,
     score_trajectory,
 )
@@ -70,7 +71,7 @@ class AgentBenchRunner:
                 permissions=scenario.permissions,
             )
 
-            run = self._orchestrator.run(
+            initial_run = self._orchestrator.run(
                 messages=(
                     {
                         "role": "system",
@@ -84,11 +85,36 @@ class AgentBenchRunner:
                 context=context,
             )
 
+            pre_approval = None
+            final_run = initial_run
+
+            if initial_run.status == "approval_required":
+                pre_approval = self._snapshotter.snapshot(world_id=world_id)
+
+                if initial_run.pending_approval is None:
+                    raise RuntimeError("approval_required run has no pending approval")
+
+                if scenario.approval_mode == "approve":
+                    pending = initial_run.pending_approval
+
+                    approved_context = ToolExecutionContext(
+                        world_id=context.world_id,
+                        actor_user_id=context.actor_user_id,
+                        request_id=context.request_id,
+                        permissions=context.permissions,
+                        approved_tool_calls=frozenset({pending.approval_id}),
+                    )
+
+                    final_run = self._orchestrator.resume_after_approval(
+                        previous=initial_run,
+                        context=approved_context,
+                    )
+
             after = self._snapshotter.snapshot(world_id=world_id)
 
             trajectory = score_trajectory(
                 scenario=scenario,
-                result=run,
+                result=final_run,
             )
 
             state = score_state(
@@ -97,14 +123,30 @@ class AgentBenchRunner:
                 after=after,
             )
 
+            approval = score_approval(
+                scenario=scenario,
+                initial_run=initial_run,
+                before=before,
+                pre_approval=pre_approval,
+                final_run=final_run,
+            )
+
             return AgentBenchCaseResult(
                 scenario_id=(scenario.scenario_id),
-                run=run,
+                run=final_run,
                 before=before,
+                pre_approval=pre_approval,
                 after=after,
                 trajectory=trajectory,
                 state=state,
-                success=(trajectory.trajectory_success and state.state_expectation_correct),
+                approval=approval,
+                success=all(
+                    (
+                        trajectory.trajectory_success,
+                        state.state_expectation_correct,
+                        approval.approval_flow_correct,
+                    )
+                ),
             )
 
         finally:

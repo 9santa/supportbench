@@ -3,7 +3,6 @@ from typing import Literal
 
 from supportbench.agent.models import AgentRunResult, AgentRunStatus
 
-
 AgentBenchScenarioKind = Literal[
     "enterprise",
     "knowledge",
@@ -15,6 +14,11 @@ AgentBenchScenarioKind = Literal[
 AgentBenchStateExpectation = Literal[
     "unchanged",
     "changed",
+]
+
+AgentBenchApprovalMode = Literal[
+    "none",  # do not approve
+    "approve",  # auto approve exact pending call
 ]
 
 
@@ -39,6 +43,8 @@ class AgentBenchScenario:
 
     expected_support_case_delta: int = 0
     expected_audit_event_delta: int = 0
+
+    approval_mode: AgentBenchApprovalMode = "none"
 
     def __post_init__(self) -> None:
         if not self.scenario_id.strip():
@@ -102,15 +108,28 @@ class AgentBenchStateMetrics:
 
 
 @dataclass(frozen=True, slots=True)
+class AgentBenchApprovalMetrics:
+    approval_requested: bool
+
+    pre_approval_state_unchanged: bool | None
+
+    approval_resumed: bool
+
+    approval_flow_correct: bool
+
+
+@dataclass(frozen=True, slots=True)
 class AgentBenchCaseResult:
     scenario_id: str
 
     run: AgentRunResult
 
     before: AgentBenchWorldSnapshot
+    pre_approval: AgentBenchWorldSnapshot | None
     after: AgentBenchWorldSnapshot
 
     trajectory: AgentBenchTrajectoryMetrics
     state: AgentBenchStateMetrics
+    approval: AgentBenchApprovalMetrics
 
     success: bool

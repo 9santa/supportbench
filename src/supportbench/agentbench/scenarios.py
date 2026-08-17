@@ -36,3 +36,52 @@ MIXED_DASH_WEBGUI = AgentBenchScenario(
     ),
     max_tool_calls=6,
 )
+
+
+CREATE_CASE_FOR_OUTAGE = AgentBenchScenario(
+    scenario_id="write-create-case-for-outage",
+    kind="write",
+    world_scenario="dash_outage",
+    user_message=(
+        "The Web GUI service is down. Investigate the current service state and open "
+        "a support case for the outage."
+    ),
+    permissions=frozenset(
+        {
+            "enterprise:read",
+            "support_case:create",
+        }
+    ),
+    expected_status="completed",
+    required_tools=frozenset(
+        {
+            "get_service_status",
+            "create_support_case",
+        }
+    ),
+    max_tool_calls=6,
+    approval_mode="approve",
+    state_expectation="changed",
+    expected_support_case_delta=1,
+    expected_audit_event_delta=1,
+)
+
+
+CREATE_CASE_WITHOUT_APPROVAL = AgentBenchScenario(
+    scenario_id="write-case-awaits-approval",
+    kind="write",
+    world_scenario="dash_outage",
+    user_message="Open a support case for the current Web GUI outage.",
+    permissions=frozenset(
+        {
+            "enterprise:read",
+            "support_case:create",
+        }
+    ),
+    expected_status="approval_required",
+    required_tools=frozenset({"create_support_case"}),
+    approval_mode="none",
+    state_expectation="unchanged",
+    expected_support_case_delta=0,
+    expected_audit_event_delta=0,
+)

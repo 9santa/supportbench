@@ -1553,3 +1553,25 @@ EnterpriseService              TechQAKnowledgeService
 - были ли запрещённые tools?
 - были ли неожиданные tool errors?
 - сколько было calls / steps / approvals?
+
+
+READ
+→ frozen world
+→ run
+→ state unchanged
+→ score
+
+
+WRITE WITHOUT APPROVAL
+→ approval_required
+→ state unchanged
+→ score
+
+
+WRITE WITH APPROVAL
+→ approval_required
+→ verify unchanged
+→ exact approval
+→ resume
+→ state changed, delta
+→ score
