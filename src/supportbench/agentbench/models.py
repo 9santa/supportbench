@@ -119,6 +119,13 @@ class AgentBenchApprovalMetrics:
 
 
 @dataclass(frozen=True, slots=True)
+class AgentBenchCaseFailure:
+    scenario_id: str
+    error_type: str
+    error_message: str
+
+
+@dataclass(frozen=True, slots=True)
 class AgentBenchCaseResult:
     scenario_id: str
 
@@ -133,3 +140,28 @@ class AgentBenchCaseResult:
     approval: AgentBenchApprovalMetrics
 
     success: bool
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchSuiteResult:
+    case_results: tuple[AgentBenchCaseResult, ...]
+    case_failures: tuple[AgentBenchCaseFailure, ...]
+
+    @property
+    def total_count(self) -> int:
+        return len(self.case_results) + len(self.case_failures)
+
+    @property
+    def successful_count(self) -> int:
+        return sum(1 for result in self.case_results if result.success)
+
+    @property
+    def unsuccessful_count(self) -> int:
+        return self.total_count - self.successful_count
+
+    @property
+    def success_rate(self) -> float:
+        if self.total_count == 0:
+            return 0.0
+
+        return self.successful_count / self.total_count
