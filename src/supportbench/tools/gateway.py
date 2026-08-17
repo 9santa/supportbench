@@ -3,13 +3,13 @@ from collections.abc import Iterable, Mapping
 
 from pydantic import ValidationError
 
-from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.definitions import (
     ToolDefinition,
 )
 from supportbench.tools.errors import (
     DuplicateToolNameError,
 )
+from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.handlers import ToolHandler
 from supportbench.tools.models import (
     ToolCall,
@@ -18,7 +18,6 @@ from supportbench.tools.models import (
     ToolResult,
 )
 from supportbench.tools.policies import ToolPolicyEngine
-
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +82,7 @@ class ToolGateway:
                 call=call,
                 code=decision.code or "forbidden",
                 message=decision.message or "Tool execution is not allowed.",
+                details=decision.details,
             )
 
         try:
@@ -140,6 +140,7 @@ def _error_result(
     call: ToolCall,
     code: str,
     message: str,
+    details: Mapping[str, object] | None = None,
 ) -> ToolResult:
     return ToolResult(
         call_id=call.call_id,
@@ -149,6 +150,7 @@ def _error_result(
         error=ToolErrorInfo(
             code=code,
             message=message,
+            details=details,
         ),
     )
 

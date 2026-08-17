@@ -1,12 +1,11 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Literal
-from collections.abc import Mapping
 
 from supportbench.tools.models import (
     ToolCall,
     ToolResult,
 )
-
 
 type AgentRunStatus = Literal[
     "completed",
@@ -32,6 +31,8 @@ class AgentStep:
 class AgentApprovalRequest:
     approval_id: str
     call: ToolCall
+    remaining_calls: tuple[ToolCall, ...]  # calls after pending approval call
+    step_index: int
 
 
 @dataclass(frozen=True, slots=True)

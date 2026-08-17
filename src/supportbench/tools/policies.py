@@ -23,6 +23,7 @@ class ToolPolicyDecision:
     outcome: ToolPolicyOutcome
     code: str | None = None
     message: str | None = None
+    details: Mapping[str, object] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -139,6 +140,7 @@ class StaticToolPolicyEngine(ToolPolicyEngine):
                     outcome="approval_required",
                     code="approval_required",
                     message=("This tool call requires approval before it can be executed."),
+                    details={"approval_id": approval_id},
                 )
 
         return ToolPolicyDecision(

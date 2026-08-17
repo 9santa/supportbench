@@ -432,20 +432,27 @@ def test_mutating_tool_with_permission_requires_approval() -> None:
             "severity": "high",
         },
     )
+    context = ToolExecutionContext(
+        world_id="scenario-0042",
+        actor_user_id="alice",
+        request_id="req-900",
+        permissions=frozenset({CREATE_SUPPORT_CASE_PERMISSION}),
+    )
 
     result = gateway.execute(
         call,
-        context=ToolExecutionContext(
-            world_id="scenario-0042",
-            actor_user_id="alice",
-            request_id="req-900",
-            permissions=frozenset({CREATE_SUPPORT_CASE_PERMISSION}),
-        ),
+        context=context,
     )
 
     assert result.status == "error"
     assert result.error is not None
     assert result.error.code == "approval_required"
+    assert result.error.details == {
+        "approval_id": tool_approval_id(
+            call=call,
+            context=context,
+        )
+    }
     assert service.last_command is None
 
 

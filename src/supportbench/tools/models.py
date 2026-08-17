@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Literal
-
 
 type ToolStatus = Literal["success", "error"]
 
@@ -36,6 +35,7 @@ class ToolExecutionContext:
 class ToolErrorInfo:
     code: str
     message: str
+    details: Mapping[str, object] | None = None
 
 
 @dataclass(frozen=True)
