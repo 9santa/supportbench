@@ -12,3 +12,5 @@ class AssistantModelTurn:
     # Ollama-form assistant message that must be
     # appended to conversation history before tool results.
     history_message: Mapping[str, object]
+    finish_reason: str | None = None
+    output_token_count: int | None = None

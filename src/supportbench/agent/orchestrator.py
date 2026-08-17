@@ -58,7 +58,11 @@ class AgentOrchestrator:
                 final_answer = turn.content.strip()
 
                 if not final_answer:
-                    raise EmptyAssistantTurnError(step_index=step_index)
+                    raise EmptyAssistantTurnError(
+                        step_index=step_index,
+                        finish_reason=turn.finish_reason,
+                        output_token_count=turn.output_token_count,
+                    )
 
                 history.append(dict(turn.history_message))
 

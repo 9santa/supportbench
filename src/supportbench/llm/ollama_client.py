@@ -1,3 +1,4 @@
+import logging
 import json
 from collections.abc import Mapping, Sequence
 from urllib.error import HTTPError, URLError
@@ -16,6 +17,8 @@ from supportbench.llm.ollama_tools import (
 )
 from supportbench.tools.definitions import ToolDefinition
 from supportbench.tools.models import ToolResult
+
+logger = logging.getLogger(__name__)
 
 
 class OllamaToolCallingClient(AgentModelClient):
@@ -76,6 +79,27 @@ class OllamaToolCallingClient(AgentModelClient):
         }
 
         response = self._post_json(payload)
+
+        message = response.get("message", {})
+
+        thinking = message.get("thinking", "") if isinstance(message, Mapping) else ""
+
+        content = message.get("content", "") if isinstance(message, Mapping) else ""
+
+        tool_calls = message.get("tool_calls", []) if isinstance(message, Mapping) else []
+
+        logger.info(
+            "Ollama assistant turn received",
+            extra={
+                "request_id": request_id,
+                "assistant_turn_index": (assistant_turn_index),
+                "done_reason": (response.get("done_reason")),
+                "eval_count": (response.get("eval_count")),
+                "thinking_chars": (len(thinking) if isinstance(thinking, str) else None),
+                "content_chars": (len(content) if isinstance(content, str) else None),
+                "tool_call_count": (len(tool_calls) if isinstance(tool_calls, list) else None),
+            },
+        )
 
         return parse_ollama_chat_response(
             response,

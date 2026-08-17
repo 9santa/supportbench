@@ -275,3 +275,53 @@ def test_non_object_tool_arguments_are_rejected() -> None:
             request_id="req-001",
             assistant_turn_index=0,
         )
+
+
+def test_qwen3_thinking_tool_call_response() -> None:
+    response = {
+        "message": {
+            "role": "assistant",
+            "thinking": ("I should inspect the installed product."),
+            "content": "",
+            "tool_calls": [
+                {
+                    "id": "call_j35synbb",
+                    "function": {
+                        "index": 0,
+                        "name": ("get_installed_product"),
+                        "arguments": {
+                            "asset_id": ("dash-host-01"),
+                            "product_key": "dash",
+                        },
+                    },
+                }
+            ],
+        },
+        "done": True,
+        "done_reason": "stop",
+        "eval_count": 123,
+    }
+
+    turn = parse_ollama_chat_response(
+        response,
+        request_id="req-001",
+        assistant_turn_index=0,
+    )
+
+    assert turn.content == ""
+
+    assert len(turn.tool_calls) == 1
+
+    call = turn.tool_calls[0]
+
+    assert call.name == "get_installed_product"
+
+    assert call.arguments == {
+        "asset_id": "dash-host-01",
+        "product_key": "dash",
+    }
+
+    assert turn.finish_reason == "stop"
+    assert turn.output_token_count == 123
+
+    assert turn.history_message["thinking"] == ("I should inspect the installed product.")

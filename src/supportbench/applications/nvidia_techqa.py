@@ -30,11 +30,13 @@ from supportbench.reranking.cross_encoder import SentenceTransformerCrossEncoder
 from supportbench.retrieval.factory import RetrieverConfig, RetrieverFactory
 from supportbench.retrieval.hybrid import WeightedRetrieverSource
 from supportbench.retrieval.parent_hybrid import ParentAggregation, ParentWeightedRRFHybrid
+from supportbench.knowledge.techqa import TechQAKnowledgeService
 
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
-DEFAULT_GENERATION_TOKENIZER = "vllmd/gemma-3-4b-it-w8a8"
+# DEFAULT_GENERATION_TOKENIZER = "vllmd/gemma-3-4b-it-w8a8"
+DEFAULT_GENERATION_TOKENIZER = "Qwen/Qwen3-4B"
 FROZEN_PROMPT_LAYOUT: PromptLayout = "legacy_system_user"
 
 
@@ -215,6 +217,30 @@ def build_nvidia_techqa_retrieval_runtime(
         retrieval_service=retrieval_service,
         chunk_resolver=chunk_resolver,
         chunks_by_id=MappingProxyType(dict(chunks_by_id)),
+    )
+
+
+def build_nvidia_techqa_knowledge_service(
+    config: NvidiaTechQAContextConfig,
+    *,
+    retrieval_runtime: NvidiaTechQARetrievalRuntime | None = None,
+) -> TechQAKnowledgeService:
+    runtime = retrieval_runtime or build_nvidia_techqa_retrieval_runtime(config)
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        config.context_tokenizer_name,
+        local_files_only=True,
+    )
+
+    return TechQAKnowledgeService(
+        retrieval_service=(runtime.retrieval_service),
+        chunk_resolver=(runtime.chunk_resolver),
+        chunks_by_id=runtime.chunks_by_id,
+        token_codec=HuggingFaceTokenCodec(tokenizer),
+        search_top_parents=4,
+        search_snippet_tokens=192,
+        read_max_tokens=2_048,
+        read_max_chunks=8,
     )
 
 

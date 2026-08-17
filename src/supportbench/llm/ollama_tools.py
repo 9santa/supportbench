@@ -92,8 +92,29 @@ def parse_ollama_chat_response(
 
     raw_content = raw_message.get("content", "")
 
+    if raw_content is None:
+        raw_content = ""
+
     if not isinstance(raw_content, str):
         raise OllamaProtocolError("Ollama assistant content must be a string")
+
+    raw_thinking = raw_message.get("thinking", "")
+
+    if raw_thinking is None:
+        raw_thinking = ""
+
+    if not isinstance(raw_thinking, str):
+        raise OllamaProtocolError("Ollama assistant thinking must be a string")
+
+    raw_done_reason = response.get("done_reason")
+
+    if raw_done_reason is not None and not isinstance(raw_done_reason, str):
+        raise OllamaProtocolError("Ollama done_reason must be a string")
+
+    raw_eval_count = response.get("eval_count")
+
+    if raw_eval_count is not None and not isinstance(raw_eval_count, int):
+        raise OllamaProtocolError("Ollama eval_count must be an integer")
 
     raw_tool_calls = raw_message.get("tool_calls", ())
 
@@ -120,6 +141,9 @@ def parse_ollama_chat_response(
         "content": raw_content,
     }
 
+    if raw_thinking:
+        history_message["thinking"] = raw_thinking
+
     if raw_tool_calls:
         history_message["tool_calls"] = _mapping_to_json(raw_tool_calls)
 
@@ -127,6 +151,8 @@ def parse_ollama_chat_response(
         content=raw_content,
         tool_calls=tuple(tool_calls),
         history_message=history_message,
+        finish_reason=raw_done_reason,
+        output_token_count=raw_eval_count,
     )
 
 
