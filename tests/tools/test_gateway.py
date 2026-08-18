@@ -334,7 +334,15 @@ def test_service_status_uses_trusted_world() -> None:
     assert service.last_world_id == "trusted-world"
 
     assert result.data is not None
-    assert result.data["service_id"] == "webgui-noc-prod"
+    assert result.data == {
+        "service_id": "webgui-noc-prod",
+        "display_name": "NOC Web GUI",
+        "product_key": "netcool_webgui",
+        "version": "8.1 FP7",
+        "environment": "production",
+        "status": "operational",
+        "owner_team": "noc-platform",
+    }
 
 
 def test_create_support_case_uses_trusted_actor_as_requester() -> None:
@@ -357,6 +365,18 @@ def test_create_support_case_uses_trusted_actor_as_requester() -> None:
     )
 
     assert result.status == "success"
+    assert result.data is not None
+    assert result.data == {
+        "case_id": "CASE-001",
+        "service_id": "webgui-noc-prod",
+        "summary": "Cannot access Web GUI",
+        "description": "Alice cannot access the Web GUI.",
+        "severity": "high",
+        "status": "open",
+        "assigned_team": "noc-platform",
+        "created_at": "2026-08-11T12:00:00+00:00",
+        "updated_at": "2026-08-11T12:00:00+00:00",
+    }
 
     command = service.last_command
 

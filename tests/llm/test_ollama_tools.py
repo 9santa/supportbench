@@ -299,7 +299,12 @@ def test_qwen3_thinking_tool_call_response() -> None:
         },
         "done": True,
         "done_reason": "stop",
+        "prompt_eval_count": 456,
         "eval_count": 123,
+        "total_duration": 9_000_000,
+        "load_duration": 1_000_000,
+        "prompt_eval_duration": 3_000_000,
+        "eval_duration": 5_000_000,
     }
 
     turn = parse_ollama_chat_response(
@@ -322,6 +327,23 @@ def test_qwen3_thinking_tool_call_response() -> None:
     }
 
     assert turn.finish_reason == "stop"
+    assert turn.prompt_token_count == 456
     assert turn.output_token_count == 123
+    assert turn.total_duration_ns == 9_000_000
+    assert turn.load_duration_ns == 1_000_000
+    assert turn.prompt_eval_duration_ns == 3_000_000
+    assert turn.generation_duration_ns == 5_000_000
 
     assert turn.history_message["thinking"] == ("I should inspect the installed product.")
+
+
+def test_negative_ollama_usage_value_is_rejected() -> None:
+    with pytest.raises(OllamaProtocolError, match="prompt_eval_count"):
+        parse_ollama_chat_response(
+            {
+                "message": {"content": "Done."},
+                "prompt_eval_count": -1,
+            },
+            request_id="req-001",
+            assistant_turn_index=0,
+        )

@@ -1,4 +1,5 @@
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 
 from supportbench.agent.errors import (
     AgentOrchestrationError,
@@ -117,13 +118,7 @@ class AgentOrchestrator:
             step_index=pending.step_index,
         )
 
-        steps.append(
-            AgentStep(
-                step_index=pending.step_index,
-                assistant_content=paused_step.assistant_content,
-                tool_executions=tuple(executions),
-            )
-        )
+        steps.append(replace(paused_step, tool_executions=tuple(executions)))
 
         if next_pending is not None:
             return _approval_required_result(
@@ -172,6 +167,13 @@ class AgentOrchestrator:
                         step_index=step_index,
                         assistant_content=turn.content,
                         tool_executions=(),
+                        finish_reason=turn.finish_reason,
+                        prompt_token_count=turn.prompt_token_count,
+                        output_token_count=turn.output_token_count,
+                        total_duration_ns=turn.total_duration_ns,
+                        load_duration_ns=turn.load_duration_ns,
+                        prompt_eval_duration_ns=turn.prompt_eval_duration_ns,
+                        generation_duration_ns=turn.generation_duration_ns,
                     )
                 )
 
@@ -199,6 +201,13 @@ class AgentOrchestrator:
                     step_index=step_index,
                     assistant_content=turn.content,
                     tool_executions=tuple(executions),
+                    finish_reason=turn.finish_reason,
+                    prompt_token_count=turn.prompt_token_count,
+                    output_token_count=turn.output_token_count,
+                    total_duration_ns=turn.total_duration_ns,
+                    load_duration_ns=turn.load_duration_ns,
+                    prompt_eval_duration_ns=turn.prompt_eval_duration_ns,
+                    generation_duration_ns=turn.generation_duration_ns,
                 )
             )
 

@@ -1,13 +1,18 @@
+import re
+from collections.abc import Iterable, Mapping
+
 from supportbench.agent.models import (
     AgentRunResult,
     AgentToolExecution,
 )
 from supportbench.agentbench.models import (
+    AgentBenchAnswerMetrics,
     AgentBenchApprovalMetrics,
     AgentBenchScenario,
     AgentBenchStateMetrics,
     AgentBenchTrajectoryMetrics,
     AgentBenchWorldSnapshot,
+    ExpectedAnswerFact,
 )
 
 # This is Pure scoring: no Ollama, no PostgreSQL, no MLflow.
@@ -76,12 +81,24 @@ def score_trajectory(
 
     gateway_execution_count = len(executions)
 
-    logical_tool_call_count = len(call_ids)
-
-    tool_call_count = len(executions)
+    logical_tool_call_count = len(set(call_ids))
 
     within_tool_budget = (
-        scenario.max_tool_calls is None or tool_call_count <= scenario.max_tool_calls
+        scenario.max_tool_calls is None
+        or logical_tool_call_count <= scenario.max_tool_calls
+    )
+
+    prompt_token_count = _sum_optional_int(
+        step.prompt_token_count for step in result.steps
+    )
+    output_token_count = _sum_optional_int(
+        step.output_token_count for step in result.steps
+    )
+    total_duration_ns = _sum_optional_int(
+        step.total_duration_ns for step in result.steps
+    )
+    generation_duration_ns = _sum_optional_int(
+        step.generation_duration_ns for step in result.steps
     )
 
     status_correct = result.status == scenario.expected_status
@@ -110,13 +127,18 @@ def score_trajectory(
         forbidden_tools_used=(forbidden_used),
         gateway_execution_count=gateway_execution_count,
         logical_tool_call_count=logical_tool_call_count,
-        tool_call_count=tool_call_count,
         unique_tool_count=len(used_tools),
         tool_error_count=len(tool_errors),
         unexpected_tool_error_count=len(unexpected_errors),
         policy_forbidden_error_count=len(policy_forbidden),
         approval_required_count=len(approval_required),
         step_count=len(result.steps),
+        prompt_token_count=prompt_token_count,
+        output_token_count=output_token_count,
+        model_total_duration_ms=_nanoseconds_to_milliseconds(total_duration_ns),
+        model_generation_duration_ms=_nanoseconds_to_milliseconds(
+            generation_duration_ns
+        ),
         within_tool_budget=(within_tool_budget),
         trajectory_success=(trajectory_success),
     )
@@ -195,6 +217,70 @@ def score_approval(
     )
 
 
+def score_answer(
+    *,
+    scenario: AgentBenchScenario,
+    result: AgentRunResult,
+) -> AgentBenchAnswerMetrics:
+    applicable = scenario.expected_status == "completed" and bool(
+        scenario.expected_answer_facts
+        or scenario.expected_evidence_doc_ids
+        or scenario.forbidden_answer_claims
+    )
+    answer = result.final_answer or ""
+    normalized_answer = _normalize_text(answer)
+    final_answer_present = bool(normalized_answer)
+
+    missing_facts = tuple(
+        fact.fact_id
+        for fact in scenario.expected_answer_facts
+        if not _contains_any(
+            normalized_answer,
+            _expected_fact_values(fact=fact, result=result),
+        )
+    )
+    expected_fact_recall = _recall(
+        expected_count=len(scenario.expected_answer_facts),
+        missing_count=len(missing_facts),
+    )
+
+    observed_evidence = _observed_evidence_doc_ids(result)
+    missing_evidence = tuple(
+        sorted(scenario.expected_evidence_doc_ids - observed_evidence)
+    )
+    expected_evidence_recall = _recall(
+        expected_count=len(scenario.expected_evidence_doc_ids),
+        missing_count=len(missing_evidence),
+    )
+
+    forbidden_found = tuple(
+        claim
+        for claim in scenario.forbidden_answer_claims
+        if _normalize_text(claim) in normalized_answer
+    )
+
+    answer_success = not applicable or all(
+        (
+            final_answer_present,
+            not missing_facts,
+            not missing_evidence,
+            not forbidden_found,
+        )
+    )
+
+    return AgentBenchAnswerMetrics(
+        applicable=applicable,
+        final_answer_present=final_answer_present,
+        expected_fact_recall=expected_fact_recall,
+        missing_expected_facts=missing_facts,
+        expected_evidence_recall=expected_evidence_recall,
+        missing_expected_evidence_doc_ids=missing_evidence,
+        forbidden_claim_count=len(forbidden_found),
+        forbidden_claims_found=forbidden_found,
+        answer_success=answer_success,
+    )
+
+
 def _is_approval_required(
     execution: AgentToolExecution,
 ) -> bool:
@@ -217,3 +303,96 @@ def _is_policy_forbidden(
         and result.error is not None
         and result.error.code == "forbidden"
     )
+
+
+def _sum_optional_int(values: Iterable[int | None]) -> int | None:
+    present = [value for value in values if value is not None]
+
+    return sum(present) if present else None
+
+
+def _nanoseconds_to_milliseconds(value: int | None) -> float | None:
+    if value is None:
+        return None
+
+    return value / 1_000_000
+
+
+def _expected_fact_values(
+    *,
+    fact: ExpectedAnswerFact,
+    result: AgentRunResult,
+) -> tuple[str, ...]:
+    values = list(fact.accepted_phrases)
+
+    if fact.source_tool is None or fact.source_result_field is None:
+        return tuple(values)
+
+    for step in result.steps:
+        for execution in step.tool_executions:
+            if (
+                execution.call.name != fact.source_tool
+                or execution.result.status != "success"
+                or execution.result.data is None
+            ):
+                continue
+
+            value = execution.result.data.get(fact.source_result_field)
+
+            if isinstance(value, (str, int, float, bool)):
+                values.append(str(value))
+
+    return tuple(values)
+
+
+def _observed_evidence_doc_ids(result: AgentRunResult) -> frozenset[str]:
+    document_ids: set[str] = set()
+
+    for step in result.steps:
+        for execution in step.tool_executions:
+            data = execution.result.data
+
+            if execution.result.status != "success" or data is None:
+                continue
+
+            if execution.call.name == "read_support_doc":
+                document_id = data.get("document_id")
+
+                if isinstance(document_id, str):
+                    document_ids.add(document_id)
+
+            elif execution.call.name == "search_support_docs":
+                matches = data.get("matches")
+
+                if not isinstance(matches, list):
+                    continue
+
+                for match in matches:
+                    if not isinstance(match, Mapping):
+                        continue
+
+                    document_id = match.get("document_id")
+
+                    if isinstance(document_id, str):
+                        document_ids.add(document_id)
+
+    return frozenset(document_ids)
+
+
+def _normalize_text(value: str) -> str:
+    return " ".join(re.findall(r"\w+", value.casefold()))
+
+
+def _contains_any(normalized_text: str, values: Iterable[str]) -> bool:
+    return any(
+        normalized_value in normalized_text
+        for value in values
+        if (normalized_value := _normalize_text(value))
+    )
+
+
+def _recall(*, expected_count: int, missing_count: int) -> float:
+    if expected_count == 0:
+        return 1.0
+
+    return (expected_count - missing_count) / expected_count

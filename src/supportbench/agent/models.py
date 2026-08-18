@@ -25,6 +25,13 @@ class AgentStep:
     step_index: int
     assistant_content: str
     tool_executions: tuple[AgentToolExecution, ...]
+    finish_reason: str | None = None
+    prompt_token_count: int | None = None
+    output_token_count: int | None = None
+    total_duration_ns: int | None = None
+    load_duration_ns: int | None = None
+    prompt_eval_duration_ns: int | None = None
+    generation_duration_ns: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -110,10 +110,15 @@ def parse_ollama_chat_response(
     if raw_done_reason is not None and not isinstance(raw_done_reason, str):
         raise OllamaProtocolError("Ollama done_reason must be a string")
 
-    raw_eval_count = response.get("eval_count")
-
-    if raw_eval_count is not None and not isinstance(raw_eval_count, int):
-        raise OllamaProtocolError("Ollama eval_count must be an integer")
+    prompt_token_count = _optional_non_negative_int(response, "prompt_eval_count")
+    output_token_count = _optional_non_negative_int(response, "eval_count")
+    total_duration_ns = _optional_non_negative_int(response, "total_duration")
+    load_duration_ns = _optional_non_negative_int(response, "load_duration")
+    prompt_eval_duration_ns = _optional_non_negative_int(
+        response,
+        "prompt_eval_duration",
+    )
+    generation_duration_ns = _optional_non_negative_int(response, "eval_duration")
 
     raw_tool_calls = raw_message.get("tool_calls", ())
 
@@ -151,8 +156,28 @@ def parse_ollama_chat_response(
         tool_calls=tuple(tool_calls),
         history_message=history_message,
         finish_reason=raw_done_reason,
-        output_token_count=raw_eval_count,
+        prompt_token_count=prompt_token_count,
+        output_token_count=output_token_count,
+        total_duration_ns=total_duration_ns,
+        load_duration_ns=load_duration_ns,
+        prompt_eval_duration_ns=prompt_eval_duration_ns,
+        generation_duration_ns=generation_duration_ns,
     )
+
+
+def _optional_non_negative_int(
+    value: Mapping[str, object],
+    key: str,
+) -> int | None:
+    raw = value.get(key)
+
+    if raw is None:
+        return None
+
+    if isinstance(raw, bool) or not isinstance(raw, int) or raw < 0:
+        raise OllamaProtocolError(f"Ollama {key} must be a non-negative integer")
+
+    return raw
 
 
 def _parse_tool_call(

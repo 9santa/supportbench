@@ -1,6 +1,9 @@
 from dataclasses import replace
 
-from supportbench.agentbench.models import AgentBenchScenario
+from supportbench.agentbench.models import (
+    AgentBenchScenario,
+    ExpectedAnswerFact,
+)
 from supportbench.tools.policies import (
     CREATE_SUPPORT_CASE_PERMISSION,
     ENTERPRISE_READ_PERMISSION,
@@ -54,6 +57,12 @@ ENTERPRISE_HEALTHY_STATUS = AgentBenchScenario(
         }
     ),
     max_tool_calls=4,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="service_status_operational",
+            accepted_phrases=("operational",),
+        ),
+    ),
 )
 
 
@@ -75,6 +84,12 @@ ENTERPRISE_OUTAGE_STATUS = AgentBenchScenario(
         }
     ),
     max_tool_calls=4,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="service_status_degraded",
+            accepted_phrases=("degraded",),
+        ),
+    ),
 )
 
 
@@ -96,6 +111,12 @@ ENTERPRISE_DASH_VERSION = AgentBenchScenario(
         }
     ),
     max_tool_calls=4,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="installed_dash_version",
+            accepted_phrases=("3.1.0.3",),
+        ),
+    ),
 )
 
 
@@ -119,6 +140,19 @@ ENTERPRISE_ACCESS_DENIED = AgentBenchScenario(
         }
     ),
     max_tool_calls=4,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="access_denied",
+            accepted_phrases=(
+                "does not have access",
+                "not have access",
+                "access is denied",
+                "access denied",
+                "not entitled",
+                "granted false",
+            ),
+        ),
+    ),
 )
 
 
@@ -146,6 +180,17 @@ KNOWLEDGE_WEBGUI_PREREQUISITES = AgentBenchScenario(
         }
     ),
     max_tool_calls=5,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="websphere_prerequisite",
+            accepted_phrases=("8.5.0.1", "8.5.01"),
+        ),
+        ExpectedAnswerFact(
+            fact_id="jazzsm_prerequisite",
+            accepted_phrases=("1.1.0.3",),
+        ),
+    ),
+    expected_evidence_doc_ids=frozenset({"swg21681385"}),
 )
 
 
@@ -172,6 +217,17 @@ KNOWLEDGE_SSL_MUTUAL_AUTH = AgentBenchScenario(
         }
     ),
     max_tool_calls=5,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="gskit_prerequisite",
+            accepted_phrases=("gskit", "global security kit"),
+        ),
+        ExpectedAnswerFact(
+            fact_id="httpd_ssl_directives",
+            accepted_phrases=("httpd.conf", "httpd conf"),
+        ),
+    ),
+    expected_evidence_doc_ids=frozenset({"swg21179559"}),
 )
 
 
@@ -198,6 +254,21 @@ KNOWLEDGE_MQ_CLUSTER_ERROR = AgentBenchScenario(
         }
     ),
     max_tool_calls=5,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="cluster_resolution_error",
+            accepted_phrases=("mqrc_cluster_resolution_error", "2189"),
+        ),
+        ExpectedAnswerFact(
+            fact_id="cluster_resolution_cause",
+            accepted_phrases=(
+                "repository manager",
+                "partial repository",
+                "cluster configuration",
+                "refresh cluster",
+            ),
+        ),
+    ),
 )
 
 
@@ -227,6 +298,17 @@ KNOWLEDGE_SEARCH_AND_READ = AgentBenchScenario(
         }
     ),
     max_tool_calls=6,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="websphere_prerequisite",
+            accepted_phrases=("8.5.0.1", "8.5.01"),
+        ),
+        ExpectedAnswerFact(
+            fact_id="jazzsm_prerequisite",
+            accepted_phrases=("1.1.0.3",),
+        ),
+    ),
+    expected_evidence_doc_ids=frozenset({"swg21681385"}),
 )
 
 KNOWLEDGE_SEARCH_AND_READ_V1 = replace(
@@ -274,6 +356,17 @@ MIXED_DASH_WEBGUI = AgentBenchScenario(
         }
     ),
     max_tool_calls=6,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="installed_dash_version",
+            accepted_phrases=("3.1.0.3",),
+        ),
+    ),
+    expected_evidence_doc_ids=frozenset({"swg21681385"}),
+    forbidden_answer_claims=(
+        "documentation confirms compatibility",
+        "documentation proves compatibility",
+    ),
 )
 
 
@@ -303,6 +396,12 @@ MIXED_OUTAGE_TROUBLESHOOTING = AgentBenchScenario(
         }
     ),
     max_tool_calls=7,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="service_status_degraded",
+            accepted_phrases=("degraded",),
+        ),
+    ),
 )
 
 
@@ -334,6 +433,19 @@ MIXED_ACCESS_AND_DOCUMENTATION = AgentBenchScenario(
         }
     ),
     max_tool_calls=7,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="access_denied",
+            accepted_phrases=(
+                "does not have access",
+                "not have access",
+                "access is denied",
+                "access denied",
+                "not entitled",
+                "granted false",
+            ),
+        ),
+    ),
 )
 
 
@@ -364,6 +476,17 @@ MIXED_HEALTHY_VERIFY_DOCS = AgentBenchScenario(
         }
     ),
     max_tool_calls=6,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="installed_dash_version",
+            accepted_phrases=("3.1.2.1",),
+        ),
+        ExpectedAnswerFact(
+            fact_id="documented_dash_prerequisite",
+            accepted_phrases=("3.1.0.3",),
+        ),
+    ),
+    expected_evidence_doc_ids=frozenset({"swg21681385"}),
 )
 
 
@@ -388,6 +511,17 @@ WRITE_OUTAGE_APPROVED = AgentBenchScenario(
     state_expectation="changed",
     expected_support_case_delta=1,
     expected_audit_event_delta=1,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="service_status_degraded",
+            accepted_phrases=("degraded",),
+        ),
+        ExpectedAnswerFact(
+            fact_id="created_case_id",
+            source_tool="create_support_case",
+            source_result_field="case_id",
+        ),
+    ),
 )
 
 WRITE_OUTAGE_AWAITS_APPROVAL = AgentBenchScenario(
@@ -426,29 +560,74 @@ WRITE_DIRECT_CASE_APPROVED = AgentBenchScenario(
     state_expectation="changed",
     expected_support_case_delta=1,
     expected_audit_event_delta=1,
+    expected_answer_facts=(
+        ExpectedAnswerFact(
+            fact_id="created_case_id",
+            source_tool="create_support_case",
+            source_result_field="case_id",
+        ),
+    ),
 )
 
-AGENTBENCH_V1 = (
-    ENTERPRISE_HEALTHY_STATUS,
-    ENTERPRISE_OUTAGE_STATUS,
-    ENTERPRISE_DASH_VERSION,
-    ENTERPRISE_ACCESS_DENIED,
-    KNOWLEDGE_WEBGUI_PREREQUISITES,
-    KNOWLEDGE_SSL_MUTUAL_AUTH,
-    KNOWLEDGE_MQ_CLUSTER_ERROR,
-    KNOWLEDGE_SEARCH_AND_READ_V1,
-    MIXED_DASH_WEBGUI,
-    MIXED_OUTAGE_TROUBLESHOOTING,
-    MIXED_ACCESS_AND_DOCUMENTATION,
-    MIXED_HEALTHY_VERIFY_DOCS,
-    WRITE_OUTAGE_APPROVED,
-    WRITE_OUTAGE_AWAITS_APPROVAL,
-    WRITE_DIRECT_CASE_APPROVED,
+
+def _without_answer_evaluation(
+    scenario: AgentBenchScenario,
+) -> AgentBenchScenario:
+    return replace(
+        scenario,
+        expected_answer_facts=(),
+        expected_evidence_doc_ids=frozenset(),
+        forbidden_answer_claims=(),
+    )
+
+
+AGENTBENCH_V1 = tuple(
+    _without_answer_evaluation(scenario)
+    for scenario in (
+        ENTERPRISE_HEALTHY_STATUS,
+        ENTERPRISE_OUTAGE_STATUS,
+        ENTERPRISE_DASH_VERSION,
+        ENTERPRISE_ACCESS_DENIED,
+        KNOWLEDGE_WEBGUI_PREREQUISITES,
+        KNOWLEDGE_SSL_MUTUAL_AUTH,
+        KNOWLEDGE_MQ_CLUSTER_ERROR,
+        KNOWLEDGE_SEARCH_AND_READ_V1,
+        MIXED_DASH_WEBGUI,
+        MIXED_OUTAGE_TROUBLESHOOTING,
+        MIXED_ACCESS_AND_DOCUMENTATION,
+        MIXED_HEALTHY_VERIFY_DOCS,
+        WRITE_OUTAGE_APPROVED,
+        WRITE_OUTAGE_AWAITS_APPROVAL,
+        WRITE_DIRECT_CASE_APPROVED,
+    )
 )
 
 # V2 keeps the same task set while removing the implementation-path
 # requirement that substantial search evidence must always be read again.
-AGENTBENCH_V2 = (
+AGENTBENCH_V2 = tuple(
+    _without_answer_evaluation(scenario)
+    for scenario in (
+        ENTERPRISE_HEALTHY_STATUS,
+        ENTERPRISE_OUTAGE_STATUS,
+        ENTERPRISE_DASH_VERSION,
+        ENTERPRISE_ACCESS_DENIED,
+        KNOWLEDGE_WEBGUI_PREREQUISITES,
+        KNOWLEDGE_SSL_MUTUAL_AUTH,
+        KNOWLEDGE_MQ_CLUSTER_ERROR,
+        KNOWLEDGE_SEARCH_AND_READ,
+        MIXED_DASH_WEBGUI,
+        MIXED_OUTAGE_TROUBLESHOOTING,
+        MIXED_ACCESS_AND_DOCUMENTATION,
+        MIXED_HEALTHY_VERIFY_DOCS,
+        WRITE_OUTAGE_APPROVED,
+        WRITE_OUTAGE_AWAITS_APPROVAL,
+        WRITE_DIRECT_CASE_APPROVED,
+    )
+)
+
+# V3 adds deterministic final-answer facts and expected evidence without
+# changing retrieval, tools, approval behavior, or frozen simulator worlds.
+AGENTBENCH_V3 = (
     ENTERPRISE_HEALTHY_STATUS,
     ENTERPRISE_OUTAGE_STATUS,
     ENTERPRISE_DASH_VERSION,

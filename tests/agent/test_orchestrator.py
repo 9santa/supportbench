@@ -206,6 +206,35 @@ def test_tool_is_followed_by_final_turn() -> None:
     assert tool_data["status"] == "degraded"
 
 
+def test_model_usage_is_preserved_on_agent_step() -> None:
+    turn = replace(
+        _final_turn("Done."),
+        finish_reason="stop",
+        prompt_token_count=120,
+        output_token_count=8,
+        total_duration_ns=15_000_000,
+        load_duration_ns=1_000_000,
+        prompt_eval_duration_ns=4_000_000,
+        generation_duration_ns=10_000_000,
+    )
+    result = AgentOrchestrator(
+        model=FakeModelClient((turn,)),
+        gateway=FakeToolGateway(()),
+    ).run(
+        messages=[{"role": "user", "content": "Finish."}],
+        context=_context(),
+    )
+
+    step = result.steps[0]
+    assert step.finish_reason == "stop"
+    assert step.prompt_token_count == 120
+    assert step.output_token_count == 8
+    assert step.total_duration_ns == 15_000_000
+    assert step.load_duration_ns == 1_000_000
+    assert step.prompt_eval_duration_ns == 4_000_000
+    assert step.generation_duration_ns == 10_000_000
+
+
 def test_model_sees_tool_result_on_next_turn() -> None:
     model = FakeModelClient(
         (
@@ -520,9 +549,15 @@ def test_multiple_tool_calls_execute_sequentially() -> None:
 
 
 def test_resume_after_approval_executes_call_and_continues() -> None:
-    tool_turn = _tool_turn(
-        call_id="tc-create-001",
-        tool_name="create_support_case",
+    tool_turn = replace(
+        _tool_turn(
+            call_id="tc-create-001",
+            tool_name="create_support_case",
+        ),
+        prompt_token_count=100,
+        output_token_count=20,
+        total_duration_ns=10_000_000,
+        generation_duration_ns=5_000_000,
     )
     call = tool_turn.tool_calls[0]
     model = FakeModelClient(
@@ -563,6 +598,10 @@ def test_resume_after_approval_executes_call_and_continues() -> None:
     ]
     assert resumed.steps[0].tool_executions[0].result.error is not None
     assert resumed.steps[0].tool_executions[0].result.error.code == "approval_required"
+    assert resumed.steps[0].prompt_token_count == 100
+    assert resumed.steps[0].output_token_count == 20
+    assert resumed.steps[0].total_duration_ns == 10_000_000
+    assert resumed.steps[0].generation_duration_ns == 5_000_000
     assert [message["role"] for message in model.seen_messages[1]] == [
         "user",
         "assistant",

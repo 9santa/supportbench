@@ -13,4 +13,9 @@ class AssistantModelTurn:
     # appended to conversation history before tool results.
     history_message: Mapping[str, object]
     finish_reason: str | None = None
+    prompt_token_count: int | None = None
     output_token_count: int | None = None
+    total_duration_ns: int | None = None
+    load_duration_ns: int | None = None
+    prompt_eval_duration_ns: int | None = None
+    generation_duration_ns: int | None = None

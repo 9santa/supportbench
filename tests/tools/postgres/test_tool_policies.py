@@ -239,8 +239,9 @@ def test_approved_mutation_creates_case_and_audit() -> None:
         assert result.error is None
         assert result.data is not None
 
-        assert result.data["world_id"] == world_id
-        assert result.data["actor_user_id"] == "alice"
+        assert "world_id" not in result.data
+        assert "actor_user_id" not in result.data
+        assert "idempotency_key" not in result.data
         assert result.data["status"] == "open"
         assert result.data["assigned_team"] == "noc-platform"
 
@@ -295,8 +296,6 @@ def test_approved_tool_call_retry_is_idempotent() -> None:
         assert second.data is not None
 
         assert first.data["case_id"] == second.data["case_id"]
-
-        assert first.data["idempotency_key"] == second.data["idempotency_key"]
 
         assert _db_mutation_counts(
             runtime,

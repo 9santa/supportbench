@@ -14,6 +14,7 @@ from supportbench.agentbench.postgres import (
     PostgresAgentBenchSnapshotter,
 )
 from supportbench.agentbench.scoring import (
+    score_answer,
     score_approval,
     score_state,
     score_trajectory,
@@ -131,6 +132,19 @@ class AgentBenchRunner:
                 final_run=final_run,
             )
 
+            answer = score_answer(
+                scenario=scenario,
+                result=final_run,
+            )
+
+            trajectory_state_success = all(
+                (
+                    trajectory.trajectory_success,
+                    state.state_expectation_correct,
+                    approval.approval_flow_correct,
+                )
+            )
+
             return AgentBenchCaseResult(
                 scenario_id=(scenario.scenario_id),
                 run=final_run,
@@ -140,13 +154,9 @@ class AgentBenchRunner:
                 trajectory=trajectory,
                 state=state,
                 approval=approval,
-                success=all(
-                    (
-                        trajectory.trajectory_success,
-                        state.state_expectation_correct,
-                        approval.approval_flow_correct,
-                    )
-                ),
+                answer=answer,
+                trajectory_state_success=trajectory_state_success,
+                success=trajectory_state_success and answer.answer_success,
             )
 
         finally:

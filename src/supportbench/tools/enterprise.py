@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from dataclasses import asdict
 from hashlib import sha256
 from typing import Protocol
 
@@ -101,6 +100,57 @@ def _tool_idempotency_key(
     return f"agent-tool:{digest}"
 
 
+def _service_data(service: ServiceInstance) -> dict[str, object]:
+    return {
+        "service_id": service.service_id,
+        "display_name": service.display_name,
+        "product_key": service.product_key,
+        "version": service.version,
+        "environment": service.environment,
+        "status": service.status,
+        "owner_team": service.owner_team,
+    }
+
+
+def _installed_product_data(product: InstalledProduct) -> dict[str, object]:
+    return {
+        "asset_id": product.asset_id,
+        "product_key": product.product_key,
+        "version": product.version,
+        "patch_level": product.patch_level,
+    }
+
+
+def _product_data(product: Product) -> dict[str, object]:
+    return {
+        "product_key": product.product_key,
+        "display_name": product.display_name,
+    }
+
+
+def _entitlement_data(entitlement: UserEntitlement) -> dict[str, object]:
+    return {
+        "user_id": entitlement.user_id,
+        "service_id": entitlement.service_id,
+        "granted": entitlement.granted,
+        "role": entitlement.role,
+    }
+
+
+def _support_case_data(support_case: SupportCase) -> dict[str, object]:
+    return {
+        "case_id": support_case.case_id,
+        "service_id": support_case.service_id,
+        "summary": support_case.summary,
+        "description": support_case.description,
+        "severity": support_case.severity,
+        "status": support_case.status,
+        "assigned_team": support_case.assigned_team,
+        "created_at": support_case.created_at.isoformat(),
+        "updated_at": support_case.updated_at.isoformat(),
+    }
+
+
 class GetServiceStatusHandler:
     def __init__(
         self,
@@ -126,7 +176,7 @@ class GetServiceStatusHandler:
             service_id=args.service_id,
         )
 
-        return asdict(result)
+        return _service_data(result)
 
 
 class GetInstalledProductHandler:
@@ -155,7 +205,7 @@ class GetInstalledProductHandler:
             product_key=args.product_key,
         )
 
-        return asdict(result)
+        return _installed_product_data(result)
 
 
 class SearchProductsHandler:
@@ -183,7 +233,7 @@ class SearchProductsHandler:
         )
 
         return {
-            "matches": [asdict(product) for product in matches],
+            "matches": [_product_data(product) for product in matches],
         }
 
 
@@ -250,7 +300,7 @@ class CheckUserEntitlementHandler:
             service_id=args.service_id,
         )
 
-        return asdict(result)
+        return _entitlement_data(result)
 
 
 class CreateSupportCaseHandler:
@@ -289,12 +339,7 @@ class CreateSupportCaseHandler:
 
         result = self._service.create_support_case(command)
 
-        data = asdict(result)
-
-        data["created_at"] = result.created_at.isoformat()
-        data["updated_at"] = result.updated_at.isoformat()
-
-        return data
+        return _support_case_data(result)
 
 
 def build_enterprise_tool_handlers(

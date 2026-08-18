@@ -30,6 +30,7 @@ from supportbench.agentbench.runner import (
 from supportbench.agentbench.scenarios import (
     AGENTBENCH_V1,
     AGENTBENCH_V2,
+    AGENTBENCH_V3,
 )
 from supportbench.applications.enterprise_simulator import (
     build_enterprise_simulator,
@@ -243,7 +244,7 @@ def main() -> int:
         if suite.case_failures:
             return 2
 
-        if metrics.successful_cases != (metrics.total_cases):
+        if metrics.task_successful_cases != metrics.total_cases:
             return 1
 
         return 0
@@ -257,8 +258,8 @@ def _parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--suite",
-        default="v2",
-        choices=("v1", "v2"),
+        default="v3",
+        choices=("v1", "v2", "v3"),
         help="AgentBench scenario suite.",
     )
 
@@ -417,6 +418,9 @@ def _resolve_suite(
     if suite_name == "v2":
         return AGENTBENCH_V2
 
+    if suite_name == "v3":
+        return AGENTBENCH_V3
+
     raise ValueError(f"unknown AgentBench suite: {suite_name!r}")
 
 
@@ -486,14 +490,46 @@ def _print_summary(
     print("=" * 72)
 
     print(f"cases:                  {metrics.total_cases}")
-    print(f"successful:             {metrics.successful_cases}")
-    print(f"success rate:           {metrics.success_rate:.3f}")
+    print(
+        "trajectory/state pass:  "
+        f"{metrics.trajectory_state_successful_cases}"
+    )
+    print(f"task/answer pass:       {metrics.task_successful_cases}")
+    print(
+        "trajectory/state rate:  "
+        f"{metrics.trajectory_state_success_rate:.3f}"
+    )
+    print(f"task/answer rate:       {metrics.task_success_rate:.3f}")
     print(f"execution failures:     {metrics.execution_failures}")
+    if metrics.answer_success_rate is not None:
+        print(f"answer success rate:    {metrics.answer_success_rate:.3f}")
+    if metrics.mean_expected_answer_fact_recall is not None:
+        print(
+            "answer fact recall:    "
+            f"{metrics.mean_expected_answer_fact_recall:.3f}"
+        )
+    if metrics.mean_expected_evidence_recall is not None:
+        print(
+            "evidence recall:       "
+            f"{metrics.mean_expected_evidence_recall:.3f}"
+        )
+    print(f"forbidden claims:       {metrics.forbidden_answer_claim_count}")
     print(f"required tool calls:    {metrics.mean_required_tool_call_recall:.3f}")
     print(f"required tool success:  {metrics.mean_required_tool_success_recall:.3f}")
     print(f"expected tool outcome:  {metrics.mean_required_tool_expected_outcome_recall:.3f}")
-    print(f"mean logical calls:     {metrics.mean_tool_calls:.2f}")
+    print(f"mean logical calls:     {metrics.mean_logical_tool_calls:.2f}")
     print(f"mean steps:             {metrics.mean_steps:.2f}")
+    if metrics.mean_prompt_tokens is not None:
+        print(f"mean prompt tokens:     {metrics.mean_prompt_tokens:.1f}")
+    if metrics.mean_output_tokens is not None:
+        print(f"mean output tokens:     {metrics.mean_output_tokens:.1f}")
+    if metrics.mean_model_total_duration_ms is not None:
+        print(f"mean model latency ms:  {metrics.mean_model_total_duration_ms:.1f}")
+    if metrics.mean_model_generation_duration_ms is not None:
+        print(
+            "mean generation ms:     "
+            f"{metrics.mean_model_generation_duration_ms:.1f}"
+        )
     print(f"scenario forbidden:     {metrics.forbidden_tool_call_count}")
     print(f"policy forbidden:       {metrics.policy_forbidden_error_count}")
     print(f"unexpected tool errors: {metrics.unexpected_tool_error_count}")
@@ -528,6 +564,7 @@ def _case_failure_reasons(
     trajectory = result.trajectory
     state = result.state
     approval = result.approval
+    answer = result.answer
 
     if not trajectory.status_correct:
         reasons.append("status")
@@ -549,6 +586,23 @@ def _case_failure_reasons(
 
     if not (approval.approval_flow_correct):
         reasons.append("approval")
+
+    if answer.missing_expected_facts:
+        reasons.append(
+            "missing_facts=" + ",".join(answer.missing_expected_facts)
+        )
+
+    if answer.missing_expected_evidence_doc_ids:
+        reasons.append(
+            "missing_evidence="
+            + ",".join(answer.missing_expected_evidence_doc_ids)
+        )
+
+    if answer.forbidden_claims_found:
+        reasons.append("forbidden_claims")
+
+    if answer.applicable and not answer.final_answer_present:
+        reasons.append("missing_final_answer")
 
     if not reasons:
         reasons.append("unspecified")

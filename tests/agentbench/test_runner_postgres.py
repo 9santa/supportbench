@@ -6,7 +6,12 @@ from collections.abc import Mapping, Sequence
 import pytest
 
 from supportbench.agent.orchestrator import AgentOrchestrator
-from supportbench.agentbench.models import AgentBenchScenario
+from supportbench.agentbench.batch import summarize_suite
+from supportbench.agentbench.models import (
+    AgentBenchScenario,
+    AgentBenchSuiteResult,
+    ExpectedAnswerFact,
+)
 from supportbench.agentbench.postgres import PostgresAgentBenchSnapshotter
 from supportbench.agentbench.runner import AgentBenchRunner
 from supportbench.agentbench.scenarios import (
@@ -161,6 +166,12 @@ def test_enterprise_read_case_preserves_frozen_postgres_world() -> None:
             state_expectation="unchanged",
             expected_support_case_delta=0,
             expected_audit_event_delta=0,
+            expected_answer_facts=(
+                ExpectedAnswerFact(
+                    fact_id="installed_dash_version",
+                    accepted_phrases=("3.1.0.3",),
+                ),
+            ),
         )
 
         result = runner.run_case(scenario)
@@ -169,11 +180,23 @@ def test_enterprise_read_case_preserves_frozen_postgres_world() -> None:
         assert result.trajectory.required_tool_call_recall == 1.0
         assert result.trajectory.required_tool_success_recall == 1.0
         assert result.trajectory.required_tool_expected_outcome_recall == 1.0
+        assert result.trajectory.gateway_execution_count == 1
+        assert result.trajectory.logical_tool_call_count == 1
         assert result.trajectory.forbidden_tool_call_count == 0
         assert not result.state.state_changed
         assert result.state.support_case_delta == 0
         assert result.state.audit_event_delta == 0
         assert result.before == result.after
+        assert result.answer.expected_fact_recall == 1.0
+        assert result.answer.answer_success
+        assert result.trajectory_state_success
+
+        metrics = summarize_suite(
+            AgentBenchSuiteResult(case_results=(result,), case_failures=())
+        )
+        assert metrics.trajectory_state_success_rate == 1.0
+        assert metrics.task_success_rate == 1.0
+        assert metrics.answer_success_rate == 1.0
 
         execution = result.run.steps[0].tool_executions[0]
         assert execution.call.name == "get_installed_product"
@@ -192,6 +215,52 @@ def test_enterprise_read_case_preserves_frozen_postgres_world() -> None:
             "assistant",
             "tool",
         ]
+    finally:
+        runtime.close()
+
+
+def test_wrong_final_answer_fails_task_after_correct_tool_execution() -> None:
+    runtime = build_enterprise_simulator(database_url=_database_url())
+
+    try:
+        runner = AgentBenchRunner(
+            orchestrator=AgentOrchestrator(
+                model=FakeModelClient(
+                    (
+                        _service_status_turn(),
+                        _final_turn("The service is operational."),
+                    )
+                ),
+                gateway=runtime.tool_gateway,
+            ),
+            session_factory=runtime.session_factory,
+            snapshotter=PostgresAgentBenchSnapshotter(runtime.session_factory),
+            system_prompt="Use tools for current enterprise state.",
+        )
+        scenario = AgentBenchScenario(
+            scenario_id="wrong-outage-answer",
+            kind="enterprise",
+            world_scenario="dash_outage",
+            user_message="Check the production Web GUI status.",
+            permissions=frozenset({"enterprise:read"}),
+            expected_status="completed",
+            required_tools=frozenset({"get_service_status"}),
+            expected_answer_facts=(
+                ExpectedAnswerFact(
+                    fact_id="service_status_degraded",
+                    accepted_phrases=("degraded",),
+                ),
+            ),
+        )
+
+        result = runner.run_case(scenario)
+
+        assert result.trajectory_state_success
+        assert not result.answer.answer_success
+        assert result.answer.missing_expected_facts == (
+            "service_status_degraded",
+        )
+        assert not result.success
     finally:
         runtime.close()
 
@@ -226,6 +295,8 @@ def test_write_case_resumes_approved_mutation_and_changes_postgres_world() -> No
         assert result.trajectory.required_tool_call_recall == 1.0
         assert result.trajectory.required_tool_success_recall == 1.0
         assert result.trajectory.required_tool_expected_outcome_recall == 1.0
+        assert result.trajectory.gateway_execution_count == 3
+        assert result.trajectory.logical_tool_call_count == 2
 
         create_executions = [
             execution

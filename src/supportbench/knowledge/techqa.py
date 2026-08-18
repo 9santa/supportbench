@@ -12,6 +12,7 @@ from supportbench.knowledge.models import (
     SupportDocumentRead,
     SupportEvidenceChunk,
 )
+from supportbench.rag.context import EvidenceSelection
 from supportbench.rag.models import RetrievedChunk
 from supportbench.rag.retrieval import (
     ParentRetrievalRun,
@@ -32,7 +33,7 @@ class KnowledgeChunkResolver(Protocol):
         *,
         query: str | None = None,
         top_k: int = 5,
-        evidence_selection=None,
+        evidence_selection: EvidenceSelection | None = None,
     ) -> list[RetrievedChunk]: ...
 
 
@@ -194,13 +195,12 @@ class TechQAKnowledgeService:
                     chunk_id=sorted(missing)[0],
                 )
 
+        selected_count = len(selected)
         selected = selected[: self._read_max_chunks]
 
         packed: list[SupportEvidenceChunk] = []
         used_tokens = 0
-        truncated: bool = bool(
-            len(selected) < len(document_chunks) if chunk_ids is None else len(chunk_ids)
-        )
+        truncated = len(selected) < selected_count
 
         for chunk in selected:
             remaining = self._read_max_tokens - used_tokens

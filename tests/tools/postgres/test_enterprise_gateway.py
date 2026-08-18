@@ -80,7 +80,7 @@ def test_get_service_status_through_gateway() -> None:
 
         assert result.data["service_id"] == "webgui-noc-prod"
         assert result.data["status"] == "operational"
-        assert result.data["world_id"] == world_id
+        assert "world_id" not in result.data
 
         assert result.call_id == "tc-001"
         assert result.tool_name == "get_service_status"
@@ -194,6 +194,8 @@ def test_entitlement_result_depends_on_trusted_world() -> None:
 
         assert healthy.data["granted"] is True
         assert denied.data["granted"] is False
+        assert "world_id" not in healthy.data
+        assert "world_id" not in denied.data
 
     finally:
         delete_world(
@@ -266,6 +268,7 @@ def test_installed_product_exposes_scenario_version() -> None:
         assert result.data is not None
 
         assert result.data["version"] == "3.1.0.3"
+        assert "world_id" not in result.data
 
     finally:
         delete_world(
@@ -319,8 +322,9 @@ def test_create_support_case_through_gateway() -> None:
 
         case_id = result.data["case_id"]
 
-        assert result.data["world_id"] == world_id
-        assert result.data["actor_user_id"] == "alice"
+        assert "world_id" not in result.data
+        assert "actor_user_id" not in result.data
+        assert "idempotency_key" not in result.data
         assert result.data["status"] == "open"
         assert result.data["assigned_team"] == "noc-platform"
 
