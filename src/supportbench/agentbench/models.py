@@ -76,6 +76,8 @@ class AgentBenchTrajectoryMetrics:
     forbidden_tools_used: tuple[str, ...]
 
     tool_call_count: int
+    gateway_execution_count: int
+    logical_tool_call_count: int
     unique_tool_count: int
 
     tool_error_count: int
@@ -165,3 +167,32 @@ class AgentBenchSuiteResult:
             return 0.0
 
         return self.successful_count / self.total_count
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchSuiteMetrics:
+    total_cases: int
+    successful_cases: int
+    execution_failures: int
+
+    success_rate: float
+
+    mean_required_tool_recall: float
+    mean_tool_calls: float
+    mean_steps: float
+
+    forbidden_tool_call_count: int
+    unexpected_tool_error_count: int
+    approval_flow_failure_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class AgentBenchRunConfig:
+    suite_name: str
+    model_name: str
+    think: bool
+
+    prompt_version: str
+    retrieval_config: str
+
+    max_steps: int

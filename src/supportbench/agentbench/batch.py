@@ -5,6 +5,7 @@ from supportbench.agentbench.models import (
     AgentBenchCaseFailure,
     AgentBenchScenario,
     AgentBenchSuiteResult,
+    AgentBenchSuiteMetrics,
 )
 from supportbench.agentbench.runner import AgentBenchRunner
 
@@ -59,23 +60,6 @@ def _validate_unique_scenario_ids(
             raise ValueError(f"duplicate AgentBench scenario_id: {scenario.scenario_id}")
 
         seen.add(scenario.scenario_id)
-
-
-@dataclass(frozen=True, slots=True)
-class AgentBenchSuiteMetrics:
-    total_cases: int
-    successful_cases: int
-    execution_failures: int
-
-    success_rate: float
-
-    mean_required_tool_recall: float
-    mean_tool_calls: float
-    mean_steps: float
-
-    forbidden_tool_call_count: int
-    unexpected_tool_error_count: int
-    approval_flow_failure_count: int
 
 
 def summarize_suite(

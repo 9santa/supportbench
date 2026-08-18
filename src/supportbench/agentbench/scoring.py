@@ -42,6 +42,12 @@ def score_trajectory(
         execution for execution in tool_errors if not _is_approval_required(execution)
     ]
 
+    call_ids = tuple(execution.call.call_id for execution in executions)
+
+    gateway_execution_count = len(executions)
+
+    logical_tool_call_count = len(call_ids)
+
     tool_call_count = len(executions)
 
     within_tool_budget = (
@@ -68,6 +74,8 @@ def score_trajectory(
             1 for tool_name in tool_names if tool_name in scenario.forbidden_tools
         ),
         forbidden_tools_used=(forbidden_used),
+        gateway_execution_count=gateway_execution_count,
+        logical_tool_call_count=logical_tool_call_count,
         tool_call_count=tool_call_count,
         unique_tool_count=len(used_tools),
         tool_error_count=len(tool_errors),
