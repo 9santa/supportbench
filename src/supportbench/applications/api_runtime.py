@@ -28,7 +28,6 @@ from supportbench.tools.policies import (
     SUPPORT_DOCS_READ_PERMISSION,
 )
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 

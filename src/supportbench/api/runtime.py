@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from supportbench.api.worlds import WorldService
 from supportbench.api.agent_service import AgentRunService
+from supportbench.api.worlds import WorldService
 
 
 @dataclass(slots=True)

@@ -1,8 +1,8 @@
 from fastapi import Request
 
+from supportbench.api.agent_service import AgentRunService
 from supportbench.api.runtime import ApiRuntime
 from supportbench.api.worlds import WorldService
-from supportbench.api.agent_service import AgentRunService
 
 
 def get_api_runtime(request: Request) -> ApiRuntime:

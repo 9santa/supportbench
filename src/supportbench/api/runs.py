@@ -5,7 +5,6 @@ from typing import Literal
 
 from supportbench.agent.models import AgentRunResult
 
-
 AgentApiRunState = Literal[
     "ready",
     "approving",

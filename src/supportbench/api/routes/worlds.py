@@ -16,7 +16,6 @@ from supportbench.api.worlds import (
     WorldService,
 )
 
-
 router = APIRouter(
     prefix="/worlds",
     tags=["worlds"],

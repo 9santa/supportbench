@@ -2,7 +2,6 @@ from fastapi import APIRouter
 
 from supportbench.api.models import HealthResponse
 
-
 router = APIRouter(
     tags=["health"],
 )

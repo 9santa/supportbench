@@ -2,7 +2,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 WorldScenarioName = Literal[
     "healthy",
     "dash_outage",
