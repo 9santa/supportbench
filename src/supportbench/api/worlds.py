@@ -107,7 +107,7 @@ class PostgresDemoWorldService:
         with self._lock:
             world = self._worlds.get(world_id)
 
-        if world_id is None:
+        if world is None:
             raise DemoWorldNotFoundError(world_id)
 
         delete_world(
