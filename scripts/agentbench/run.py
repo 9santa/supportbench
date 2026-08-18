@@ -494,10 +494,17 @@ def _print_summary(
     print(f"successful:             {metrics.successful_cases}")
     print(f"success rate:           {metrics.success_rate:.3f}")
     print(f"execution failures:     {metrics.execution_failures}")
-    print(f"required tool recall:   {metrics.mean_required_tool_recall:.3f}")
     print(
-        "successful tool recall: "
-        f"{metrics.mean_successful_required_tool_recall:.3f}"
+        "required tool calls:    "
+        f"{metrics.mean_required_tool_call_recall:.3f}"
+    )
+    print(
+        "required tool success:  "
+        f"{metrics.mean_required_tool_success_recall:.3f}"
+    )
+    print(
+        "expected tool outcome:  "
+        f"{metrics.mean_required_tool_expected_outcome_recall:.3f}"
     )
     print(f"mean logical calls:     {metrics.mean_tool_calls:.2f}")
     print(f"mean steps:             {metrics.mean_steps:.2f}")

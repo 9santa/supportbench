@@ -126,7 +126,6 @@ def _create_case_turn() -> AssistantModelTurn:
             call_id="tc-create-case-001",
             name="create_support_case",
             arguments={
-                "user_id": "alice",
                 "service_id": "webgui-noc-prod",
                 "summary": "Production Web GUI outage",
                 "description": "The production Web GUI service is currently degraded.",
@@ -167,7 +166,9 @@ def test_enterprise_read_case_preserves_frozen_postgres_world() -> None:
         result = runner.run_case(scenario)
 
         assert result.success
-        assert result.trajectory.required_tool_recall == 1.0
+        assert result.trajectory.required_tool_call_recall == 1.0
+        assert result.trajectory.required_tool_success_recall == 1.0
+        assert result.trajectory.required_tool_expected_outcome_recall == 1.0
         assert result.trajectory.forbidden_tool_call_count == 0
         assert not result.state.state_changed
         assert result.state.support_case_delta == 0
@@ -222,7 +223,9 @@ def test_write_case_resumes_approved_mutation_and_changes_postgres_world() -> No
         assert result.state.support_case_delta == 1
         assert result.state.audit_event_delta == 1
         assert result.run.status == "completed"
-        assert result.trajectory.required_tool_recall == 1.0
+        assert result.trajectory.required_tool_call_recall == 1.0
+        assert result.trajectory.required_tool_success_recall == 1.0
+        assert result.trajectory.required_tool_expected_outcome_recall == 1.0
 
         create_executions = [
             execution
@@ -268,6 +271,9 @@ def test_write_case_without_approval_keeps_postgres_world_unchanged() -> None:
 
         assert result.success
         assert result.run.status == "approval_required"
+        assert result.trajectory.required_tool_call_recall == 1.0
+        assert result.trajectory.required_tool_success_recall == 0.0
+        assert result.trajectory.required_tool_expected_outcome_recall == 1.0
         assert result.approval.approval_requested
         assert result.approval.pre_approval_state_unchanged is True
         assert not result.approval.approval_resumed

@@ -337,17 +337,16 @@ def test_service_status_uses_trusted_world() -> None:
     assert result.data["service_id"] == "webgui-noc-prod"
 
 
-def test_create_support_case_uses_trusted_actor() -> None:
+def test_create_support_case_uses_trusted_actor_as_requester() -> None:
     service = FakeEnterpriseService()
     gateway = _enterprise_gateway(service)
     call = ToolCall(
         call_id="tc-017",
         name="create_support_case",
         arguments={
-            "user_id": "bob",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
-            "description": ("Bob cannot access the Web GUI."),
+            "description": ("Alice cannot access the Web GUI."),
             "severity": "high",
         },
     )
@@ -366,7 +365,7 @@ def test_create_support_case_uses_trusted_actor() -> None:
     assert command.world_id == "scenario-0042"
     assert command.actor_user_id == "alice"
 
-    assert command.user_id == "bob"
+    assert command.user_id == "alice"
 
 
 def test_same_tool_call_gets_same_idempotency_key() -> None:
@@ -377,7 +376,6 @@ def test_same_tool_call_gets_same_idempotency_key() -> None:
         call_id="tc-017",
         name="create_support_case",
         arguments={
-            "user_id": "alice",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
             "description": "Cannot access Web GUI.",
@@ -445,7 +443,6 @@ def test_mutating_tool_with_permission_requires_approval() -> None:
         call_id="tc-017",
         name="create_support_case",
         arguments={
-            "user_id": "alice",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
             "description": "Cannot access Web GUI.",
@@ -484,7 +481,6 @@ def test_approved_create_case_is_executed() -> None:
         call_id="tc-create-001",
         name="create_support_case",
         arguments={
-            "user_id": "alice",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
             "description": "Cannot access Web GUI.",
@@ -517,7 +513,6 @@ def test_approval_is_bound_to_call_arguments() -> None:
         call_id="tc-create-001",
         name="create_support_case",
         arguments={
-            "user_id": "alice",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
             "description": "Cannot access Web GUI.",
@@ -600,6 +595,35 @@ def test_tool_definitions_have_strict_json_schemas() -> None:
     assert "service_id" in properties
     assert "world_id" not in properties
     assert "actor_user_id" not in properties
+
+    create_case_properties = definitions["create_support_case"].arguments_schema[
+        "properties"
+    ]
+    assert isinstance(create_case_properties, Mapping)
+    assert "user_id" not in create_case_properties
+
+
+def test_create_support_case_rejects_model_supplied_user_id() -> None:
+    service = FakeEnterpriseService()
+    gateway = _enterprise_gateway(service)
+    call = ToolCall(
+        call_id="tc-create-001",
+        name="create_support_case",
+        arguments={
+            "user_id": "current_user",
+            "service_id": "webgui-noc-prod",
+            "summary": "Cannot access Web GUI",
+            "description": "Cannot access Web GUI.",
+            "severity": "high",
+        },
+    )
+
+    result = gateway.execute(call, context=_approved_context(call))
+
+    assert result.status == "error"
+    assert result.error is not None
+    assert result.error.code == "invalid_arguments"
+    assert service.last_command is None
 
 
 def test_search_products_returns_canonical_keys() -> None:

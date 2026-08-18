@@ -72,8 +72,9 @@ def summarize_suite(
             successful_cases=0,
             execution_failures=len(suite.case_failures),
             success_rate=0.0,
-            mean_required_tool_recall=0.0,
-            mean_successful_required_tool_recall=0.0,
+            mean_required_tool_call_recall=0.0,
+            mean_required_tool_success_recall=0.0,
+            mean_required_tool_expected_outcome_recall=0.0,
             mean_tool_calls=0.0,
             mean_steps=0.0,
             forbidden_tool_call_count=0,
@@ -89,11 +90,18 @@ def summarize_suite(
         successful_cases=(suite.successful_count),
         execution_failures=len(suite.case_failures),
         success_rate=suite.success_rate,
-        mean_required_tool_recall=(
-            sum(result.trajectory.required_tool_recall for result in results) / count
+        mean_required_tool_call_recall=(
+            sum(result.trajectory.required_tool_call_recall for result in results) / count
         ),
-        mean_successful_required_tool_recall=(
-            sum(result.trajectory.successful_required_tool_recall for result in results) / count
+        mean_required_tool_success_recall=(
+            sum(result.trajectory.required_tool_success_recall for result in results) / count
+        ),
+        mean_required_tool_expected_outcome_recall=(
+            sum(
+                result.trajectory.required_tool_expected_outcome_recall
+                for result in results
+            )
+            / count
         ),
         mean_tool_calls=(sum(result.trajectory.tool_call_count for result in results) / count),
         mean_steps=(sum(result.trajectory.step_count for result in results) / count),

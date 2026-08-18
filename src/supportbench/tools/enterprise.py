@@ -280,7 +280,7 @@ class CreateSupportCaseHandler:
                 call_id=call_id,
             ),
             actor_user_id=context.actor_user_id,
-            user_id=args.user_id,
+            user_id=context.actor_user_id,
             service_id=args.service_id,
             summary=args.summary,
             description=args.description,

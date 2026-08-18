@@ -31,15 +31,36 @@ def score_trajectory(
 
     forbidden_used = tuple(sorted(scenario.forbidden_tools & used_tools))
 
-    required_tool_recall = (
+    required_tool_call_recall = (
         1.0
         if not scenario.required_tools
         else (len(scenario.required_tools & used_tools) / len(scenario.required_tools))
     )
-    successful_required_tool_recall = (
+    required_tool_success_recall = (
         1.0
         if not scenario.required_tools
         else len(scenario.required_tools & successful_tools) / len(scenario.required_tools)
+    )
+
+    expected_outcome_tools = set(successful_tools)
+    pending = result.pending_approval
+
+    if (
+        scenario.expected_status == "approval_required"
+        and result.status == "approval_required"
+        and pending is not None
+        and any(
+            execution.call == pending.call and _is_approval_required(execution)
+            for execution in executions
+        )
+    ):
+        expected_outcome_tools.add(pending.call.name)
+
+    required_tool_expected_outcome_recall = (
+        1.0
+        if not scenario.required_tools
+        else len(scenario.required_tools & expected_outcome_tools)
+        / len(scenario.required_tools)
     )
 
     tool_errors = [execution for execution in executions if execution.result.status == "error"]
@@ -77,8 +98,11 @@ def score_trajectory(
 
     return AgentBenchTrajectoryMetrics(
         status_correct=status_correct,
-        required_tool_recall=(required_tool_recall),
-        successful_required_tool_recall=successful_required_tool_recall,
+        required_tool_call_recall=required_tool_call_recall,
+        required_tool_success_recall=required_tool_success_recall,
+        required_tool_expected_outcome_recall=(
+            required_tool_expected_outcome_recall
+        ),
         missing_required_tools=(missing_required),
         forbidden_tool_call_count=sum(
             1 for tool_name in tool_names if tool_name in scenario.forbidden_tools

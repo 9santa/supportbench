@@ -294,7 +294,6 @@ def test_create_support_case_through_gateway() -> None:
             call_id="tc-create-001",
             name="create_support_case",
             arguments={
-                "user_id": "alice",
                 "service_id": "webgui-noc-prod",
                 "summary": "Cannot access Web GUI",
                 "description": ("Alice cannot access production Web GUI."),

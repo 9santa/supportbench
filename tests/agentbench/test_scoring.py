@@ -155,8 +155,9 @@ def test_mixed_trajectory_succeeds_when_required_tools_are_used() -> None:
     )
 
     assert metrics.status_correct
-    assert metrics.required_tool_recall == 1.0
-    assert metrics.successful_required_tool_recall == 1.0
+    assert metrics.required_tool_call_recall == 1.0
+    assert metrics.required_tool_success_recall == 1.0
+    assert metrics.required_tool_expected_outcome_recall == 1.0
     assert metrics.missing_required_tools == ()
     assert metrics.forbidden_tool_call_count == 0
     assert metrics.unexpected_tool_error_count == 0
@@ -194,8 +195,9 @@ def test_failed_required_tool_is_not_successfully_recalled() -> None:
 
     metrics = score_trajectory(scenario=scenario, result=result)
 
-    assert metrics.required_tool_recall == 1.0
-    assert metrics.successful_required_tool_recall == 0.0
+    assert metrics.required_tool_call_recall == 1.0
+    assert metrics.required_tool_success_recall == 0.0
+    assert metrics.required_tool_expected_outcome_recall == 0.0
     assert not metrics.trajectory_success
 
 
@@ -268,10 +270,36 @@ def test_approval_required_is_not_an_unexpected_tool_error() -> None:
 
     assert metrics.approval_required_count == 1
 
-    assert metrics.successful_required_tool_recall == 0.0
+    assert metrics.required_tool_call_recall == 1.0
+
+    assert metrics.required_tool_success_recall == 0.0
+
+    assert metrics.required_tool_expected_outcome_recall == 1.0
 
     assert metrics.tool_error_count == 1
 
     assert metrics.unexpected_tool_error_count == 0
 
     assert metrics.trajectory_success
+
+
+def test_unexpected_approval_does_not_satisfy_expected_outcome_recall() -> None:
+    scenario = AgentBenchScenario(
+        scenario_id="write-case-without-expected-pause",
+        kind="write",
+        world_scenario="dash_outage",
+        user_message="Open a support case.",
+        permissions=frozenset({"support_case:create"}),
+        expected_status="completed",
+        required_tools=frozenset({"create_support_case"}),
+    )
+
+    metrics = score_trajectory(
+        scenario=scenario,
+        result=_approval_result(),
+    )
+
+    assert metrics.required_tool_call_recall == 1.0
+    assert metrics.required_tool_success_recall == 0.0
+    assert metrics.required_tool_expected_outcome_recall == 0.0
+    assert not metrics.trajectory_success

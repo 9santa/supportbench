@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy import func, select
 
 from supportbench.applications.enterprise_simulator import (
+    EnterpriseSimulatorRuntime,
     build_enterprise_simulator,
 )
 from supportbench.simulator.postgres.lifecycle import (
@@ -27,7 +28,6 @@ from supportbench.tools.policies import (
     CREATE_SUPPORT_CASE_PERMISSION,
     tool_approval_id,
 )
-
 
 pytestmark = pytest.mark.postgres
 
@@ -53,7 +53,6 @@ def _create_case_call(
         call_id=call_id,
         name="create_support_case",
         arguments={
-            "user_id": "alice",
             "service_id": "webgui-noc-prod",
             "summary": "Cannot access Web GUI",
             "description": ("Alice cannot access the production Web GUI."),
@@ -76,7 +75,7 @@ def _create_context(
 
 
 def _db_mutation_counts(
-    runtime,
+    runtime: EnterpriseSimulatorRuntime,
     *,
     world_id: str,
 ) -> tuple[int, int]:

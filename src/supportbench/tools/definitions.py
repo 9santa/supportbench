@@ -85,9 +85,6 @@ class CreateSupportCaseArguments(BaseModel):
         str_strip_whitespace=True,
     )
 
-    user_id: str = Field(
-        min_length=1,
-    )
     service_id: str = Field(
         min_length=1,
     )
@@ -162,7 +159,9 @@ CHECK_USER_ENTITLEMENT = ToolDefinition(
 
 CREATE_SUPPORT_CASE = ToolDefinition(
     name="create_support_case",
-    description=("Create a support case for a user and enterprise service."),
+    description=(
+        "Create a support case for the authenticated user and an enterprise service."
+    ),
     arguments_schema=(CreateSupportCaseArguments.model_json_schema()),
     mutating=True,
 )

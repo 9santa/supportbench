@@ -143,7 +143,6 @@ def test_approved_agent_resume_executes_pending_mutation_once_in_postgres() -> N
             call_id="tc-create-001",
             name="create_support_case",
             arguments={
-                "user_id": "alice",
                 "service_id": "webgui-noc-prod",
                 "summary": "Cannot access Web GUI",
                 "description": "Alice cannot access the production Web GUI.",

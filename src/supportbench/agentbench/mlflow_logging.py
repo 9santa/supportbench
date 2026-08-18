@@ -46,9 +46,14 @@ class MlflowAgentBenchLogger:
                     "success_rate": (metrics.success_rate),
                     "successful_cases": float(metrics.successful_cases),
                     "execution_failures": float(metrics.execution_failures),
-                    "mean_required_tool_recall": (metrics.mean_required_tool_recall),
-                    "mean_successful_required_tool_recall": (
-                        metrics.mean_successful_required_tool_recall
+                    "mean_required_tool_call_recall": (
+                        metrics.mean_required_tool_call_recall
+                    ),
+                    "mean_required_tool_success_recall": (
+                        metrics.mean_required_tool_success_recall
+                    ),
+                    "mean_required_tool_expected_outcome_recall": (
+                        metrics.mean_required_tool_expected_outcome_recall
                     ),
                     "mean_logical_tool_calls": (metrics.mean_tool_calls),
                     "mean_steps": (metrics.mean_steps),
@@ -88,9 +93,14 @@ class MlflowAgentBenchLogger:
                 mlflow.log_metrics(
                     {
                         "success": float(result.success),
-                        "required_tool_recall": (result.trajectory.required_tool_recall),
-                        "successful_required_tool_recall": (
-                            result.trajectory.successful_required_tool_recall
+                        "required_tool_call_recall": (
+                            result.trajectory.required_tool_call_recall
+                        ),
+                        "required_tool_success_recall": (
+                            result.trajectory.required_tool_success_recall
+                        ),
+                        "required_tool_expected_outcome_recall": (
+                            result.trajectory.required_tool_expected_outcome_recall
                         ),
                         "logical_tool_calls": float(result.trajectory.logical_tool_call_count),
                         "gateway_executions": float(result.trajectory.gateway_execution_count),
