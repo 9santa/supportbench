@@ -23,6 +23,9 @@ def score_trajectory(
     tool_names = tuple(execution.call.name for execution in executions)
 
     used_tools = frozenset(tool_names)
+    successful_tools = frozenset(
+        execution.call.name for execution in executions if execution.result.status == "success"
+    )
 
     missing_required = tuple(sorted(scenario.required_tools - used_tools))
 
@@ -33,10 +36,16 @@ def score_trajectory(
         if not scenario.required_tools
         else (len(scenario.required_tools & used_tools) / len(scenario.required_tools))
     )
+    successful_required_tool_recall = (
+        1.0
+        if not scenario.required_tools
+        else len(scenario.required_tools & successful_tools) / len(scenario.required_tools)
+    )
 
     tool_errors = [execution for execution in executions if execution.result.status == "error"]
 
     approval_required = [execution for execution in tool_errors if _is_approval_required(execution)]
+    policy_forbidden = [execution for execution in tool_errors if _is_policy_forbidden(execution)]
 
     unexpected_errors = [
         execution for execution in tool_errors if not _is_approval_required(execution)
@@ -69,6 +78,7 @@ def score_trajectory(
     return AgentBenchTrajectoryMetrics(
         status_correct=status_correct,
         required_tool_recall=(required_tool_recall),
+        successful_required_tool_recall=successful_required_tool_recall,
         missing_required_tools=(missing_required),
         forbidden_tool_call_count=sum(
             1 for tool_name in tool_names if tool_name in scenario.forbidden_tools
@@ -80,6 +90,7 @@ def score_trajectory(
         unique_tool_count=len(used_tools),
         tool_error_count=len(tool_errors),
         unexpected_tool_error_count=len(unexpected_errors),
+        policy_forbidden_error_count=len(policy_forbidden),
         approval_required_count=len(approval_required),
         step_count=len(result.steps),
         within_tool_budget=(within_tool_budget),
@@ -169,4 +180,16 @@ def _is_approval_required(
         result.status == "error"
         and result.error is not None
         and result.error.code == "approval_required"
+    )
+
+
+def _is_policy_forbidden(
+    execution: AgentToolExecution,
+) -> bool:
+    result = execution.result
+
+    return (
+        result.status == "error"
+        and result.error is not None
+        and result.error.code == "forbidden"
     )

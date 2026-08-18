@@ -23,7 +23,7 @@ def write_json_artifact(
 
 
 def _to_jsonable(value: object) -> Any:
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return _to_jsonable(asdict(value))
 
     if isinstance(value, dict):

@@ -1,6 +1,7 @@
+import re
 from typing import cast
 
-from sqlalchemy import case, func, insert, or_, select
+from sqlalchemy import and_, case, func, insert, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.orm import Session
@@ -77,6 +78,49 @@ class PostgresServiceRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    def search(
+        self,
+        *,
+        world_id: str,
+        query: str,
+        limit: int,
+    ) -> tuple[ServiceInstance, ...]:
+        terms = _service_search_terms(query)
+        searchable_columns = (
+            func.lower(service_instances.c.service_id),
+            func.lower(service_instances.c.display_name),
+            func.lower(service_instances.c.product_key),
+            func.lower(service_instances.c.environment),
+        )
+        term_matches = tuple(
+            or_(*(column.contains(term, autoescape=True) for column in searchable_columns))
+            for term in terms
+        )
+        normalized_query = query.casefold().strip()
+        service_id = func.lower(service_instances.c.service_id)
+        display_name = func.lower(service_instances.c.display_name)
+
+        statement = (
+            select(service_instances)
+            .where(
+                service_instances.c.world_id == world_id,
+                and_(*term_matches),
+            )
+            .order_by(
+                case(
+                    (service_id == normalized_query, 0),
+                    (display_name == normalized_query, 1),
+                    else_=2,
+                ),
+                service_id,
+            )
+            .limit(limit)
+        )
+
+        rows = self._session.execute(statement).mappings().all()
+
+        return tuple(_service_instance_from_row(row) for row in rows)
+
     def get(
         self,
         *,
@@ -93,22 +137,51 @@ class PostgresServiceRepository:
         if row is None:
             return None
 
-        return ServiceInstance(
-            world_id=row["world_id"],
-            service_id=row["service_id"],
-            display_name=row["display_name"],
-            product_key=row["product_key"],
-            version=row["version"],
-            environment=cast(
-                Environment,
-                row["environment"],
-            ),
-            status=cast(
-                ServiceStatus,
-                row["status"],
-            ),
-            owner_team=row["owner_team"],
+        return _service_instance_from_row(row)
+
+
+_SERVICE_SEARCH_STOP_WORDS = frozenset(
+    {
+        "a",
+        "an",
+        "current",
+        "instance",
+        "instances",
+        "service",
+        "services",
+        "the",
+    }
+)
+
+
+def _service_search_terms(query: str) -> tuple[str, ...]:
+    terms = tuple(
+        dict.fromkeys(
+            term
+            for term in re.findall(r"[a-z0-9]+", query.casefold())
+            if term not in _SERVICE_SEARCH_STOP_WORDS
         )
+    )
+    return terms or (query.casefold().strip(),)
+
+
+def _service_instance_from_row(row: RowMapping) -> ServiceInstance:
+    return ServiceInstance(
+        world_id=row["world_id"],
+        service_id=row["service_id"],
+        display_name=row["display_name"],
+        product_key=row["product_key"],
+        version=row["version"],
+        environment=cast(
+            Environment,
+            row["environment"],
+        ),
+        status=cast(
+            ServiceStatus,
+            row["status"],
+        ),
+        owner_team=row["owner_team"],
+    )
 
 
 class PostgresInstalledProductRepository:

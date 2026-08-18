@@ -67,6 +67,35 @@ def test_get_service_status_from_postgres() -> None:
         engine.dispose()
 
 
+def test_search_services_resolves_natural_language_identity() -> None:
+    engine = build_engine(_database_url())
+    session_factory = build_session_factory(engine)
+    world_id = f"test-{uuid4()}"
+
+    try:
+        seed_scenario(
+            session_factory=session_factory,
+            scenario=build_healthy_scenario(world_id=world_id),
+        )
+        enterprise = EnterpriseService(
+            uow_factory=lambda: PostgresUnitOfWork(session_factory)
+        )
+
+        matches = enterprise.search_services(
+            world_id=world_id,
+            query="the production Web GUI service",
+        )
+
+        assert [match.service_id for match in matches] == ["webgui-noc-prod"]
+    finally:
+        with session_factory() as session:
+            with session.begin():
+                session.execute(
+                    delete(simulator_worlds).where(simulator_worlds.c.world_id == world_id)
+                )
+        engine.dispose()
+
+
 def test_same_service_can_have_different_state_per_world() -> None:
     engine = build_engine(_database_url())
     session_factory = build_session_factory(engine)

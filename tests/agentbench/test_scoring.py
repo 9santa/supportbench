@@ -6,14 +6,18 @@ from supportbench.agent.models import (
     AgentStep,
     AgentToolExecution,
 )
+from supportbench.agentbench.models import AgentBenchScenario
+from supportbench.agentbench.scenarios import (
+    AGENTBENCH_V1,
+    AGENTBENCH_V2,
+    MIXED_DASH_WEBGUI,
+)
+from supportbench.agentbench.scoring import score_trajectory
 from supportbench.tools.models import (
     ToolCall,
-    ToolResult,
     ToolErrorInfo,
+    ToolResult,
 )
-from supportbench.agentbench.models import AgentBenchScenario
-from supportbench.agentbench.scoring import score_trajectory
-from supportbench.agentbench.scenarios import MIXED_DASH_WEBGUI
 
 
 def _success_result(
@@ -152,10 +156,70 @@ def test_mixed_trajectory_succeeds_when_required_tools_are_used() -> None:
 
     assert metrics.status_correct
     assert metrics.required_tool_recall == 1.0
+    assert metrics.successful_required_tool_recall == 1.0
     assert metrics.missing_required_tools == ()
     assert metrics.forbidden_tool_call_count == 0
     assert metrics.unexpected_tool_error_count == 0
     assert metrics.trajectory_success
+
+
+def test_v2_keeps_scenario_ids_but_relaxes_redundant_deep_read_requirement() -> None:
+    assert [scenario.scenario_id for scenario in AGENTBENCH_V2] == [
+        scenario.scenario_id for scenario in AGENTBENCH_V1
+    ]
+    v1 = {scenario.scenario_id: scenario for scenario in AGENTBENCH_V1}
+    v2 = {scenario.scenario_id: scenario for scenario in AGENTBENCH_V2}
+
+    assert v1["knowledge-search-and-read"].required_tools == frozenset(
+        {"search_support_docs", "read_support_doc"}
+    )
+    assert v2["knowledge-search-and-read"].required_tools == frozenset(
+        {"search_support_docs"}
+    )
+
+
+def test_failed_required_tool_is_not_successfully_recalled() -> None:
+    scenario = AgentBenchScenario(
+        scenario_id="failed-service-lookup",
+        kind="enterprise",
+        world_scenario="healthy",
+        user_message="Check the service.",
+        permissions=frozenset({"enterprise:read"}),
+        expected_status="completed",
+        required_tools=frozenset({"get_service_status"}),
+    )
+    result = _success_result(
+        _error_execution("get_service_status", code="service_not_found"),
+    )
+
+    metrics = score_trajectory(scenario=scenario, result=result)
+
+    assert metrics.required_tool_recall == 1.0
+    assert metrics.successful_required_tool_recall == 0.0
+    assert not metrics.trajectory_success
+
+
+def test_policy_forbidden_errors_are_separate_from_scenario_forbidden_tools() -> None:
+    scenario = AgentBenchScenario(
+        scenario_id="policy-denied-tool",
+        kind="knowledge",
+        world_scenario="healthy",
+        user_message="Search support docs.",
+        permissions=frozenset({"support_docs:read"}),
+        expected_status="completed",
+        required_tools=frozenset({"search_support_docs"}),
+        forbidden_tools=frozenset({"create_support_case"}),
+    )
+    result = _success_result(
+        _error_execution("search_products", code="forbidden"),
+        _success_execution("search_support_docs"),
+    )
+
+    metrics = score_trajectory(scenario=scenario, result=result)
+
+    assert metrics.forbidden_tool_call_count == 0
+    assert metrics.policy_forbidden_error_count == 1
+    assert metrics.unexpected_tool_error_count == 1
 
 
 def test_forbidden_mutation_fails_trajectory() -> None:
@@ -203,6 +267,8 @@ def test_approval_required_is_not_an_unexpected_tool_error() -> None:
     )
 
     assert metrics.approval_required_count == 1
+
+    assert metrics.successful_required_tool_recall == 0.0
 
     assert metrics.tool_error_count == 1
 

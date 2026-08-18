@@ -94,6 +94,46 @@ def test_get_service_status_through_gateway() -> None:
         runtime.close()
 
 
+def test_search_services_resolves_identity_through_gateway() -> None:
+    runtime = build_enterprise_simulator(database_url=_database_url())
+    world_id = f"tool-test-{uuid4()}"
+
+    try:
+        reset_world(
+            session_factory=runtime.session_factory,
+            scenario=build_scenario(name="healthy", world_id=world_id),
+        )
+
+        result = runtime.tool_gateway.execute(
+            ToolCall(
+                call_id="tc-search-service-001",
+                name="search_services",
+                arguments={"query": "the production Web GUI service"},
+            ),
+            context=ToolExecutionContext(
+                world_id=world_id,
+                actor_user_id="alice",
+                request_id="req-001",
+                permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+            ),
+        )
+
+        assert result.status == "success"
+        assert result.data == {
+            "matches": [
+                {
+                    "service_id": "webgui-noc-prod",
+                    "display_name": "NOC Web GUI",
+                    "product_key": "netcool_webgui",
+                    "environment": "production",
+                }
+            ]
+        }
+    finally:
+        delete_world(session_factory=runtime.session_factory, world_id=world_id)
+        runtime.close()
+
+
 def test_entitlement_result_depends_on_trusted_world() -> None:
     runtime = build_enterprise_simulator(database_url=_database_url())
 

@@ -34,6 +34,7 @@ def test_support_agent_exposes_unified_tool_surface() -> None:
 
     assert names == {
         "search_products",
+        "search_services",
         "get_service_status",
         "get_installed_product",
         "check_user_entitlement",

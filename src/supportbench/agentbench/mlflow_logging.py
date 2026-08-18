@@ -4,8 +4,8 @@ import mlflow
 
 from supportbench.agentbench.models import (
     AgentBenchRunConfig,
-    AgentBenchSuiteResult,
     AgentBenchSuiteMetrics,
+    AgentBenchSuiteResult,
 )
 
 
@@ -47,9 +47,13 @@ class MlflowAgentBenchLogger:
                     "successful_cases": float(metrics.successful_cases),
                     "execution_failures": float(metrics.execution_failures),
                     "mean_required_tool_recall": (metrics.mean_required_tool_recall),
+                    "mean_successful_required_tool_recall": (
+                        metrics.mean_successful_required_tool_recall
+                    ),
                     "mean_logical_tool_calls": (metrics.mean_tool_calls),
                     "mean_steps": (metrics.mean_steps),
                     "forbidden_tool_calls": float(metrics.forbidden_tool_call_count),
+                    "policy_forbidden_errors": float(metrics.policy_forbidden_error_count),
                     "unexpected_tool_errors": float(metrics.unexpected_tool_error_count),
                     "approval_flow_failures": float(metrics.approval_flow_failure_count),
                 }
@@ -62,7 +66,7 @@ class MlflowAgentBenchLogger:
                 artifact_path="agentbench",
             )
 
-            return parent.info.run_id
+            return str(parent.info.run_id)
 
     def _log_case_runs(
         self,
@@ -85,10 +89,16 @@ class MlflowAgentBenchLogger:
                     {
                         "success": float(result.success),
                         "required_tool_recall": (result.trajectory.required_tool_recall),
+                        "successful_required_tool_recall": (
+                            result.trajectory.successful_required_tool_recall
+                        ),
                         "logical_tool_calls": float(result.trajectory.logical_tool_call_count),
                         "gateway_executions": float(result.trajectory.gateway_execution_count),
                         "steps": float(result.trajectory.step_count),
                         "forbidden_tool_calls": float(result.trajectory.forbidden_tool_call_count),
+                        "policy_forbidden_errors": float(
+                            result.trajectory.policy_forbidden_error_count
+                        ),
                         "unexpected_tool_errors": float(
                             result.trajectory.unexpected_tool_error_count
                         ),

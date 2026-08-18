@@ -70,6 +70,7 @@ class AgentBenchTrajectoryMetrics:
     status_correct: bool
 
     required_tool_recall: float
+    successful_required_tool_recall: float
     missing_required_tools: tuple[str, ...]
 
     forbidden_tool_call_count: int
@@ -82,6 +83,7 @@ class AgentBenchTrajectoryMetrics:
 
     tool_error_count: int
     unexpected_tool_error_count: int
+    policy_forbidden_error_count: int
 
     approval_required_count: int
 
@@ -178,10 +180,12 @@ class AgentBenchSuiteMetrics:
     success_rate: float
 
     mean_required_tool_recall: float
+    mean_successful_required_tool_recall: float
     mean_tool_calls: float
     mean_steps: float
 
     forbidden_tool_call_count: int
+    policy_forbidden_error_count: int
     unexpected_tool_error_count: int
     approval_flow_failure_count: int
 

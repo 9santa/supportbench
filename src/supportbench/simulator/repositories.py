@@ -22,6 +22,14 @@ class ProductRepository(Protocol):
 
 
 class ServiceRepository(Protocol):
+    def search(
+        self,
+        *,
+        world_id: str,
+        query: str,
+        limit: int,
+    ) -> tuple[ServiceInstance, ...]: ...
+
     def get(
         self,
         *,

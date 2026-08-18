@@ -4,7 +4,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from scripts._paths import PROJECT_ROOT
-
 from supportbench.agentbench.artifacts import (
     write_suite_artifacts,
 )
@@ -16,7 +15,11 @@ from supportbench.agentbench.mlflow_logging import (
     MlflowAgentBenchLogger,
 )
 from supportbench.agentbench.models import (
+    AgentBenchCaseResult,
     AgentBenchRunConfig,
+    AgentBenchScenario,
+    AgentBenchSuiteMetrics,
+    AgentBenchSuiteResult,
 )
 from supportbench.agentbench.postgres import (
     PostgresAgentBenchSnapshotter,
@@ -26,6 +29,7 @@ from supportbench.agentbench.runner import (
 )
 from supportbench.agentbench.scenarios import (
     AGENTBENCH_V1,
+    AGENTBENCH_V2,
 )
 from supportbench.applications.enterprise_simulator import (
     build_enterprise_simulator,
@@ -41,7 +45,6 @@ from supportbench.applications.support_agent import (
 from supportbench.llm.ollama_client import (
     OllamaToolCallingClient,
 )
-
 
 SYSTEM_PROMPT = """
 You are the SupportBench enterprise technical support agent.
@@ -120,10 +123,13 @@ def main() -> int:
     if not ollama_base_url:
         ollama_base_url = "http://127.0.0.1:11434"
 
-    output_dir = args.output_dir or _default_output_dir(model_name=model_name)
+    output_dir = args.output_dir or _default_output_dir(
+        model_name=model_name,
+        suite_name=args.suite,
+    )
 
     run_config = AgentBenchRunConfig(
-        suite_name="agentbench-v1",
+        suite_name=f"agentbench-{args.suite}",
         model_name=model_name,
         think=args.think,
         prompt_version=args.prompt_version,
@@ -251,8 +257,8 @@ def _parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--suite",
-        default="v1",
-        choices=("v1",),
+        default="v2",
+        choices=("v1", "v2"),
         help="AgentBench scenario suite.",
     )
 
@@ -404,9 +410,12 @@ def _resolve_model_name(
 
 def _resolve_suite(
     suite_name: str,
-):
+) -> tuple[AgentBenchScenario, ...]:
     if suite_name == "v1":
         return AGENTBENCH_V1
+
+    if suite_name == "v2":
+        return AGENTBENCH_V2
 
     raise ValueError(f"unknown AgentBench suite: {suite_name!r}")
 
@@ -428,19 +437,25 @@ def _required_env(
 def _default_output_dir(
     *,
     model_name: str,
+    suite_name: str,
 ) -> Path:
     timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
 
     safe_model_name = model_name.replace("/", "_").replace(":", "_")
 
-    return PROJECT_ROOT / "artifacts" / "agentbench" / (f"{timestamp}-{safe_model_name}")
+    return (
+        PROJECT_ROOT
+        / "artifacts"
+        / "agentbench"
+        / f"{timestamp}-{suite_name}-{safe_model_name}"
+    )
 
 
 def _log_mlflow(
     *,
     config: AgentBenchRunConfig,
-    suite,
-    metrics,
+    suite: AgentBenchSuiteResult,
+    metrics: AgentBenchSuiteMetrics,
     artifact_dir: Path,
 ) -> str:
     tracking_uri = _required_env("MLFLOW_TRACKING_URI")
@@ -468,8 +483,8 @@ def _log_mlflow(
 
 def _print_summary(
     *,
-    suite,
-    metrics,
+    suite: AgentBenchSuiteResult,
+    metrics: AgentBenchSuiteMetrics,
 ) -> None:
     print()
     print("AGENTBENCH SUMMARY")
@@ -480,9 +495,14 @@ def _print_summary(
     print(f"success rate:           {metrics.success_rate:.3f}")
     print(f"execution failures:     {metrics.execution_failures}")
     print(f"required tool recall:   {metrics.mean_required_tool_recall:.3f}")
+    print(
+        "successful tool recall: "
+        f"{metrics.mean_successful_required_tool_recall:.3f}"
+    )
     print(f"mean logical calls:     {metrics.mean_tool_calls:.2f}")
     print(f"mean steps:             {metrics.mean_steps:.2f}")
-    print(f"forbidden tool calls:   {metrics.forbidden_tool_call_count}")
+    print(f"scenario forbidden:     {metrics.forbidden_tool_call_count}")
+    print(f"policy forbidden:       {metrics.policy_forbidden_error_count}")
     print(f"unexpected tool errors: {metrics.unexpected_tool_error_count}")
     print(f"approval flow failures: {metrics.approval_flow_failure_count}")
 
@@ -508,7 +528,7 @@ def _print_summary(
 
 
 def _case_failure_reasons(
-    result,
+    result: AgentBenchCaseResult,
 ) -> list[str]:
     reasons: list[str] = []
 

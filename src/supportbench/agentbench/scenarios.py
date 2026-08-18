@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from supportbench.agentbench.models import AgentBenchScenario
 from supportbench.tools.policies import (
     CREATE_SUPPORT_CASE_PERMISSION,
@@ -216,7 +218,7 @@ KNOWLEDGE_SEARCH_AND_READ = AgentBenchScenario(
     required_tools=frozenset(
         {
             "search_support_docs",
-            "read_support_doc",
+            # "read_support_doc",
         }
     ),
     forbidden_tools=frozenset(
@@ -225,6 +227,16 @@ KNOWLEDGE_SEARCH_AND_READ = AgentBenchScenario(
         }
     ),
     max_tool_calls=6,
+)
+
+KNOWLEDGE_SEARCH_AND_READ_V1 = replace(
+    KNOWLEDGE_SEARCH_AND_READ,
+    required_tools=frozenset(
+        {
+            "search_support_docs",
+            "read_support_doc",
+        }
+    ),
 )
 
 
@@ -417,6 +429,26 @@ WRITE_DIRECT_CASE_APPROVED = AgentBenchScenario(
 )
 
 AGENTBENCH_V1 = (
+    ENTERPRISE_HEALTHY_STATUS,
+    ENTERPRISE_OUTAGE_STATUS,
+    ENTERPRISE_DASH_VERSION,
+    ENTERPRISE_ACCESS_DENIED,
+    KNOWLEDGE_WEBGUI_PREREQUISITES,
+    KNOWLEDGE_SSL_MUTUAL_AUTH,
+    KNOWLEDGE_MQ_CLUSTER_ERROR,
+    KNOWLEDGE_SEARCH_AND_READ_V1,
+    MIXED_DASH_WEBGUI,
+    MIXED_OUTAGE_TROUBLESHOOTING,
+    MIXED_ACCESS_AND_DOCUMENTATION,
+    MIXED_HEALTHY_VERIFY_DOCS,
+    WRITE_OUTAGE_APPROVED,
+    WRITE_OUTAGE_AWAITS_APPROVAL,
+    WRITE_DIRECT_CASE_APPROVED,
+)
+
+# V2 keeps the same task set while removing the implementation-path
+# requirement that substantial search evidence must always be read again.
+AGENTBENCH_V2 = (
     ENTERPRISE_HEALTHY_STATUS,
     ENTERPRISE_OUTAGE_STATUS,
     ENTERPRISE_DASH_VERSION,

@@ -1,11 +1,10 @@
-from dataclasses import dataclass
 from collections.abc import Sequence
 
 from supportbench.agentbench.models import (
     AgentBenchCaseFailure,
     AgentBenchScenario,
-    AgentBenchSuiteResult,
     AgentBenchSuiteMetrics,
+    AgentBenchSuiteResult,
 )
 from supportbench.agentbench.runner import AgentBenchRunner
 
@@ -74,9 +73,11 @@ def summarize_suite(
             execution_failures=len(suite.case_failures),
             success_rate=0.0,
             mean_required_tool_recall=0.0,
+            mean_successful_required_tool_recall=0.0,
             mean_tool_calls=0.0,
             mean_steps=0.0,
             forbidden_tool_call_count=0,
+            policy_forbidden_error_count=0,
             unexpected_tool_error_count=0,
             approval_flow_failure_count=0,
         )
@@ -91,10 +92,16 @@ def summarize_suite(
         mean_required_tool_recall=(
             sum(result.trajectory.required_tool_recall for result in results) / count
         ),
+        mean_successful_required_tool_recall=(
+            sum(result.trajectory.successful_required_tool_recall for result in results) / count
+        ),
         mean_tool_calls=(sum(result.trajectory.tool_call_count for result in results) / count),
         mean_steps=(sum(result.trajectory.step_count for result in results) / count),
         forbidden_tool_call_count=sum(
             result.trajectory.forbidden_tool_call_count for result in results
+        ),
+        policy_forbidden_error_count=sum(
+            result.trajectory.policy_forbidden_error_count for result in results
         ),
         unexpected_tool_error_count=sum(
             result.trajectory.unexpected_tool_error_count for result in results

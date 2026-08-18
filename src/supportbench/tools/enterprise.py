@@ -6,6 +6,11 @@ from typing import Protocol
 from supportbench.simulator.commands import (
     CreateSupportCaseCommand,
 )
+from supportbench.simulator.errors import (
+    InstalledProductNotFoundError,
+    ServiceNotFoundError,
+    UserEntitlementNotFoundError,
+)
 from supportbench.simulator.models import (
     InstalledProduct,
     Product,
@@ -13,29 +18,26 @@ from supportbench.simulator.models import (
     SupportCase,
     UserEntitlement,
 )
-from supportbench.simulator.errors import (
-    InstalledProductNotFoundError,
-    ServiceNotFoundError,
-    UserEntitlementNotFoundError,
-)
 from supportbench.tools.definitions import (
     CHECK_USER_ENTITLEMENT,
     CREATE_SUPPORT_CASE,
     GET_INSTALLED_PRODUCT,
     GET_SERVICE_STATUS,
     SEARCH_PRODUCTS,
+    SEARCH_SERVICES,
     CheckUserEntitlementArguments,
     CreateSupportCaseArguments,
     GetInstalledProductArguments,
     GetServiceStatusArguments,
     SearchProductsArguments,
+    SearchServicesArguments,
     ToolDefinition,
 )
 from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.handlers import ToolHandler
 from supportbench.tools.models import (
-    ToolExecutionContext,
     ToolErrorInfo,
+    ToolExecutionContext,
 )
 
 
@@ -45,6 +47,13 @@ class EnterpriseToolService(Protocol):
         *,
         query: str,
     ) -> tuple[Product, ...]: ...
+
+    def search_services(
+        self,
+        *,
+        world_id: str,
+        query: str,
+    ) -> tuple[ServiceInstance, ...]: ...
 
     def get_service_status(
         self,
@@ -178,6 +187,43 @@ class SearchProductsHandler:
         }
 
 
+class SearchServicesHandler:
+    def __init__(
+        self,
+        service: EnterpriseToolService,
+    ) -> None:
+        self._service = service
+
+    @property
+    def definition(self) -> ToolDefinition:
+        return SEARCH_SERVICES
+
+    def execute(
+        self,
+        *,
+        call_id: str,
+        arguments: Mapping[str, object],
+        context: ToolExecutionContext,
+    ) -> Mapping[str, object]:
+        args = SearchServicesArguments.model_validate(arguments)
+        matches = self._service.search_services(
+            world_id=context.world_id,
+            query=args.query,
+        )
+
+        return {
+            "matches": [
+                {
+                    "service_id": service.service_id,
+                    "display_name": service.display_name,
+                    "product_key": service.product_key,
+                    "environment": service.environment,
+                }
+                for service in matches
+            ]
+        }
+
+
 class CheckUserEntitlementHandler:
     def __init__(
         self,
@@ -256,6 +302,7 @@ def build_enterprise_tool_handlers(
 ) -> tuple[ToolHandler, ...]:
     return (
         GetServiceStatusHandler(service),
+        SearchServicesHandler(service),
         SearchProductsHandler(service),
         GetInstalledProductHandler(service),
         CheckUserEntitlementHandler(service),

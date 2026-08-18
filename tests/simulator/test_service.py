@@ -51,6 +51,33 @@ class FakeServiceRepository:
     ) -> ServiceInstance | None:
         return self._services.get((world_id, service_id))
 
+    def search(
+        self,
+        *,
+        world_id: str,
+        query: str,
+        limit: int,
+    ) -> tuple[ServiceInstance, ...]:
+        terms = query.casefold().split()
+        matches = (
+            service
+            for service in self._services.values()
+            if service.world_id == world_id
+            and all(
+                term
+                in " ".join(
+                    (
+                        service.service_id,
+                        service.display_name,
+                        service.product_key,
+                        service.environment,
+                    )
+                ).casefold()
+                for term in terms
+            )
+        )
+        return tuple(matches)[:limit]
+
 
 class FakeInstalledProductRepository:
     def __init__(
@@ -227,6 +254,34 @@ def test_get_service_status_returns_service() -> None:
     )
 
     assert actual == expected
+
+
+def test_search_services_is_world_scoped() -> None:
+    expected = ServiceInstance(
+        world_id="world-a",
+        service_id="webgui-noc-prod",
+        display_name="NOC Web GUI",
+        product_key="netcool_webgui",
+        version="8.1 FP7",
+        environment="production",
+        status="operational",
+        owner_team="noc-platform",
+    )
+    other_world = ServiceInstance(
+        world_id="world-b",
+        service_id="webgui-noc-prod",
+        display_name="NOC Web GUI",
+        product_key="netcool_webgui",
+        version="8.1 FP6",
+        environment="production",
+        status="outage",
+        owner_team="noc-platform",
+    )
+    service = EnterpriseService(
+        uow_factory=lambda: FakeUnitOfWork(services=(expected, other_world))
+    )
+
+    assert service.search_services(world_id="world-a", query="Web GUI") == (expected,)
 
 
 def test_get_service_status_is_world_isolated() -> None:

@@ -53,6 +53,18 @@ class SearchProductsArguments(BaseModel):
     )
 
 
+class SearchServicesArguments(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+    )
+
+    query: str = Field(
+        min_length=1,
+        max_length=500,
+    )
+
+
 class CheckUserEntitlementArguments(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -125,6 +137,17 @@ SEARCH_PRODUCTS = ToolDefinition(
         "exact product_key."
     ),
     arguments_schema=(SearchProductsArguments.model_json_schema()),
+    mutating=False,
+)
+
+
+SEARCH_SERVICES = ToolDefinition(
+    name="search_services",
+    description=(
+        "Resolve a human-readable enterprise service name to canonical service_id values. "
+        "Use this before tools that require an exact service_id."
+    ),
+    arguments_schema=(SearchServicesArguments.model_json_schema()),
     mutating=False,
 )
 

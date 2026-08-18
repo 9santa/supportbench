@@ -59,6 +59,28 @@ class EnterpriseService:
 
         return service
 
+    def search_services(
+        self,
+        *,
+        world_id: str,
+        query: str,
+    ) -> tuple[ServiceInstance, ...]:
+        normalized_world_id = world_id.strip()
+        normalized_query = query.strip()
+
+        if not normalized_world_id:
+            raise ValueError("world_id must be non-empty")
+
+        if not normalized_query:
+            raise ValueError("query must be non-empty")
+
+        with self._uow_factory() as uow:
+            return uow.services.search(
+                world_id=normalized_world_id,
+                query=normalized_query,
+                limit=10,
+            )
+
     def get_installed_product(
         self,
         *,

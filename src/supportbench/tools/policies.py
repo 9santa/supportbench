@@ -153,6 +153,10 @@ ENTERPRISE_TOOL_POLICIES = {
         required_permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
         requires_approval=False,
     ),
+    "search_services": ToolPolicyRule(
+        required_permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+        requires_approval=False,
+    ),
     "get_installed_product": ToolPolicyRule(
         required_permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
         requires_approval=False,

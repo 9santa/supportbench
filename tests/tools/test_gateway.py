@@ -149,6 +149,26 @@ class FakeEnterpriseService:
             ),
         )
 
+    def search_services(
+        self,
+        *,
+        world_id: str,
+        query: str,
+    ) -> tuple[ServiceInstance, ...]:
+        self.last_world_id = world_id
+        return (
+            ServiceInstance(
+                world_id=world_id,
+                service_id="webgui-noc-prod",
+                display_name="NOC Web GUI",
+                product_key="netcool_webgui",
+                version="8.1 FP7",
+                environment="production",
+                status="operational",
+                owner_team="noc-platform",
+            ),
+        )
+
     def get_service_status(
         self,
         *,
@@ -551,7 +571,7 @@ def test_all_registered_tools_have_explicit_policy() -> None:
         policy_engine=build_enterprise_tool_policy_engine(),
     )
 
-    assert len(gateway.definitions) == 5
+    assert len(gateway.definitions) == 6
 
 
 def test_tool_definitions_have_strict_json_schemas() -> None:
@@ -562,6 +582,7 @@ def test_tool_definitions_have_strict_json_schemas() -> None:
 
     assert set(definitions) == {
         "get_service_status",
+        "search_services",
         "get_installed_product",
         "search_products",
         "check_user_entitlement",
@@ -574,6 +595,7 @@ def test_tool_definitions_have_strict_json_schemas() -> None:
     assert schema["additionalProperties"] is False
 
     properties = schema["properties"]
+    assert isinstance(properties, Mapping)
 
     assert "service_id" in properties
     assert "world_id" not in properties
@@ -601,6 +623,34 @@ def test_search_products_returns_canonical_keys() -> None:
             {
                 "product_key": "dash",
                 "display_name": "IBM Dashboard Application Services Hub",
+            }
+        ]
+    }
+
+
+def test_search_services_returns_identity_without_operational_state() -> None:
+    result = _enterprise_gateway(FakeEnterpriseService()).execute(
+        ToolCall(
+            call_id="tc-search-service-001",
+            name="search_services",
+            arguments={"query": "production Web GUI"},
+        ),
+        context=ToolExecutionContext(
+            world_id="world-a",
+            actor_user_id="alice",
+            request_id="req-001",
+            permissions=frozenset({ENTERPRISE_READ_PERMISSION}),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.data == {
+        "matches": [
+            {
+                "service_id": "webgui-noc-prod",
+                "display_name": "NOC Web GUI",
+                "product_key": "netcool_webgui",
+                "environment": "production",
             }
         ]
     }
