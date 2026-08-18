@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="SupportBench agent demo">
+    <title>SupportBench Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/demo.css') }}">
+    <script src="{{ url_for('static', path='/demo.js') }}" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="site-header">
+        <p class="product-label">Engineering demo</p>
+        <h1>SupportBench</h1>
+        <p>Agentic RAG over live enterprise state and IBM support documentation</p>
+      </header>
+
+      <div id="error-panel" class="notice notice-error" role="alert" hidden></div>
+
+      <section class="panel" aria-labelledby="world-heading">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">01</p>
+            <h2 id="world-heading">Demo World</h2>
+          </div>
+          <span id="world-state" class="state-label">Not created</span>
+        </div>
+
+        <form id="world-form" class="control-row">
+          <label class="field field-grow" for="scenario-select">
+            <span>Scenario</span>
+            <select id="scenario-select" name="scenario">
+              <option value="healthy">healthy</option>
+              <option value="dash_outage">dash_outage</option>
+              <option value="old_dash_version">old_dash_version</option>
+              <option value="access_denied">access_denied</option>
+            </select>
+          </label>
+          <button id="create-world-button" class="button button-primary" type="submit">
+            Create world
+          </button>
+        </form>
+
+        <div id="world-summary" class="world-summary" hidden>
+          <div>
+            <span class="meta-label">Active scenario</span>
+            <strong id="active-scenario"></strong>
+          </div>
+          <div class="world-identity">
+            <span class="meta-label">World ID</span>
+            <code id="active-world-id"></code>
+          </div>
+          <button id="reset-world-button" class="button button-secondary" type="button">
+            Reset / New world
+          </button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="task-heading">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">02</p>
+            <h2 id="task-heading">Task</h2>
+          </div>
+          <button id="new-task-button" class="text-button" type="button" disabled>
+            New task
+          </button>
+        </div>
+
+        <div class="preset-row" aria-label="Task presets">
+          <button id="mixed-preset" class="button button-preset" type="button">
+            Mixed RAG
+          </button>
+          <button id="write-preset" class="button button-preset" type="button">
+            Write + Approval
+          </button>
+        </div>
+
+        <form id="task-form">
+          <label class="field" for="task-input">
+            <span>User task</span>
+            <textarea
+              id="task-input"
+              name="message"
+              rows="5"
+              maxlength="10000"
+              placeholder="Create a world, then describe one support task."
+            ></textarea>
+          </label>
+          <div class="form-actions">
+            <span id="task-hint" class="form-hint">Create a demo world to enable execution.</span>
+            <button id="send-button" class="button button-primary" type="submit" disabled>
+              Send
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="result-heading">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">03</p>
+            <h2 id="result-heading">Agent Result</h2>
+          </div>
+          <span id="run-status" class="status-badge" hidden></span>
+        </div>
+
+        <div id="result-content" class="empty-state" aria-live="polite">
+          No task has been run in this world.
+        </div>
+
+        <div id="approval-card" class="approval-card" hidden>
+          <div>
+            <p class="approval-label">Approval required</p>
+            <h3 id="approval-tool-name"></h3>
+          </div>
+          <pre id="approval-arguments"></pre>
+          <button id="approve-button" class="button button-approval" type="button">
+            Approve
+          </button>
+        </div>
+      </section>
+
+      <section id="trajectory-panel" class="panel" aria-labelledby="trajectory-heading" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="section-index">04</p>
+            <h2 id="trajectory-heading">Tool Trajectory</h2>
+          </div>
+          <span id="tool-count" class="state-label"></span>
+        </div>
+        <div id="tool-trajectory" class="tool-trajectory"></div>
+      </section>
+    </main>
+  </body>
+</html>

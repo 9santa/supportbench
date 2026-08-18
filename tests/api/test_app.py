@@ -1,7 +1,10 @@
+from typing import cast
+
 from fastapi.testclient import (
     TestClient,
 )
 
+from supportbench.api.agent_service import AgentRunService
 from supportbench.api.app import (
     create_app,
 )
@@ -70,6 +73,7 @@ def test_health_and_world_lifecycle() -> None:
     app = create_app(
         runtime_factory=lambda: ApiRuntime(
             world_service=worlds,
+            agent_run_service=cast(AgentRunService, object()),
             close_callbacks=(worlds.close,),
         )
     )
