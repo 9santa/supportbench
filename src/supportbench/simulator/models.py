@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Literal, Any
 from datetime import datetime
+from typing import Any, Literal
 
 type Environment = Literal[
     "production",

@@ -1,7 +1,7 @@
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Mapping
 from types import MappingProxyType
 
 from transformers import AutoTokenizer
@@ -10,6 +10,7 @@ from supportbench.chunking.base import HuggingFaceTokenCodec
 from supportbench.chunking.loaders import load_chunks
 from supportbench.chunking.models import Chunk
 from supportbench.data.loaders import load_documents
+from supportbench.knowledge.techqa import TechQAKnowledgeService
 from supportbench.rag.context import (
     ContextPreparationService,
     EvidenceSelection,
@@ -30,7 +31,6 @@ from supportbench.reranking.cross_encoder import SentenceTransformerCrossEncoder
 from supportbench.retrieval.factory import RetrieverConfig, RetrieverFactory
 from supportbench.retrieval.hybrid import WeightedRetrieverSource
 from supportbench.retrieval.parent_hybrid import ParentAggregation, ParentWeightedRRFHybrid
-from supportbench.knowledge.techqa import TechQAKnowledgeService
 
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"

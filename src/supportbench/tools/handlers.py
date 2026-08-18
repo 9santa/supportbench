@@ -1,5 +1,5 @@
-from typing import Protocol
 from collections.abc import Mapping
+from typing import Protocol
 
 from supportbench.tools.definitions import ToolDefinition
 from supportbench.tools.models import ToolExecutionContext

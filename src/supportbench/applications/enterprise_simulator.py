@@ -1,14 +1,19 @@
 import argparse
 import json
 import os
-from dataclasses import asdict, dataclass
 from collections.abc import Sequence
+from dataclasses import asdict, dataclass
 from typing import cast
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.models import CaseSeverity
+from supportbench.simulator.postgres.lifecycle import (
+    delete_world,
+    reset_world,
+)
 from supportbench.simulator.postgres.seed import seed_scenario
 from supportbench.simulator.postgres.session import (
     build_engine,
@@ -21,12 +26,7 @@ from supportbench.simulator.scenarios import (
     ScenarioName,
     build_scenario,
 )
-from supportbench.simulator.commands import CreateSupportCaseCommand
 from supportbench.simulator.service import EnterpriseService
-from supportbench.simulator.postgres.lifecycle import (
-    reset_world,
-    delete_world,
-)
 from supportbench.tools.enterprise import (
     build_enterprise_tool_handlers,
 )
@@ -34,7 +34,6 @@ from supportbench.tools.gateway import ToolGateway
 from supportbench.tools.policies import (
     build_enterprise_tool_policy_engine,
 )
-
 
 DATABASE_URL_ENV = "SUPPORTBENCH_SIMULATOR_DATABASE_URL"
 DEFAULT_WORLD_ID = "techqa-demo-v1"

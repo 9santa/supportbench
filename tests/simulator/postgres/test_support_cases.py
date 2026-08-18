@@ -1,27 +1,27 @@
 import os
-from datetime import datetime, timezone
-from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 from threading import Barrier
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 
+from supportbench.simulator.commands import (
+    CreateSupportCaseCommand,
+)
 from supportbench.simulator.models import (
     AuditEvent,
     SupportCase,
 )
-from supportbench.simulator.commands import (
-    CreateSupportCaseCommand,
+from supportbench.simulator.postgres.repositories import (
+    PostgresSupportCaseRepository,
 )
 from supportbench.simulator.postgres.schema import (
     audit_events,
     simulator_worlds,
     support_cases,
-)
-from supportbench.simulator.postgres.repositories import (
-    PostgresSupportCaseRepository,
 )
 from supportbench.simulator.postgres.seed import seed_scenario
 from supportbench.simulator.postgres.session import (
@@ -33,7 +33,6 @@ from supportbench.simulator.postgres.unit_of_work import (
 )
 from supportbench.simulator.scenarios import build_scenario
 from supportbench.simulator.service import EnterpriseService
-
 
 pytestmark = pytest.mark.postgres
 
@@ -236,7 +235,7 @@ def test_case_is_rolled_back_when_audit_insert_fails() -> None:
             ),
         )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         support_case = SupportCase(
             world_id=world_id,
@@ -334,7 +333,7 @@ def test_support_case_concurrent_conflict() -> None:
             ),
         )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         case_a = SupportCase(
             world_id=world_id,

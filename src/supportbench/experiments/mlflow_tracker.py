@@ -2,7 +2,6 @@ from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
 from types import ModuleType
-from typing import Any
 
 from supportbench.experiments.base import (
     ExperimentRun,

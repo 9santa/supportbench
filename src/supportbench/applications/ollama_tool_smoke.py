@@ -20,7 +20,6 @@ from supportbench.tools.models import (
     ToolExecutionContext,
 )
 
-
 WORLD_ID = "ollama-tool-smoke"
 
 

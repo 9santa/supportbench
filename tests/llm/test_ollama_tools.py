@@ -2,12 +2,12 @@ import json
 
 import pytest
 
+from supportbench.llm.errors import OllamaProtocolError
 from supportbench.llm.ollama_tools import (
     parse_ollama_chat_response,
     tool_definitions_to_ollama,
     tool_result_to_ollama_message,
 )
-from supportbench.llm.errors import OllamaProtocolError
 from supportbench.tools.definitions import (
     GET_SERVICE_STATUS,
 )

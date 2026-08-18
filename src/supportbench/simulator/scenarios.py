@@ -2,13 +2,13 @@ from dataclasses import dataclass, replace
 from typing import Literal
 
 from supportbench.simulator.models import (
+    Asset,
+    InstalledProduct,
     Product,
     ServiceInstance,
     SimulatorWorld,
-    InstalledProduct,
     User,
     UserEntitlement,
-    Asset,
 )
 
 type ScenarioName = Literal[

@@ -443,12 +443,7 @@ def _default_output_dir(
 
     safe_model_name = model_name.replace("/", "_").replace(":", "_")
 
-    return (
-        PROJECT_ROOT
-        / "artifacts"
-        / "agentbench"
-        / f"{timestamp}-{suite_name}-{safe_model_name}"
-    )
+    return PROJECT_ROOT / "artifacts" / "agentbench" / f"{timestamp}-{suite_name}-{safe_model_name}"
 
 
 def _log_mlflow(
@@ -494,18 +489,9 @@ def _print_summary(
     print(f"successful:             {metrics.successful_cases}")
     print(f"success rate:           {metrics.success_rate:.3f}")
     print(f"execution failures:     {metrics.execution_failures}")
-    print(
-        "required tool calls:    "
-        f"{metrics.mean_required_tool_call_recall:.3f}"
-    )
-    print(
-        "required tool success:  "
-        f"{metrics.mean_required_tool_success_recall:.3f}"
-    )
-    print(
-        "expected tool outcome:  "
-        f"{metrics.mean_required_tool_expected_outcome_recall:.3f}"
-    )
+    print(f"required tool calls:    {metrics.mean_required_tool_call_recall:.3f}")
+    print(f"required tool success:  {metrics.mean_required_tool_success_recall:.3f}")
+    print(f"expected tool outcome:  {metrics.mean_required_tool_expected_outcome_recall:.3f}")
     print(f"mean logical calls:     {metrics.mean_tool_calls:.2f}")
     print(f"mean steps:             {metrics.mean_steps:.2f}")
     print(f"scenario forbidden:     {metrics.forbidden_tool_call_count}")

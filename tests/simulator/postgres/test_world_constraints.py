@@ -18,13 +18,12 @@ from supportbench.simulator.postgres.session import (
     build_engine,
     build_session_factory,
 )
+from supportbench.simulator.postgres.unit_of_work import PostgresUnitOfWork
 from supportbench.simulator.scenarios import (
     build_healthy_scenario,
     build_scenario,
 )
 from supportbench.simulator.service import EnterpriseService
-from supportbench.simulator.postgres.unit_of_work import PostgresUnitOfWork
-
 
 pytestmark = pytest.mark.postgres
 

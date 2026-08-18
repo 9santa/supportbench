@@ -3,13 +3,13 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from supportbench.simulator.postgres.schema import (
+    assets,
+    installed_products,
     products,
     service_instances,
     simulator_worlds,
-    installed_products,
     user_entitlements,
     users,
-    assets,
 )
 from supportbench.simulator.postgres.session import SessionFactory
 from supportbench.simulator.scenarios import ScenarioDefinition

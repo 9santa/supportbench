@@ -1,4 +1,4 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from typing import Protocol
 
 from supportbench.chunking.base import TokenCodec

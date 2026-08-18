@@ -1,12 +1,11 @@
-from hashlib import sha256
 import json
 from collections.abc import Iterable, Mapping, Sequence
+from hashlib import sha256
 
 from supportbench.llm.errors import OllamaProtocolError
 from supportbench.llm.models import AssistantModelTurn
 from supportbench.tools.definitions import ToolDefinition
 from supportbench.tools.models import ToolCall, ToolResult
-
 
 # Ollama's expected structure:
 # type=function

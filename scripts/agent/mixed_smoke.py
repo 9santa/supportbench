@@ -3,7 +3,6 @@ import os
 from uuid import uuid4
 
 from scripts._paths import PROJECT_ROOT
-
 from supportbench.applications.enterprise_simulator import (
     build_enterprise_simulator,
 )
@@ -32,7 +31,6 @@ from supportbench.tools.policies import (
     ENTERPRISE_READ_PERMISSION,
     SUPPORT_DOCS_READ_PERMISSION,
 )
-
 
 SYSTEM_PROMPT = """
 You are the SupportBench enterprise support agent.

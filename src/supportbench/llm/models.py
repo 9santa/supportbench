@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 from supportbench.tools.models import ToolCall
 

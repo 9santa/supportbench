@@ -1,15 +1,15 @@
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     MetaData,
     String,
     Table,
-    Boolean,
-    ForeignKeyConstraint,
-    DateTime,
-    UniqueConstraint,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 

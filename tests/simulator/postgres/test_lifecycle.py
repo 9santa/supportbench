@@ -1,16 +1,16 @@
 import os
 from uuid import uuid4
-from sqlalchemy import select
 
 import pytest
+from sqlalchemy import select
 
 from supportbench.simulator.commands import CreateSupportCaseCommand
-from supportbench.simulator.postgres.lifecycle import reset_world, delete_world
+from supportbench.simulator.postgres.lifecycle import delete_world, reset_world
+from supportbench.simulator.postgres.schema import audit_events, support_cases
 from supportbench.simulator.postgres.seed import seed_scenario
 from supportbench.simulator.postgres.session import build_engine, build_session_factory
-from supportbench.simulator.scenarios import build_scenario
-from supportbench.simulator.postgres.schema import support_cases, audit_events
 from supportbench.simulator.postgres.unit_of_work import PostgresUnitOfWork
+from supportbench.simulator.scenarios import build_scenario
 from supportbench.simulator.service import EnterpriseService
 
 

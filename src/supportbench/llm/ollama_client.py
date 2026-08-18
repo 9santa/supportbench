@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 from collections.abc import Mapping, Sequence
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen

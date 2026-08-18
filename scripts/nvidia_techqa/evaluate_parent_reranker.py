@@ -3,12 +3,20 @@ import json
 from pathlib import Path
 
 from scripts._paths import PROJECT_ROOT
-from scripts.experiments.tracking import resolve_tracker
+from scripts.experiments.tracking import (
+    add_tracking_arguments,
+    resolve_tracker,
+)
 from supportbench.chunking.loaders import load_chunk_parent_ids
 from supportbench.data.loaders import load_documents, load_queries
 from supportbench.evaluation.parent_document import UniqueParentDocumentRetriever
 from supportbench.evaluation.retrieval_evaluator import evaluate_retriever
 from supportbench.experiments.evaluation_export import export_query_evaluations
+from supportbench.experiments.fingerprints import (
+    read_git_state,
+    sha256_file,
+)
+from supportbench.experiments.metrics import retrieval_metrics
 from supportbench.reranking.factory import CrossEncoderConfig, RerankingFactory
 from supportbench.reranking.parent import ParentEvidenceRerankingRetriever
 from supportbench.retrieval.cached import cache_retriever_results
@@ -18,16 +26,6 @@ from supportbench.retrieval.parent_hybrid import (
     ParentCandidateChunkRetriever,
     ParentWeightedRRFHybrid,
 )
-from scripts.experiments.tracking import (
-    add_tracking_arguments,
-    resolve_tracker,
-)
-from supportbench.experiments.fingerprints import (
-    read_git_state,
-    sha256_file,
-)
-from supportbench.experiments.metrics import retrieval_metrics
-
 
 DEFAULT_CHUNK_CONFIG = "ha384o64m512r2v2"
 

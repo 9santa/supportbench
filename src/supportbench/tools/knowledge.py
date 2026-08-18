@@ -7,17 +7,17 @@ from pydantic import (
     field_validator,
 )
 
-from supportbench.knowledge.protocols import SupportKnowledgeService
 from supportbench.knowledge.errors import (
     SupportChunkNotFoundError,
     SupportDocumentNotFoundError,
 )
-from supportbench.tools.exception_mapping import ToolExceptionMapper
+from supportbench.knowledge.protocols import SupportKnowledgeService
 from supportbench.tools.definitions import ToolDefinition
+from supportbench.tools.exception_mapping import ToolExceptionMapper
 from supportbench.tools.handlers import ToolHandler
 from supportbench.tools.models import (
-    ToolExecutionContext,
     ToolErrorInfo,
+    ToolExecutionContext,
 )
 
 
