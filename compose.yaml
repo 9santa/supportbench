@@ -12,11 +12,15 @@ services:
       SUPPORTBENCH_SIMULATOR_DB_USER: ${SUPPORTBENCH_SIMULATOR_DB_USER}
       SUPPORTBENCH_SIMULATOR_DB_PASSWORD: ${SUPPORTBENCH_SIMULATOR_DB_PASSWORD}
 
+      MLFLOW_DB: ${MLFLOW_DB}
+      MLFLOW_DB_USER: ${MLFLOW_DB_USER}
+      MLFLOW_DB_PASSWORD: ${MLFLOW_DB_PASSWORD}
+
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT}:5432"
 
     volumes:
-      - mlflow_postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
@@ -77,6 +81,63 @@ services:
       timeout: 5s
       retries: 20
 
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+
+    command:
+      - alembic
+      - upgrade
+      - head
+
+    environment:
+      SUPPORTBENCH_SIMULATOR_DATABASE_URL: >-
+        postgresql+psycopg://${SUPPORTBENCH_SIMULATOR_DB_USER}:${SUPPORTBENCH_SIMULATOR_DB_PASSWORD}@postgres:5432/${SUPPORTBENCH_SIMULATOR_DB}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+
+    environment:
+      SUPPORTBENCH_PROJECT_ROOT: /app
+
+      SUPPORTBENCH_SIMULATOR_DATABASE_URL: >-
+        postgresql+psycopg://${SUPPORTBENCH_SIMULATOR_DB_USER}:${SUPPORTBENCH_SIMULATOR_DB_PASSWORD}@postgres:5432/${SUPPORTBENCH_SIMULATOR_DB}
+
+      SUPPORTBENCH_OLLAMA_BASE_URL: http://host.docker.internal:11434
+
+      SUPPORTBENCH_AGENT_MODEL: ${SUPPORTBENCH_AGENT_MODEL:-qwen3:4b}
+      SUPPORTBENCH_MODEL_TOKENIZER: Qwen/Qwen3-4B
+
+      SUPPORTBENCH_DENSE_DEVICE: cpu
+      SUPPORTBENCH_RERANKER_DEVICE: cpu
+
+      SUPPORTBENCH_AGENT_THINK: "true"
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    volumes:
+      - ./data/nvidia_techqa:/app/data/nvidia_techqa:ro
+      - ./artifacts/nvidia_techqa:/app/artifacts/nvidia_techqa:ro
+      - huggingface_cache:/root/.cache/huggingface
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
 volumes:
-  mlflow_postgres_data:
+  postgres_data:
   mlflow_artifacts:
+  huggingface_cache:

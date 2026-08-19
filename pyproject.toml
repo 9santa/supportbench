@@ -12,7 +12,6 @@ authors = [
     { name = "9santa"}
 ]
 dependencies = [
-    "jinja2>=3.1,<4",
     "numpy",
     "torch",
     "PyYAML",
@@ -38,6 +37,11 @@ simulator = [
     "psycopg[binary]>=3,<4",
     "alembic>=1.16,<2",
     "pydantic",
+]
+api = [
+    "jinja2>=3.1,<4",
+    "fastapi",
+    "uvicorn[standard]",
 ]
 
 

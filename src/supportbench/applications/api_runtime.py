@@ -33,6 +33,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 def build_api_runtime() -> ApiRuntime:
     database_url = _required_env("SUPPORTBENCH_SIMULATOR_DATABASE_URL")
+    project_root = _project_root()
 
     model_name = _resolve_agent_model()
 
@@ -64,8 +65,8 @@ def build_api_runtime() -> ApiRuntime:
 
     try:
         retrieval_config = NvidiaTechQAContextConfig(
-            chunks_root=(PROJECT_ROOT / "data" / "nvidia_techqa" / "chunks"),
-            index_root=(PROJECT_ROOT / "artifacts" / "nvidia_techqa" / "indexes"),
+            chunks_root=(project_root / "data" / "nvidia_techqa" / "chunks"),
+            index_root=(project_root / "artifacts" / "nvidia_techqa" / "indexes"),
             context_tokenizer_name=tokenizer_name,
             dense_device=dense_device,
             reranker_device=reranker_device,
@@ -156,6 +157,18 @@ def _resolve_agent_model() -> str:
         return base
 
     return "qwen3:4b"
+
+
+def _project_root() -> Path:
+    override = os.environ.get(
+        "SUPPORTBENCH_PROJECT_ROOT",
+        "",
+    ).strip()
+
+    if override:
+        return Path(override).expanduser().resolve()
+
+    return PROJECT_ROOT
 
 
 def _required_env(

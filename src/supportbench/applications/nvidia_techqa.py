@@ -55,6 +55,7 @@ class NvidiaTechQAContextConfig:
     dense_model_name: str = DEFAULT_DENSE_MODEL
     reranker_model_name: str = DEFAULT_RERANKER_MODEL
     context_tokenizer_name: str = DEFAULT_GENERATION_TOKENIZER
+    local_files_only: bool = False
     dense_device: str = "cuda"
     reranker_device: str = "cpu"
     dense_batch_size: int = 16
@@ -229,7 +230,7 @@ def build_nvidia_techqa_knowledge_service(
 
     tokenizer = AutoTokenizer.from_pretrained(
         config.context_tokenizer_name,
-        local_files_only=True,
+        local_files_only=config.local_files_only,
     )
 
     return TechQAKnowledgeService(
@@ -253,7 +254,7 @@ def build_nvidia_techqa_context_service(
 
     context_tokenizer = AutoTokenizer.from_pretrained(
         config.context_tokenizer_name,
-        local_files_only=True,
+        local_files_only=config.local_files_only,
     )
 
     prompt_builder = GroundedPromptBuilder(layout=FROZEN_PROMPT_LAYOUT)
