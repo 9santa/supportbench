@@ -46,7 +46,8 @@ def main() -> None:
 
     parser.add_argument(
         "--dense-device",
-        default="cpu",
+        default="cuda",
+        choices=("cpu", "cuda"),
     )
 
     parser.add_argument(
@@ -118,7 +119,7 @@ def download_sources(
             corpus_path,
         )
 
-    # Existing normalizer expects a ZIP containing train.json.
+    # Existing normalizer expects a ZIP containing train.json
     if force or not dataset_zip.exists():
         with ZipFile(
             dataset_zip,
